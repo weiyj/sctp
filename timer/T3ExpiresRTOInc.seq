@@ -1,0 +1,220 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$RTO = $SCTP::CONF{"RTO_INITIAL"};
+$RTO_MAX = $SCTP::CONF{"RTO_MAX"};
+$ASSOC_MAX_RETRANS = $SCTP::CONF{"ASSOCIATION_MAX_RETRANS"};
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+# Start Receive First Data
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$stime = $ret{"recvTime".$ret{"recvCount"}};
+$count = 0;
+
+while ($count < $ASSOC_MAX_RETRANS) {
+	# Don't send SACK, Data will be retransmitted after RTO
+	%ret = vWarpRecv($IF0, $RTO + 5, 0, 0, sctp_chunk_data_rcv);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML("ERROR: The retransmit T3-rxt time received:$gap, but expected: $RTO<BR>");
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+
+	$etime = $ret{"recvTime".$ret{"recvCount"}};
+	$gap = $etime - $stime;
+
+	if (!sctpTimeFuzzyEqual($gap, $RTO, $SCTP::CONF{"TIME_PREC"})) {
+		# We got a bad time
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML("ERROR: The retransmit T3-rxt time received:$gap, but expected: $RTO<BR>");
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+
+	vLogHTML("OK: The retransmit T3-rxt timer received:$gap, expected: $RTO<BR>");
+
+	last if ($RTO == $RTO_MAX);
+
+	$stime = $etime;
+	$RTO = $RTO * 2; # back off the timer
+	$RTO = $RTO_MAX if ($RTO > $RTO_MAX);
+	$count++;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T3ExpiresRTOInc.seq - RTO is updated correctly if T3-rxt timer expires for a DATA message
+
+=head1 PURPOSE
+
+  To check that if T3-rxt expires on a destination address then the
+  value of RTO is updated correctly for that address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T3ExpiresRTOInc.seq">./T3ExpiresRTOInc.seq</A> [-tooloption ...] -pkt <A HREF="./T3ExpiresRTOInc.def">./T3ExpiresRTOInc.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A such that SACK is not sent for the data received from
+  endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Send
+                <----------------       DATA
+                                        (Start T3-rtx timer)
+                                          |
+                                          | T3-rtx timer expired
+                                          |
+                <----------------       DATA
+                                          |
+                                          | T3-rtx timer expired
+                                          |
+                <----------------       DATA
+                                          .
+                                          . Retransmit x
+                                          . times
+  TEST DESCRIPTION:
+
+  1. Attempt to send DATA from endpoint B to A. Don't send SACK from A.
+     Let the timer T3-rxt expire. DATA will be retransmitted. Note the
+     timer. Don't send SACK for the retransmitted DATA. T3-rxt will be 
+     expired again and again DATA will be retransmitted. 
+     Record the messages using a signal emulator.
+  2. Check A: Value of the T3-rxt is updated correctly. 
+
+=head1 NOTE
+
+  1. If configure of ASSOC_MAX_RETRANS is not lager enough, test will exit
+     even if RTO is not up to RTO_MAX.
+  2. If the retransmit time is 0.5s less or greater than RTO, do accept it
+     because we can not exactly calculate it.
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.3.3.  Handle T3-rtx Expiration
+
+    Whenever the retransmission timer T3-rtx expires for a destination
+    address, do the following:
+
+    E1)  For the destination address for which the timer expires, adjust
+         its ssthresh with rules defined in Section 7.2.3 and set the
+         cwnd <- MTU.
+
+=begin html
+<PRE>
+    <B>E2)  For the destination address for which the timer expires, set RTO
+         <- RTO * 2 ("back off the timer").  The maximum value discussed
+         in rule C7 above (RTO.max) may be used to provide an upper bound
+         to this doubling operation.</B>
+</PRE>
+
+=end html
+
+    E3)  Determine how many of the earliest (i.e., lowest TSN)
+         outstanding DATA chunks for the address for which the T3-rtx has
+         expired will fit into a single packet, subject to the MTU
+         constraint for the path corresponding to the destination
+         transport address to which the retransmission is being sent
+         (this may be different from the address for which the timer
+         expires; see Section 6.4).  Call this value K.  Bundle and
+         retransmit those K DATA chunks in a single packet to the
+         destination endpoint.
+
+    E4)  Start the retransmission timer T3-rtx on the destination address
+         to which the retransmission is sent, if rule R1 above indicates
+         to do so.  The RTO to be used for starting T3-rtx should be the
+         one for the destination address to which the retransmission is
+         sent, which, when the receiver is multi-homed, may be different
+         from the destination address for which the timer expired (see
+         Section 6.4 below).
+

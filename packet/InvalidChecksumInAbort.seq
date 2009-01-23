@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_abort_bad_csum	=> "Send SCTP CHUNK_ABORT (with Invalid Checksum)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_abort_bad_csum);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Receive unexpected SCTP CHUNK_ANY<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InvalidChecksumInAbort.seq - ABORT chunk is received with invalid checksum
+
+=head1 PURPOSE
+
+  To check that is ABORT chunk is received with invalid checksum, the
+  endpoint should silently discards the ABORT.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InvalidChecksumInAbort.seq">./InvalidChecksumInAbort.seq</A> [-tooloption ...] -pkt <A HREF="./InvalidChecksumInAbort.def">./InvalidChecksumInAbort.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange
+  data in endpoint A such that ABORT message is send to endpoint
+  B with invalid checksum.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ABORT         ----------------->     Silently discard
+  (with invalid checksum)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. Send ABORT 
+     message with wrong CRC-32 checksum.
+     Record the message sequence using a signal emulator.
+  2. Check A: ABORT message is silently discarded and no other actions
+     are taken. 
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  1.5.6.  Packet Validation
+
+=begin html
+<PRE>
+    A mandatory Verification Tag field and a 32-bit checksum field (see
+    Appendix B for a description of the CRC32c checksum) are included in
+    the SCTP common header.  The Verification Tag value is chosen by each
+    end of the association during association startup.  Packets received
+    without the expected Verification Tag value are discarded, as a
+    protection against blind masquerade attacks and against stale SCTP
+    packets from a previous association.  The CRC32c checksum should be
+    set by the sender of each SCTP packet to provide additional
+    protection against data corruption in the network.  <B>The receiver of
+    an SCTP packet with an invalid CRC32c checksum silently discards the
+    packet.</B>
+</PRE>
+
+=end html
+

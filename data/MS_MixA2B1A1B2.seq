@@ -1,0 +1,298 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_a1	=> "Send SCTP CHUNK_DATA (A1)",
+	sctp_chunk_sack_a1	=> "Recv SCTP CHUNK_SACK (A1)",
+	sctp_chunk_data_a2	=> "Send SCTP CHUNK_DATA (A2)",
+	sctp_chunk_sack_a2	=> "Recv SCTP CHUNK_SACK (A2)",
+	sctp_chunk_data_b1	=> "Send SCTP CHUNK_DATA (B1)",
+	sctp_chunk_sack_b1	=> "Recv SCTP CHUNK_SACK (B1)",
+	sctp_chunk_data_b2	=> "Send SCTP CHUNK_DATA (B2)",
+	sctp_chunk_sack_b2	=> "Recv SCTP CHUNK_SACK (B2)",
+	sctp_chunk_data_r1	=> "Recv SCTP CHUNK_DATA (R1)",
+	sctp_chunk_sack_r1	=> "Send SCTP CHUNK_SACK (R1)",
+	sctp_chunk_data_r2	=> "Recv SCTP CHUNK_DATA (R2)",
+	sctp_chunk_sack_r2	=> "Send SCTP CHUNK_SACK (R2)",
+	sctp_chunk_data_r3	=> "Recv SCTP CHUNK_DATA (R3)",
+	sctp_chunk_sack_r3	=> "Send SCTP CHUNK_SACK (R3)",
+	sctp_chunk_data_r4	=> "Recv SCTP CHUNK_DATA (R4)",
+	sctp_chunk_sack_r4	=> "Send SCTP CHUNK_SACK (R4)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartEchoServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+# Send A2
+sctpUpdateSendTSN();
+
+vSend($IF0, sctp_chunk_data_a2);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_a2);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_a2) {
+	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# Send B1
+sctpUpdateSendTSN();
+sctpUpdateRecvACK();
+
+vSend($IF0, sctp_chunk_data_b1);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_b1, sctp_chunk_data_r3);
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_sack_b1) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_r3);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_r3) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+	vSend($IF0, sctp_chunk_sack_r3);
+} elsif ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_data_r3) {
+	vSend($IF0, sctp_chunk_sack_r3);
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_b1);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_b1) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+} else {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# Send A1
+sctpUpdateSendTSN();
+sctpUpdateRecvACK();
+
+vSend($IF0, sctp_chunk_data_a1);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_a1, sctp_chunk_data_r1);
+if ($ret{status} != 0) {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_sack_a1) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_r1);
+}
+
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_r1) {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_r1);
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_a1, sctp_chunk_data_r2);
+if ($ret{status} != 0) {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_sack_a1) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_r2);
+}
+
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_r2) {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_r2);
+
+# Send B2
+sctpUpdateSendTSN();
+sctpUpdateRecvACK();
+
+vSend($IF0, sctp_chunk_data_b2);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_b2, sctp_chunk_data_r4);
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_sack_b2) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_r4);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_r4) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+	vSend($IF0, sctp_chunk_sack_r4);
+} elsif ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_data_r4) {
+	vSend($IF0, sctp_chunk_sack_r4);
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_b2);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_b2) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+} else {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  MS_MixA2B1A1B2.seq - Multi-Stream Ordered Data chunks are received for Re-order(A2->B1->A1->B2)
+
+=head1 PURPOSE
+
+  To check that if DATA chunks arrive out of order of their stream
+  sequence number, the endpoint MUST hold the received DATA chunks
+  from delivery to the ULP until they are re-ordered.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./MS_MixA2B1A1B2.seq">./MS_MixA2B1A1B2.seq</A> [-tooloption ...] -pkt <A HREF="./MS_Segment.def">./MS_Segment.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that multi-stream and ordered DATA messages are
+  sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA A2      ---------------->
+  [Strm=0, Seq=1]
+               <----------------        SACK
+
+  DATA B1      ---------------->
+  [Strm=1, Seq=0]
+               <----------------        SACK
+                                        DATA B1 Arrive       ----->
+               <----------------        DATA R3 (ECHO of B1) 
+
+  SACK         ---------------->
+
+  DATA A1      ---------------->
+  [Strm=0, Seq=0]
+               <----------------        SACK
+                                        DATA A1, A2 Arrive       ----->
+               <----------------        DATA R1 (ECHO of A1) 
+
+  SACK         ---------------->
+
+               <----------------        DATA R2 (ECHO of A2) 
+
+  SACK         ---------------->
+
+  DATA B2      ---------------->
+  [Strm=1, Seq=1]
+               <----------------        SACK
+                                        DATA B2 Arrive       ----->
+               <----------------        DATA R4 (ECHO of B2) 
+
+  SACK         ---------------->
+
+  TEST DESCRIPTION:
+
+  1. Send DATA A2 from endpoint A to B with Strm=0 and Seq=1.
+  2. Check A: DATA A2 is not delivered to the ULP.
+  3. Send DATA B1 from endpoint A to B with Strm=0 and Seq=0.
+  4. Check B: DATA B1 is delivered to the ULP and be send back.
+  5. Send DATA A1 from endpoint A to B with Strm=0 and Seq=0.
+  6. Check C: DATA A1 and A2 is delivered to the ULP and be send back.
+  7. Send DATA B2 from endpoint A to B with Strm=0 and Seq=1.
+  8. Check D: DATA B2 is delivered to the ULP and be send back.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.6.  Ordered and Unordered Delivery
+
+=begin html
+<PRE>
+    Within a stream, an endpoint MUST deliver DATA chunks received with
+    the U flag set to 0 to the upper layer according to the order of
+    their Stream Sequence Number.  If DATA chunks arrive out of order of
+    their Stream Sequence Number, the endpoint MUST hold the received
+    DATA chunks from delivery to the ULP until they are reordered.
+</PRE>
+
+=end html
+
+    However, an SCTP endpoint can indicate that no ordered delivery is
+    required for a particular DATA chunk transmitted within the stream by
+    setting the U flag of the DATA chunk to 1.
+

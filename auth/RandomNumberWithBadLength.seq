@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_random_bad_len	=> "Send SCTP CHUNK_INIT (with Random Number is not 32 bytes)",
+	sctp_chunk_abort_bad_len	=> "Recv SCTP CHUNK_ABORT (Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vSend($IF0, sctp_chunk_init_random_bad_len);
+$SCTP::CONF{'SNDTSN'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort_bad_len);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_abort_bad_len') {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  RandomNumberWithBadLength.seq - The association MUST be aborted if the Random Number is not 32 bytes
+
+=head1 PURPOSE
+
+  To verify that if the Random Number is not 32 bytes, the association
+  MUST be aborted.  The ABORT chunk SHOULD contain the error cause 
+  'Protocol Violation'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./RandomNumberWithBadLength.seq">./RandomNumberWithBadLength.seq</A> [-tooloption ...] -pkt <A HREF="./RandomNumberWithBadLength.def">./RandomNumberWithBadLength.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the 
+  data in endpoint B such that INIT message with Random parameter is sent
+  from endpoint A to B. The Random parameter in that parameter is not
+  32 bytes.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (CLOSED)                               (CLOSED)
+
+    INIT          ------------------>
+    (with Random Number is not 32 bytes)
+                  <------------------  ABORT
+                                       (Protocol Violation Error Cause)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. Send INIT
+     message with Random parameter. The Random parameter in that parameter
+     is not 32 bytes.
+  2. Check A: ABORT should be received at endpoint A. And Error cause in
+     ABORT is set to "Protocol Violation".
+  3. Check B: That parameter is skipped and INIT-ACK is received at 
+     endpoint A if Random Parameter is not yet supported in endpoint or
+     this parameter can not be process correctly.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  6.1.  Establishment of an Association Shared Key
+
+=begin html
+<PRE>
+    An SCTP endpoint willing to receive or send authenticated chunks MUST
+    send one RANDOM parameter in its INIT or INIT-ACK chunk.  The RANDOM
+    parameter MUST contain a 32-byte Random Number.  The Random Number
+    should be generated in accordance with RFC 4086 [7].  <B>If the Random
+    Number is not 32 bytes, the association MUST be aborted.  The ABORT
+    chunk SHOULD contain the error cause 'Protocol Violation'.</B>  In case
+    of INIT collision, the rules governing the handling of this Random
+    Number follow the same pattern as those for the Verification Tag, as
+    explained in Section 5.2.4 of RFC 2960 [5].  Therefore, each endpoint
+    knows its own Random Number and the peer's Random Number after the
+    association has been established.
+</PRE>
+
+=end html
+
+    An SCTP endpoint has a list of chunks it only accepts if they are
+    received in an authenticated way.  This list is included in the INIT
+    and INIT-ACK, and MAY be omitted if it is empty.  Since this list
+    does not change during the lifetime of the SCTP endpoint there is no
+    problem in case of INIT collision.
+
+    Each SCTP endpoint MUST include in the INIT and INIT-ACK a HMAC-ALGO
+    parameter containing a list of HMAC Identifiers it requests the peer
+    to use.  The receiver of an HMAC-ALGO parameter SHOULD use the first
+    listed algorithm it supports.  The HMAC algorithm based on SHA-1 MUST
+    be supported and included in the HMAC-ALGO parameter.  An SCTP
+    endpoint MUST NOT change the parameters listed in the HMAC-ALGO
+    parameter during the lifetime of the endpoint.
+
+    Both endpoints of an association MAY have endpoint pair shared keys
+    that are byte vectors and pre-configured or established by another
+    mechanism.  They are identified by the Shared Key Identifier.  For
+    each endpoint pair shared key, an association shared key is computed.
+    If there is no endpoint pair shared key, only one association shared
+    key is computed by using an empty byte vector as the endpoint pair
+    shared key.
+
+    The RANDOM parameter, the CHUNKS parameter, and the HMAC-ALGO
+    parameter sent by each endpoint are concatenated as byte vectors.
+    These parameters include the parameter type, parameter length, and
+    the parameter value, but padding is omitted; all padding MUST be
+    removed from this concatenation before proceeding with further
+    computation of keys.  Parameters that were not sent are simply
+    omitted from the concatenation process.  The resulting two vectors
+    are called the two key vectors.
+
+    From the endpoint pair shared keys and the key vectors, the
+    association shared keys are computed.  This is performed by selecting
+    the numerically smaller key vector and concatenating it to the
+    endpoint pair shared key, and then concatenating the numerically
+    larger key vector to that.  If the key vectors are equal as numbers
+    but differ in length, then the concatenation order is the endpoint
+    shared key, followed by the shorter key vector, followed by the
+    longer key vector.  Otherwise, the key vectors are identical, and may
+    be concatenated to the endpoint pair key in any order.  The
+    concatenation is performed on byte vectors, and all numerical
+    comparisons use network byte order to convert the key vectors to a
+    number.  The result of the concatenation is the association shared
+    key.
+

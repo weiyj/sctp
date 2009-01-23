@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+#
+# Copyright (C) 2007, 2008, 2009 Fujitsu Limited. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of version 2 of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Further, this software is distributed without any warranty that it is
+# free of the rightful claim of any third person regarding infringement
+# or the like.  Any license provided herein, whether implied or
+# otherwise, applies only to this software file.  Patent licenses, if
+# any, provided herein do not apply to combinations of this program with
+# other software, or any other product whatsoever.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write the Free Software Foundation, Inc., 59
+# Temple Place - Suite 330, Boston MA 02111-1307, USA.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_bund	=> "Send SCTP CHUNK_INIT (Bunding with DATA)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_bund);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_ack_rcv);
+if($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_init_ack_rcv) {
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('CHUNK_INIT does not discarded<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vConnect($IF0);
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  BundInitAndData.seq - INIT chunk is received bundled with DATA chunk
+
+=head1 PURPOSE
+
+  To check that if INIT chunk is received bundled with DATA chunk then
+  endpoint should discard the INIT chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./BundInitAndData.seq">./BundInitAndData.seq</A> [-tooloption ...] -pkt <A HREF="./BundInitAndData.def">./BundInitAndData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint A such that INIT chunk bundled with DATA chunk is sent
+  to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  INIT             ---------------->   Discard the Datagram
+  (data chunk multiplexed)
+  INIT             ---------------->
+
+                   <----------------   INIT-ACK
+
+  COOKIE-ECHO      ---------------->
+                                       COOKIE-ACK  
+                                       Communication Up  -------->
+  DATA             ---------------->
+
+                   <----------------    SACK
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. Send INIT
+     message multiplexed with data chunk. INIT chunk should be first 
+     chunk in the packet.
+  2. Check A: Whole packet will be discarded and no action will be taken.
+  3. Check B: Endpoint B remains in the CLOSED state.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.10.  Bundling
+
+    An endpoint bundles chunks by simply including multiple chunks in one
+    outbound SCTP packet.  The total size of the resultant IP datagram,
+
+    including the SCTP packet and IP headers, MUST be less that or equal
+    to the current Path MTU.
+
+    If its peer endpoint is multi-homed, the sending endpoint shall
+    choose a size no larger than the latest MTU of the current primary
+    path.
+
+    When bundling control chunks with DATA chunks, an endpoint MUST place
+    control chunks first in the outbound SCTP packet.  The transmitter
+    MUST transmit DATA chunks within an SCTP packet in increasing order
+    of TSN.
+
+    Note: Since control chunks must be placed first in a packet and since
+    DATA chunks must be transmitted before SHUTDOWN or SHUTDOWN ACK
+    chunks, DATA chunks cannot be bundled with SHUTDOWN or SHUTDOWN ACK
+    chunks.
+
+    Partial chunks MUST NOT be placed in an SCTP packet.  A partial chunk
+    is a chunk that is not completely contained in the SCTP packet; i.e.,
+    the SCTP packet is too short to contain all the bytes of the chunk as
+    indicated by the chunk length.
+
+    An endpoint MUST process received chunks in their order in the
+    packet.  The receiver uses the Chunk Length field to determine the
+    end of a chunk and beginning of the next chunk taking account of the
+    fact that all chunks end on a 4-byte boundary.  If the receiver
+    detects a partial chunk, it MUST drop the chunk.
+
+    An endpoint MUST NOT bundle INIT, INIT ACK, or SHUTDOWN COMPLETE with
+    any other chunks.
+

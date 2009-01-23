@@ -1,0 +1,169 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_error	=> "Send SCTP CHUNK_ERROR",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_error);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ErrorInShutPend.seq - ERROR chunk is received in SHUTDOWN-PENDING state
+
+=head1 PURPOSE
+
+  To check that if ERROR chunk is received in COOKIE-WAIT state then the
+  endpoint should discarded the ERROR chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ErrorInShutPend.seq">./ErrorInShutPend.seq</A> [-tooloption ...] -pkt <A HREF="./ErrorInShutPend.def">./ErrorInShutPend.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association established between endpoint A and B. Also arrange the data
+  in endpoint B such that upper layers send Terminate primitive to
+  terminate an association with endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                <-----------------      DATA
+                                                   <-----    Terminate
+  ERROR         ----------------->      Discarded
+
+                <-----------------      DATA
+                                        (retransmit)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to terminate an association from endpoint B to endpoint A.
+     Send ERROR message after receiving DATA message.
+  2. Check A: ERROR message received in SHUTDOWN-PENDING state is discarded.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.  Operation Error (ERROR) (9)
+
+    An endpoint sends this chunk to its peer endpoint to notify it of
+    certain error conditions.  It contains one or more error causes.  An
+    Operation Error is not considered fatal in and of itself, but may be
+    used with an ABORT chunk to report a fatal condition.  It has the
+    following parameters:
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |   Type = 9    | Chunk  Flags  |           Length              |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        \                                                               \
+        /                    one or more Error Causes                   /
+        \                                                               \
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    Chunk Flags: 8 bits
+
+      Set to 0 on transmit and ignored on receipt.
+
+    Length: 16 bits (unsigned integer)
+
+      Set to the size of the chunk in bytes, including the chunk header
+      and all the Error Cause fields present.
+

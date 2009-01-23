@@ -1,0 +1,194 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartEchoServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSendMsg($IF0);
+vRecvMsg($IF0);
+
+vSendMsg($IF0);
+vRecvMsg($IF0);
+
+vSendMsg($IF0);
+vRecvMsg($IF0);
+
+vSendMsg($IF0);
+vRecvMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  UnorderDelivery.seq - Unordered Data chunks are received for Delivery
+
+=head1 PURPOSE
+
+  To check that if receiver deliver data to the upper layer 
+  according to the order it receives data.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./UnorderDelivery.seq">./UnorderDelivery.seq</A> [-tooloption ...] -pkt <A HREF="./UnorderDelivery.def">./UnorderDelivery.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data in
+  endpoint A such that unordered DATA messages are sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA 1        ----------------->
+                                            --------->DATA 1 Delivered
+                <-----------------   SACK
+ 
+                <-----------------   DATA
+
+  SACK          ----------------->
+
+  DATA 2        ----------------->
+                                            --------->DATA 2 Delivered
+                <-----------------   SACK
+ 
+                <-----------------   DATA
+
+  SACK          ----------------->
+
+  DATA 3        ----------------->
+                                            --------->DATA 3 Delivered
+                <-----------------   SACK
+ 
+                <-----------------   DATA
+
+  SACK          ----------------->
+
+  DATA 4        ----------------->
+                                            --------->DATA 4 Delivered
+                <-----------------   SACK
+ 
+                <-----------------   DATA
+
+  SACK          ----------------->
+
+  TEST DESCRIPTION:
+
+  1. To check that if DATA chunks arriving out of order of there stream 
+     sequence number the receiver transfer the received DATA chunks to 
+     upper layer as they are received.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.6.  Ordered and Unordered Delivery
+
+    Within a stream, an endpoint MUST deliver DATA chunks received with
+    the U flag set to 0 to the upper layer according to the order of
+    their Stream Sequence Number.  If DATA chunks arrive out of order of
+    their Stream Sequence Number, the endpoint MUST hold the received
+    DATA chunks from delivery to the ULP until they are reordered.
+
+    However, an SCTP endpoint can indicate that no ordered delivery is
+    required for a particular DATA chunk transmitted within the stream by
+    setting the U flag of the DATA chunk to 1.
+
+=begin html
+<PRE>
+    <B>When an endpoint receives a DATA chunk with the U flag set to 1, it
+    must bypass the ordering mechanism and immediately deliver the data
+    to the upper layer (after reassembly if the user data is fragmented
+    by the data sender).</B>
+</PRE>
+
+=end html
+
+    This provides an effective way of transmitting "out-of-band" data in
+    a given stream.  Also, a stream can be used as an "unordered" stream
+    by simply setting the U flag to 1 in all DATA chunks sent through
+    that stream.
+
+    IMPLEMENTATION NOTE: When sending an unordered DATA chunk, an
+    implementation may choose to place the DATA chunk in an outbound
+    packet that is at the head of the outbound transmission queue if
+    possible.
+
+    The 'Stream Sequence Number' field in a DATA chunk with U flag set to
+    1 has no significance.  The sender can fill it with arbitrary value,
+    but the receiver MUST ignore the field.
+
+    Note: When transmitting ordered and unordered data, an endpoint does
+    not increment its Stream Sequence Number when transmitting a DATA
+    chunk with U flag set to 1.
+

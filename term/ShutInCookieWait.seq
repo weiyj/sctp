@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 15, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchInitField(\%ret);
+
+vSend($IF0, sctp_chunk_shutdown_snd);
+
+%ret = vWarpRecv($IF0, 15, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchInitField(\%ret);
+
+vSend($IF0, sctp_chunk_init_ack_snd);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ShutInCookieWait.seq - SHUTDOWN chunk is received in COOKIE-WAIT State
+
+=head1 PURPOSE
+
+  To check that if a SHUTDOWN is received in the COOKIE-WAIT state, the
+  SHUTDOWN chunk SHOULD be silently discarded.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ShutInCookieWait.seq">./ShutInCookieWait.seq</A> [-tooloption ...] -pkt <A HREF="./ShutInCookieWait.def">./ShutInCookieWait.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that SHUTDOWN message is sent to endpoint B
+  after receiving INIT message from it.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                            <-------- Associate
+                   <----------------    INIT
+                                          (Start T1-Init timer)
+   SHUTDOWN        ----------------->   Discard SHUTDOWN message
+                                          T1-Init timer expires
+                   <----------------    INIT
+
+  TEST DESCRIPTION:
+
+  1. Try to create an association between endpoint A and B by sending
+     INIT message. Send SHUTDOWN message from the other endpoint.
+     Record the message sequence using an emulator. 
+  2. Check A: SHUTDOWN message is silently discarded. 
+  3. Check B: After expiry of T1-Init timer INIT message is transmitted 
+     again.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  9.2.  Shutdown of an Association
+
+=begin html
+<PRE>
+    If a SHUTDOWN is received in the COOKIE-WAIT or COOKIE ECHOED state,
+    the SHUTDOWN chunk SHOULD be silently discarded.
+</PRE>
+
+=end html
+
+    If an endpoint is in the SHUTDOWN-SENT state and receives a SHUTDOWN
+    chunk from its peer, the endpoint shall respond immediately with a
+    SHUTDOWN ACK to its peer, and move into the SHUTDOWN-ACK-SENT state
+    restarting its T2-shutdown timer.
+
+    If an endpoint is in the SHUTDOWN-ACK-SENT state and receives a
+    SHUTDOWN ACK, it shall stop the T2-shutdown timer, send a SHUTDOWN
+    COMPLETE chunk to its peer, and remove all record of the association.
+

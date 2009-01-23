@@ -1,0 +1,536 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#ifndef __IP_COMMON_DEF_
+#define __IP_COMMON_DEF_	1
+
+#include "sctpconf.def"
+#include "IP_COMMON.def"
+
+#define PING_ID	0xffff
+#define PING_SN	0x0001
+
+#define SCTP6_TN_NET0_ADDR	tn2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+#define SCTP6_TN_NET1_ADDR	tn2v6(_GLOBAL1_UCAST_PRFX,_GLOBAL1_UCAST_PRFXLEN,"Link1")
+#define SCTP6_NUT_NET0_ADDR	nut2v6(_GLOBAL0_UCAST_PRFX,_GLOBAL0_UCAST_PRFXLEN,"Link0")
+#define SCTP6_NUT_NET1_ADDR	nut2v6(_GLOBAL1_UCAST_PRFX,_GLOBAL1_UCAST_PRFXLEN,"Link1")
+
+#if ENABLE_IPV6
+
+#define SCTP_TN_NET0_ADDR	SCTP6_TN_NET0_ADDR
+#define SCTP_TN_NET1_ADDR	SCTP6_TN_NET1_ADDR
+#define SCTP_NUT_NET0_ADDR	SCTP6_NUT_NET0_ADDR
+#define SCTP_NUT_NET1_ADDR	SCTP6_NUT_NET1_ADDR
+
+#else
+
+#define SCTP_TN_NET0_ADDR	v4(SCTP4_TN_NET0_ADDR)
+#define SCTP_TN_NET1_ADDR	v4(SCTP4_TN_NET1_ADDR)
+#define SCTP_NUT_NET0_ADDR	v4(SCTP4_NUT_NET0_ADDR)
+#define SCTP_NUT_NET1_ADDR	v4(SCTP4_NUT_NET1_ADDR)
+
+#endif
+
+_HETHER_define(_HETHER_nut2local,  nutether(), oneof(_ETHER_SOLNODE_MCAST(tnv6()), tnether()))
+
+//
+// ICMP echo request
+//
+
+FEM_icmp6_echo_request(
+	echo_request_on_link0,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET0_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data8;
+	}
+)
+
+//
+// ICMP echo reply
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_on_link0,
+	_HETHER_nut2tn,
+	{
+		_SRC(SCTP6_NUT_NET0_ADDR);
+		_DST(SCTP6_TN_NET0_ADDR);
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data8;
+	}
+)
+
+//
+// Neighbor Solicitation
+//
+FEM_icmp6_ns(
+	ns_on_link0,
+	_HETHER_nut2local,
+	{
+		_SRC(nutv6());
+		_DST(oneof(tnv6(),_IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = tnv6();
+		option = _SLLOPT_nut;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_on_link0_gl,
+	_HETHER_nut2local,
+	{
+		_SRC(oneof(nutv6(),SCTP6_NUT_NET0_ADDR));
+		_DST(oneof(SCTP6_TN_NET0_ADDR, tnv6(), _IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = SCTP6_TN_NET0_ADDR;
+		option = _SLLOPT_nut;
+	}
+)
+
+//
+// Neighbor Advertisement
+//
+FEM_icmp6_na(
+	na_on_link0,
+	_HETHER_tn2nut,
+	{
+		_SRC(tnv6());
+		_DST(nutv6());
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = tnv6();
+		option = _TLLOPT_tn;
+	}
+)
+
+FEM_icmp6_na(
+	na_on_link0_gl,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET0_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = SCTP6_TN_NET0_ADDR;
+		option = _TLLOPT_tn;
+	}
+)
+
+//
+// ICMP echo request
+//
+
+FEM_icmp6_echo_request(
+	echo_request_on_link1,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET1_ADDR);
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data8;
+	}
+)
+
+//
+// ICMP echo reply
+//
+
+FEM_icmp6_echo_reply(
+	echo_reply_on_link1,
+	_HETHER_nut2tn,
+	{
+		_SRC(SCTP6_NUT_NET1_ADDR);
+		_DST(SCTP6_TN_NET1_ADDR);
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data8;
+	}
+)
+
+//
+// Neighbor Solicitation
+//
+FEM_icmp6_ns(
+	ns_on_link1,
+	_HETHER_nut2local,
+	{
+		_SRC(nutv6());
+		_DST(oneof(tnv6(),_IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = tnv6();
+		option = _SLLOPT_nut;
+	}
+)
+
+FEM_icmp6_ns(
+	ns_on_link1_gl,
+	_HETHER_nut2local,
+	{
+		_SRC(oneof(nutv6(),SCTP6_NUT_NET1_ADDR));
+		_DST(oneof(SCTP6_TN_NET1_ADDR, tnv6(), _IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = SCTP6_TN_NET1_ADDR;
+		option = _SLLOPT_nut;
+	}
+)
+
+//
+// Neighbor Advertisement
+//
+FEM_icmp6_na(
+	na_on_link1,
+	_HETHER_tn2nut,
+	{
+		_SRC(tnv6());
+		_DST(nutv6());
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = tnv6();
+		option = _TLLOPT_tn;
+	}
+)
+
+FEM_icmp6_na(
+	na_on_link1_gl,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET1_ADDR);
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = SCTP6_TN_NET1_ADDR;
+		option = _TLLOPT_tn;
+	}
+)
+
+//
+// Neighbor Solicitation
+//
+FEM_icmp6_ns(
+	ns_on_link0_to_link1,
+	_HETHER_nut2local,
+	{
+		_SRC(oneof(nutv6(),SCTP6_NUT_NET0_ADDR));
+		_DST(oneof(SCTP6_TN_NET1_ADDR, tnv6(), _IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = SCTP6_TN_NET1_ADDR;
+		option = _SLLOPT_nut;
+	}
+)
+
+//
+// Neighbor Advertisement
+//
+FEM_icmp6_na(
+	na_on_link1_to_link0,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = SCTP6_TN_NET1_ADDR;
+		option = _TLLOPT_tn;
+	}
+)
+
+//
+// Neighbor Solicitation
+//
+FEM_icmp6_ns(
+	ns_on_link1_to_link0,
+	_HETHER_nut2local,
+	{
+		_SRC(oneof(nutv6(),SCTP6_NUT_NET1_ADDR));
+		_DST(oneof(SCTP6_TN_NET0_ADDR, tnv6(), _IPV6_SOLNODE_MCAST(tnv6())));
+		HopLimit = 255;
+	},
+	{
+		TargetAddress = SCTP6_TN_NET0_ADDR;
+		option = _SLLOPT_nut;
+	}
+)
+
+//
+// Neighbor Advertisement
+//
+FEM_icmp6_na(
+	na_on_link0_to_link1,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET0_ADDR);
+		_DST(SCTP6_NUT_NET1_ADDR);
+		HopLimit = 255;
+	},
+	{
+		SFlag = 1;
+		OFlag = 1;
+		TargetAddress = SCTP6_TN_NET0_ADDR;
+		option = _TLLOPT_tn;
+	}
+)
+
+Payload echo_data8 {
+	data = {1,2,3,4,5,6,7,8};
+}
+
+_HETHER_define(_HETHER_nut2local4,  nutether(), oneof(ether("ff:ff:ff:ff:ff:ff"), tnether()))
+
+//
+// ICMP echo request
+//
+
+FEM_icmp4_echo_request(
+	echo4_request_on_link0,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET0_ADDR));
+		_DST(v4(SCTP4_NUT_NET0_ADDR));
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data24;
+	}
+)
+
+//
+// ICMP echo reply
+//
+
+FEM_icmp4_echo_reply(
+	echo4_reply_on_link0,
+	_HETHER_nut2tn,
+	{
+		_SRC(v4(SCTP4_NUT_NET0_ADDR));
+		_DST(v4(SCTP4_TN_NET0_ADDR));
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data24;
+	}
+)
+
+//
+// ARP request
+//
+FEM_hdr_arp(
+	arp_request_on_link0,
+	_HETHER_nut2local4,
+	{
+		SenderPAddr = v4(SCTP4_NUT_NET0_ADDR);
+		SenderHAddr = nutether();
+		TargetPAddr = v4(SCTP4_TN_NET0_ADDR);
+		TargetHAddr = ether("00:00:00:00:00:00");
+	}
+)
+
+//
+// ARP reply
+//
+FEM_hdr_arp(
+	arp_reply_on_link0,
+	_HETHER_tn2nut,
+	{
+		SenderPAddr = v4(SCTP4_TN_NET0_ADDR);
+		TargetPAddr = v4(SCTP4_NUT_NET0_ADDR);
+		TargetHAddr = nutether();
+	}
+)
+
+//
+// ICMP echo request
+//
+
+FEM_icmp4_echo_request(
+	echo4_request_on_link1,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET1_ADDR));
+		_DST(v4(SCTP4_NUT_NET1_ADDR));
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data24;
+	}
+)
+
+//
+// ICMP echo reply
+//
+
+FEM_icmp4_echo_reply(
+	echo4_reply_on_link1,
+	_HETHER_nut2tn,
+	{
+		_SRC(v4(SCTP4_NUT_NET1_ADDR));
+		_DST(v4(SCTP4_TN_NET1_ADDR));
+	},
+	{
+		Identifier = PING_ID;
+		SequenceNumber = PING_SN;
+		payload = echo_data24;
+	}
+)
+
+//
+// ARP request
+//
+FEM_hdr_arp(
+	arp_request_on_link1,
+	_HETHER_nut2local4,
+	{
+		SenderPAddr = v4(SCTP4_NUT_NET1_ADDR);
+		SenderHAddr = nutether();
+		TargetPAddr = v4(SCTP4_TN_NET1_ADDR);
+		TargetHAddr = ether("00:00:00:00:00:00");
+	}
+)
+
+//
+// ARP reply
+//
+FEM_hdr_arp(
+	arp_reply_on_link1,
+	_HETHER_tn2nut,
+	{
+		SenderPAddr = v4(SCTP4_TN_NET1_ADDR);
+		TargetPAddr = v4(SCTP4_NUT_NET1_ADDR);
+		TargetHAddr = nutether();
+	}
+)
+
+//
+// ARP request
+//
+FEM_hdr_arp(
+	arp_request_link0_to_link1,
+	_HETHER_nut2local,
+	{
+		SenderPAddr = v4(SCTP4_NUT_NET0_ADDR);
+		SenderHAddr = nutether();
+		TargetPAddr = v4(SCTP4_TN_NET1_ADDR);
+		TargetHAddr = ether("00:00:00:00:00:00");
+	}
+)
+
+//
+// ARP reply
+//
+FEM_hdr_arp(
+	arp_reply_link1_to_link0,
+	_HETHER_tn2nut,
+	{
+		SenderPAddr = v4(SCTP4_TN_NET1_ADDR);
+		TargetPAddr = v4(SCTP4_NUT_NET0_ADDR);
+		TargetHAddr = nutether();
+	}
+)
+
+//
+// ARP request
+//
+FEM_hdr_arp(
+	arp_request_link1_to_link0,
+	_HETHER_nut2local,
+	{
+		SenderPAddr = v4(SCTP4_NUT_NET1_ADDR);
+		SenderHAddr = nutether();
+		TargetPAddr = v4(SCTP4_TN_NET0_ADDR);
+		TargetHAddr = ether("00:00:00:00:00:00");
+	}
+)
+
+//
+// ARP reply
+//
+FEM_hdr_arp(
+	arp_reply_link0_to_link1,
+	_HETHER_tn2nut,
+	{
+		SenderPAddr = v4(SCTP4_TN_NET0_ADDR);
+		TargetPAddr = v4(SCTP4_NUT_NET1_ADDR);
+		TargetHAddr = nutether();
+	}
+)
+
+Payload echo_data24 {
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+	data = { 0x45, 0x63, 0x68, 0x6f, 0x44, 0x61, 0x74, 0x61};
+}
+
+#endif

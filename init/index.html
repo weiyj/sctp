@@ -1,0 +1,164 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Association Initialization</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Association Initialization</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:48</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:48</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Normal Establishment of an Association</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./NormalInitClient.html">Normal Association of SCTP Client</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./NormalInitClient.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./NormalInitClient.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./NormalInitServer.html">Normal Association of SCTP Server</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./NormalInitServer.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./NormalInitServer.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Missing Mandatory parameter</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./InitWithParamMissing.html">INIT chunk is received with mandatory parameter missing</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithParamMissing.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithParamMissing.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./InitAckWithParamMissing.html">INIT-ACK chunk is received with mandatory parameter missing</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithParamMissing.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithParamMissing.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Stream Parameters</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./InitStreamMismatch.html">INIT chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitStreamMismatch.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitStreamMismatch.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./InitZeroStream.html">INIT chunk is received with Outbound Stream and Inbound Stream parameters set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitZeroStream.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitZeroStream.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./InitAckStreamMismatch.html">INIT-ACK chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckStreamMismatch.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckStreamMismatch.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./InitAckZeroStream.html">INIT-ACK chunk is received with Outbound Stream and Inbound Stream parameters set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckZeroStream.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckZeroStream.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle IP Address Parameter</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./InitWithoutAddr.html">INIT chunk is received with no address parameters present</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithoutAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithoutAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./InitWithOneAddr.html">INIT chunk is received with one address parameter</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithOneAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithOneAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./InitWithMoreAddr.html">INIT chunk is received with more than one address parameters</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithMoreAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithMoreAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./InitWithMultiAddrType.html">INIT chunk is received with both IPv4 and IPv6 addresses</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithMultiAddrType.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithMultiAddrType.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./InitAckWithoutAddr.html">INIT-ACK chunk is received with no address parameters present</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithoutAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithoutAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./InitAckWithOneAddr.html">INIT-ACK chunk is received with one address parameter</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithOneAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithOneAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./InitAckWithMoreAddr.html">INIT-ACK chunk is received with more than one address parameters</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithMoreAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithMoreAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./InitAckWithMultiAddrType.html">INIT-ACK chunk is received with both IPv4 and IPv6 addresses</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithMultiAddrType.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithMultiAddrType.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Cookie Preservative Parameter</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./InitWithCookiePre.html">INIT chunk is received with cookie preservative parameter (cookie life time expired)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithCookiePre.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithCookiePre.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./InitWithCookiePre2.html">INIT chunk is received with cookie preservative parameter (cookie life time not expire)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithCookiePre2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithCookiePre2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Host Name Address Parameter</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./InitBadHostName.html">INIT chunk is received with Unresolvable Host Name Address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="19.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitBadHostName.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitBadHostName.def">X</A></TD><TD ALIGN="CENTER"><A HREF="19.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./InitAckBadHostName.html">INIT-ACK chunk is received with Unresolvable Host Name Address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="20.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckBadHostName.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckBadHostName.def">X</A></TD><TD ALIGN="CENTER"><A HREF="20.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Supported Address Types Parameter</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./InitSuppIPv4Addr.html">INIT chunk is received with Supported Address Field containing only IPv4 Address type</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="21.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppIPv4Addr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppIPv4Addr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="21.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./InitSuppIPv6Addr.html">INIT chunk is received with Supported Address Field containing only IPv6 Address type</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="22.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppIPv6Addr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppIPv6Addr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="22.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>23</TD><TD><A HREF="./InitSuppBothAddrType.html">INIT chunk is received with Supported Address Field containing both IPv4 And IPv6 address types</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="23.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppBothAddrType.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitSuppBothAddrType.def">X</A></TD><TD ALIGN="CENTER"><A HREF="23.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>24</TD><TD><A HREF="./InitBadSuppAddrType.html">INIT chunk is received with Supported Address Type which the receiver is incapable of using</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="24.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitBadSuppAddrType.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitBadSuppAddrType.def">X</A></TD><TD ALIGN="CENTER"><A HREF="24.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>State Cookie Authentication</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>25</TD><TD><A HREF="./CookieEchoBadMD5.html">COOKIE-ECHO chunk is received with wrong MD5 signature</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="25.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoBadMD5.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoBadMD5.def">X</A></TD><TD ALIGN="CENTER"><A HREF="25.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>26</TD><TD><A HREF="./CookieEchoExpired.html">COOKIE-ECHO chunk is received with life time expired</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="26.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoExpired.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoExpired.def">X</A></TD><TD ALIGN="CENTER"><A HREF="26.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>27</TD><TD><A HREF="./CookieEchoValid.html">COOKIE-ECHO chunk is received with life time not expire</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="27.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoValid.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoValid.def">X</A></TD><TD ALIGN="CENTER"><A HREF="27.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Duplicate or unexpected INIT, INIT ACK, COOKIE ECHO, and COOKIE ACK</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR><TD><BR></TD><TD>Duplicate INIT Message in COOKIE-WAIT or COOKIE-ECHOED State</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>28</TD><TD><A HREF="./DupInitInCookieWait.html">Duplicate INIT chunk is received in COOKIE-WAIT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="28.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieWait.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieWait.def">X</A></TD><TD ALIGN="CENTER"><A HREF="28.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>29</TD><TD><A HREF="./DupInitInCookieWait2.html">Duplicate INIT chunk is received in COOKIE-WAIT state (MUST NOT change state)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="29.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieWait2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieWait2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="29.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>30</TD><TD><A HREF="./DupInitInCookieEchoed.html">Duplicate INIT chunk is received in COOKIE-ECHOED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="30.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieEchoed.def">X</A></TD><TD ALIGN="CENTER"><A HREF="30.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>31</TD><TD><A HREF="./DupInitInCookieEchoed2.html">Duplicate INIT chunk is received in COOKIE-ECHOED state (MUST NOT change state)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="31.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieEchoed2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInCookieEchoed2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="31.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Unexpected INIT in Other States</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>32</TD><TD><A HREF="./DupInitInEstab.html">Unexpected INIT chunk is received in ESTABLISHED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="32.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInEstab.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInEstab.def">X</A></TD><TD ALIGN="CENTER"><A HREF="32.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>33</TD><TD><A HREF="./DupInitInShutSend.html">Unexpected INIT chunk is received in SHUTDOWN-SENT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="33.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="33.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>34</TD><TD><A HREF="./DupInitInShutRecv.html">Unexpected INIT chunk is received in SHUTDOWN-RECEIVED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="34.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitInShutRecv.def">X</A></TD><TD ALIGN="CENTER"><A HREF="34.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Unexpected INIT-ACK</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>35</TD><TD><A HREF="./DupInitAckInCookieEchoed.html">Unexpected INIT-ACK chunk is received in COOKIE-ECHOED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="35.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInCookieEchoed.def">X</A></TD><TD ALIGN="CENTER"><A HREF="35.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>36</TD><TD><A HREF="./DupInitAckInEstab.html">Unexpected INIT-ACK chunk is received in ESTABLISHED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="36.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInEstab.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInEstab.def">X</A></TD><TD ALIGN="CENTER"><A HREF="36.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>37</TD><TD><A HREF="./DupInitAckInShutSend.html">Unexpected INIT-ACK chunk is received in SHUTDOWN-SENT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="37.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="37.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>38</TD><TD><A HREF="./DupInitAckInShutRecv.html">Unexpected INIT-ACK chunk is received in SHUTDOWN-RECEIVED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="38.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutRecv.def">X</A></TD><TD ALIGN="CENTER"><A HREF="38.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>39</TD><TD><A HREF="./DupInitAckInShutAckSend.html">Unexpected INIT-ACK chunk is received in SHUTDOWN-ACK-SENT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="39.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutAckSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupInitAckInShutAckSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="39.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Handle a COOKIE ECHO when a TCB exists</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>40</TD><TD><A HREF="./DupCookieEchoBadMD5.html">Duplicate COOKIE-ECHO chunk is received with wrong MD5 signature</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="40.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieEchoBadMD5.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieEchoBadMD5.def">X</A></TD><TD ALIGN="CENTER"><A HREF="40.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>41</TD><TD><A HREF="./RestartModeA.html">COOKIE ECHO chunk is received when a TCB exists (Case A)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="41.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeA.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeA.def">X</A></TD><TD ALIGN="CENTER"><A HREF="41.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>42</TD><TD><A HREF="./RestartModeB.html">COOKIE ECHO chunk is received when a TCB exists (Case B)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="42.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeB.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeB.def">X</A></TD><TD ALIGN="CENTER"><A HREF="42.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>43</TD><TD><A HREF="./RestartModeD.html">COOKIE ECHO chunk is received when a TCB exists (Case D)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="43.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeD.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeD.def">X</A></TD><TD ALIGN="CENTER"><A HREF="43.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>44</TD><TD><A HREF="./RestartModeE.html">COOKIE ECHO chunk is received when a TCB exists (Case E)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="44.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeE.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RestartModeE.def">X</A></TD><TD ALIGN="CENTER"><A HREF="44.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Duplicate COOKIE-ACK</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>45</TD><TD><A HREF="./DupCookieAckInCookieWait.html">Duplicate COOKIE-ACK chunk is received in COOKIE-WAIT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="45.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInCookieWait.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInCookieWait.def">X</A></TD><TD ALIGN="CENTER"><A HREF="45.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>46</TD><TD><A HREF="./DupCookieAckInEstab.html">Duplicate COOKIE-ACK chunk is received in ESTABLISHED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="46.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInEstab.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInEstab.def">X</A></TD><TD ALIGN="CENTER"><A HREF="46.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>47</TD><TD><A HREF="./DupCookieAckInShutSend.html">Duplicate COOKIE-ACK chunk is received in SHUTDOWN-SENT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="47.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="47.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>48</TD><TD><A HREF="./DupCookieAckInShutRecv.html">Duplicate COOKIE-ACK chunk is received in SHUTDOWN-RECEIVED state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="48.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutRecv.def">X</A></TD><TD ALIGN="CENTER"><A HREF="48.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>49</TD><TD><A HREF="./DupCookieAckInShutAckSend.html">Duplicate COOKIE-ACK chunk is received in SHUTDOWN-ACK-SENT state</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="49.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutAckSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DupCookieAckInShutAckSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="49.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI>RFC4960: Association Initialization</LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- c27a6e599a818647b565d0ec5246540e -->

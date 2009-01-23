@@ -1,0 +1,6 @@
+2008/04/22 REL_2_0_0 release.
+  Rewrite Test Frame and all the test case to support for
+  test on more system, such as FreeBSD.
+
+2007/10/10 REL_1_0_0 release.
+  Support SCTP Conformance Test for RFC2960 and RFC4460.

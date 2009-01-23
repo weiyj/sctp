@@ -1,0 +1,91 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+#
+########################################################################
+&print:<B>Abort of an Association</B>
+./AbortWithNoError.seq:./AbortWithNoError.def:::Termination of an association by receiving ABORT with no error cause
+./AbortWithOneError.seq:./AbortWithOneError.def:::Termination of an association by receiving ABORT with one error cause
+./AbortWithErrors.seq:./AbortWithErrors.def:::Termination of an association by receiving ABORT with more error causes
+./AbortFromULP.seq:./AbortFromULP.def:::Termination of an association by receiving Abort primitive from upper layers
+
+########################################################################
+&print:<B>Shutdown of an Association</B>
+./ShutdownFromULP.seq:./ShutdownFromULP.def:::Termination of an association by receiving Terminate primitive from upper layers
+./ShutdownFromPeer.seq:./ShutdownFromPeer.def:::Termination of an association by receiving SHUTDOWN message
+
+########################################################################
+&print:<B>Handle ABORT in Other States</B>
+./AbortInCookieWait.seq:./AbortInCookieWait.def:::ABORT chunk is received in COOKIE-WAIT State
+./AbortInCookieEchoed.seq:./AbortInCookieEchoed.def:::ABORT chunk is received in COOKIE-ECHOED State
+./AbortInEstab.seq:./AbortInEstab.def:::ABORT chunk is received in ESTABLISHED State
+./AbortInShutPend.seq:./AbortInShutPend.def:::ABORT chunk is received in SHUTDOWN-PENDING State
+./AbortInShutSend.seq:./AbortInShutSend.def:::ABORT chunk is received in SHUTDOWN-SENT State
+./AbortInShutRecv.seq:./AbortInShutRecv.def:::ABORT chunk is received in SHUTDOWN-RECEIVED State
+./AbortInShutAckSend.seq:./AbortInShutAckSend.def:::ABORT chunk is received in SHUTDOWN-ACK-SENT State
+
+########################################################################
+&print:<B>Handle SHUTDOWN in ESTABLISHED State</B>
+./ShutInEstab1.seq:./ShutInEstab1.def:::Stop accepting new data from its SCTP user in SHUTDOWN-RECEIVED State
+./ShutInEstab2.seq:./ShutInEstab2.def:::SHUTDOWN MUST NOT be send in SHUTDOWN-RECEIVED State
+
+########################################################################
+&print:<B>Handle SHUTDOWN in Other States</B>
+./ShutInCookieWait.seq:./ShutInCookieWait.def:::SHUTDOWN chunk is received in COOKIE-WAIT State
+./ShutInCookieEchoed.seq:./ShutInCookieEchoed.def:::SHUTDOWN chunk is received in COOKIE-ECHOED State
+./ShutInShutPend.seq:./ShutInShutPend.def:::SHUTDOWN chunk is received in SHUTDOWN-PENDING State
+./ShutInShutSend.seq:./ShutInShutSend.def:::SHUTDOWN chunk is received in SHUTDOWN-SENT State
+./ShutInShutRecv.seq:./ShutInShutRecv.def:::SHUTDOWN chunk is received in SHUTDOWN-RECEIVED State
+
+########################################################################
+&print:<B>Handle SHUTDOWN-ACK in Other States</B>
+./ShutAckInCookieWait.seq:./ShutAckInCookieWait.def:::SHUTDOWN-ACK chunk is received in COOKIE-WAIT State
+./ShutAckInCookieEchoed.seq:./ShutAckInCookieEchoed.def:::SHUTDOWN-ACK chunk is received in COOKIE-ECHOED State
+./ShutAckInShutAckSend.seq:./ShutAckInShutAckSend.def:::SHUTDOWN-ACK chunk is received in SHUTDOWN-ACK-SENT State
+
+########################################################################
+&print:<B>Handle DATA in SHUTDOWN-SENT State</B>
+./DataInShutSend.seq:./DataInShutSend.def:::DATA chunk is received in SHUTDOWN-SENT State
+./DataWithDupInShutSend.seq:./DataWithDupInShutSend.def:::DATA chunk is received with duplicate TSNs in SHUTDOWN-SENT State
+./DataWithGapInShutSend.seq:./DataWithGapInShutSend.def:::DATA chunk is received with gaps exist in SHUTDOWN-SENT State
+
+########################################################################
+&print:<B>Cumulative TSN Ack point</B>
+./ShutWithNotSendTSN.seq:./ShutWithNotSendTSN.def:::SHUTDOWN is received with TSN greater than the Cumulative TSN Ack point
+./ShutWithCTSN.seq:./ShutWithCTSN.def:::SHUTDOWN is received with TSN equal to the Cumulative TSN Ack point
+

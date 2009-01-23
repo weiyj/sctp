@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_shut_ack_and_cookie_ack_ootb	=> "Send SCTP CHUNK_SHUTDOWN_ACK and CHUNK_COOKIE_ACK",
+	sctp_chunk_shutdown_complete_ootb	=> "Recv SCTP CHUNK_SHUTDOWN_COMPLETE",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_shut_ack_and_cookie_ack_ootb);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_complete_ootb);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_complete_ootb) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_COMPLETE<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  BundShutAckAndCookieAck.seq - SHUTDOWN-ACK chunk is received bundled with COOKIE-ACK chunk
+
+=head1 PURPOSE
+
+  None
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./BundShutAckAndCookieAck.seq">./BundShutAckAndCookieAck.seq</A> [-tooloption ...] -pkt <A HREF="./BundShutAckAndCookieAck.def">./BundShutAckAndCookieAck.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  None
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Associate
+  SHUTDOWN-ACK  ----------------->
+  (bundled with COOKIE-ACK)
+                <----------------       SHUTDOWN-COMPLETE
+
+  TEST DESCRIPTION:
+
+  None
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  8.4.  Handle "Out of the Blue" Packets
+
+=begin html
+<PRE>
+    <B>5)  If the packet contains a SHUTDOWN ACK chunk, the receiver should
+        respond to the sender of the OOTB packet with a SHUTDOWN
+        COMPLETE.  When sending the SHUTDOWN COMPLETE, the receiver of
+        the OOTB packet must fill in the Verification Tag field of the
+        outbound packet with the Verification Tag received in the
+        SHUTDOWN ACK and set the T bit in the Chunk Flags to indicate
+        that the Verification Tag is reflected.  Otherwise,</B>
+</PRE>
+
+=end html
+
+    6)  If the packet contains a SHUTDOWN COMPLETE chunk, the receiver
+        should silently discard the packet and take no further action.
+        Otherwise,
+
+=begin html
+<PRE>
+    <B>7)  If the packet contains a "Stale Cookie" ERROR or a COOKIE ACK,
+        the SCTP packet should be silently discarded.  Otherwise,</B>
+</PRE>
+
+=end html
+

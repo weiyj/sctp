@@ -1,0 +1,241 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_abort		=> "Recv SCTP CHUNK_ABORT",
+	sctp_chunk_shutdown_and_ack	=> "Recv SCTP CHUNK_SHUTDOWN bundling with SCTP CHUNK_SACK",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$RTO_MAX = $SCTP::CONF{"RTO_MAX"};
+$ASSOC_MAX_RETRANS = $SCTP::CONF{"ASSOCIATION_MAX_RETRANS"};
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_shutdown_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$stime = $ret{"recvTime".$ret{"recvCount"}};
+$etime = $stime;
+
+while ($etime < ($stime + $RTO_MAX * 6)) {
+	%ret = vWarpRecv($IF0, $RTO_MAX + 5, 0, 0, sctp_chunk_shutdown_rcv, sctp_chunk_abort);
+	if($ret{status} != 0 || ($ret{recvFrame} ne 'sctp_chunk_shutdown_rcv' && $ret{recvFrame} ne 'sctp_chunk_abort')) {
+		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+	$etime = $ret{"recvTime".$ret{"recvCount"}};
+
+	if($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_abort') {
+		$gap = $etime - $stime;
+		if (!sctpTimeFuzzyEqual($gap, $RTO_MAX * 5, 5)) {
+			vLogHTML("ERROR: The T2-shutdown-guard timer expires after: " . int($gap + 5) . "ms, but expected: " . ($RTO_MAX * 5) . "ms<BR>");
+			vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+			exit $V6evalTool::exitFail;
+		} else {
+			vLogHTML("OK: The T2-shutdown-guard timer expires after: " . int($gap + 5) . "ms, expected: " . ($RTO_MAX * 5) . "ms<BR>");
+			vLogHTML(OK);
+			exit $V6evalTool::exitPass;
+		}
+	}
+
+	last if ($etime > ($stime + $RTO_MAX * 6));
+
+	sctpUpdateSendTSN();
+	vSend($IF0, sctp_chunk_data_snd);
+	%ret = vWarpRecv($IF0, $RTO_MAX + 5, 0, 0, sctp_chunk_shutdown_rcv, sctp_chunk_shutdown_and_ack, sctp_chunk_sack_rcv);
+	if($ret{status} != 0) {
+		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+	if($ret{recvFrame} eq 'sctp_chunk_sack_rcv') {
+		%ret = vWarpRecv($IF0, $RTO_MAX + 5, 0, 0, sctp_chunk_shutdown_rcv);
+		if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_shutdown_rcv') {
+			vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+			vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+			exit $V6evalTool::exitFail;
+		}
+	} elsif ($ret{recvFrame} eq 'sctp_chunk_shutdown_rcv') {
+		%ret = vWarpRecv($IF0, $RTO_MAX + 5, 0, 0, sctp_chunk_sack_rcv);
+		if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_rcv') {
+			vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+			vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+			exit $V6evalTool::exitFail;
+		}
+	}
+}
+
+vSend($IF0, sctp_chunk_shutdown_ack_snd);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_shutdown_complete_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_complete_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_COMPLETE<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}	
+
+vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+exit $V6evalTool::exitFail;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T5ShutdownGuardExpires.seq - Abort the association by sending an ABORT chunk if T5-shutdown-guard timer expires
+
+=head1 PURPOSE
+
+  To check that at the expiration of T5-shutdown-guard timer, the sender SHOULD
+  abort the association by sending an ABORT chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T5ShutdownGuardExpires.seq">./T5ShutdownGuardExpires.seq</A> [-tooloption ...] -pkt <A HREF="./T5ShutdownGuardExpires.def">./T5ShutdownGuardExpires.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the
+  data in endpoint A such that no SHUTDOWN ACK is sent in response
+  to SHUTDOWN. 
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Terminate
+                <-----------------      SHUTDOWN
+                                           |
+                                           | T2-Shutdown
+                                           | Timer
+                                           |
+                <-----------------      SHUTDOWN
+
+  DATA          ----------------->
+
+                <-----------------      SACK
+
+                <-----------------      SHUTDOWN
+                                           |
+                                           | T2-Shutdown
+                                           | Timer
+                                           |
+                <-----------------      SHUTDOWN
+
+  DATA          ----------------->
+
+                <-----------------      SACK
+
+                <-----------------      SHUTDOWN
+                                           .
+                                           . Retransmit x
+                                           .  times
+                <-----------------      ABORT
+
+  TEST DESCRIPTION:
+
+  1. Try to terminate an association between endpoint A and endpoint B by 
+     sending SHUTDOWN message from endpoint B.Don't send the SHUTDOWN-ACK 
+     from the endpoint A.
+  2. Check A: SHUTDOWN message is transmitted again if T2-shutdown timer
+     expires.
+  3. Send DATA message from the endpoint A.
+  4. SACK chunk and SHUTDOWN chunk is send immediately to the endpoint A.
+  5. Check B: Repeat step 3~4 some times, at the expiration of T5-shutdown-guard, 
+     timer, the sender SHOULD abort the association by sending an ABORT chunk.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  9.2.  Shutdown of an Association
+
+=begin html
+<PRE>
+    <B>The sender of the SHUTDOWN MAY also start an overall guard timer
+    'T5-shutdown-guard' to bound the overall time for the shutdown
+    sequence.  At the expiration of this timer, the sender SHOULD abort
+    the association by sending an ABORT chunk.  If the 'T5-shutdown-
+    guard' timer is used, it SHOULD be set to the recommended value of 5
+    times 'RTO.Max'.</B>
+</PRE>
+
+=end html
+
+    If the receiver of the SHUTDOWN has no more outstanding DATA chunks,
+    the SHUTDOWN receiver MUST send a SHUTDOWN ACK and start a T2-
+    shutdown timer of its own, entering the SHUTDOWN-ACK-SENT state.  If
+    the timer expires, the endpoint must resend the SHUTDOWN ACK.
+

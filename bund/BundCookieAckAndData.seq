@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_cookie_ack_bund	=> "Send SCTP CHUNK_COOKIE_ACK (Bunding with DATA)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_cookie_echo_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_cookie_echo_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ECHO<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_cookie_ack_bund);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  BundCookieAckAndData.seq - COOKIE-ACK chunk is received bundled with DATA chunk as the first chunk
+
+=head1 PURPOSE
+
+  To check that if COOKIE-ACK received bundled with data chunks as first
+  chunk then the endpoint should accept this message.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./BundCookieAckAndData.seq">./BundCookieAckAndData.seq</A> [-tooloption ...] -pkt <A HREF="./BundCookieAckAndData.def">./BundCookieAckAndData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint A such that COOKIE-ACK chunk bundled with DATA chunk
+  is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Associate
+                <-----------------      INIT
+
+  INIT-ACK      ----------------->
+
+                <-----------------      COOKIE-ECHO
+
+  COOKIE-ACK    ----------------->
+  (data chunk multiplexed)
+                <-----------------      SACK
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint B to endpoint A.
+     Send COOKIE-ACK message from endpoint A bundled with data chunks 
+     with COOKIE-ACK as the first chunk. In response to COOKIE-ECHO.
+  2. Check A: COOKIE-ACK is accepted and association is established. 
+  3. Check B: SACK is received at endpoint A. 
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.10.  Bundling
+
+    An endpoint bundles chunks by simply including multiple chunks in one
+    outbound SCTP packet.  The total size of the resultant IP datagram,
+
+    including the SCTP packet and IP headers, MUST be less that or equal
+    to the current Path MTU.
+
+    If its peer endpoint is multi-homed, the sending endpoint shall
+    choose a size no larger than the latest MTU of the current primary
+    path.
+
+    When bundling control chunks with DATA chunks, an endpoint MUST place
+    control chunks first in the outbound SCTP packet.  The transmitter
+    MUST transmit DATA chunks within an SCTP packet in increasing order
+    of TSN.
+
+    Note: Since control chunks must be placed first in a packet and since
+    DATA chunks must be transmitted before SHUTDOWN or SHUTDOWN ACK
+    chunks, DATA chunks cannot be bundled with SHUTDOWN or SHUTDOWN ACK
+    chunks.
+
+    Partial chunks MUST NOT be placed in an SCTP packet.  A partial chunk
+    is a chunk that is not completely contained in the SCTP packet; i.e.,
+    the SCTP packet is too short to contain all the bytes of the chunk as
+    indicated by the chunk length.
+
+    An endpoint MUST process received chunks in their order in the
+    packet.  The receiver uses the Chunk Length field to determine the
+    end of a chunk and beginning of the next chunk taking account of the
+    fact that all chunks end on a 4-byte boundary.  If the receiver
+    detects a partial chunk, it MUST drop the chunk.
+
+    An endpoint MUST NOT bundle INIT, INIT ACK, or SHUTDOWN COMPLETE with
+    any other chunks.
+

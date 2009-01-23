@@ -1,0 +1,147 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_cookie_echo_ootb	=> "Send SCTP CHUNK_ECHO (OOTB Packet)",
+	sctp_chunk_abort_ootb		=> "Recv SCTP CHUNK_ABORT",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_cookie_echo_ootb);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort_ootb);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_ootb) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  OOTB_CookieEchoChunk.seq - COOKIE-ECHO chunk is received from an address with which endpoint has no association
+
+=head1 PURPOSE
+
+  To check that if COOKIE-ECHO packet is received from an address with which
+  endpoint has no association, the enpoint should responds it with ABORT
+  message.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./OOTB_CookieEchoChunk.seq">./OOTB_CookieEchoChunk.seq</A> [-tooloption ...] -pkt <A HREF="./OOTB_CookieEchoChunk.def">./OOTB_CookieEchoChunk.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the data
+  in endpoint A such that COOKIE-ECHO is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  COOKIE-ECHO ----------------->
+
+              <-----------------       ABORT
+                                       Discard the COOKIE-ECHO
+
+  TEST DESCRIPTION:
+
+  1. From endpoint A, send valid COOKIE-ECHO message to endpoint B, when there
+     is no association between them. 
+     Record the message sequence using a signal emulator.
+  2. Check A: ABORT message will be sent at endpoint B.
+  3. Check B: Verification tag in the ABORT will be set equal to the 
+     verification tag in the received COOKIE-ECHO. 
+  4. Check C: COOKIE-ECHO is discarded.
+  5. Check D: State of endpoint B is not disturbed.
+  6. Check E: T-Bit in the ABORT chunk is set to 1.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  8.4.  Handle "Out of the Blue" Packets
+
+    7)  If the packet contains a "Stale Cookie" ERROR or a COOKIE ACK,
+        the SCTP packet should be silently discarded.  Otherwise,
+
+=begin html
+<PRE>
+    <B>8)  The receiver should respond to the sender of the OOTB packet with
+        an ABORT.  When sending the ABORT, the receiver of the OOTB
+        packet MUST fill in the Verification Tag field of the outbound
+        packet with the value found in the Verification Tag field of the
+        OOTB packet and set the T bit in the Chunk Flags to indicate that
+        the Verification Tag is reflected.  After sending this ABORT, the
+        receiver of the OOTB packet shall discard the OOTB packet and
+        take no further action.</B>
+</PRE>
+
+=end html
+

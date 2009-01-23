@@ -1,0 +1,168 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PMTU_MTUTooBig.seq - ICMP Packet Too Big message is received with MTU larger than current MTU</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  PMTU_MTUTooBig.seq - ICMP Packet Too Big message is received with MTU larger than current MTU</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if ICMP Packet Too Big message is received with MTU larger
+  than current MTU, the endpoint should ignore the ICMP Packet Too Big
+  message.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./PMTU_TooBig.seq">./PMTU_TooBig.seq</A> [-tooloption ...] -pkt <A HREF="./PMTU_TooBig.def">./PMTU_TooBig.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association established between endpoint A and B. Also arrange the
+  data in endpoint A such that ICMP Packet Too Big message with MTU
+  larger than current MTU is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  ICMP          -----------------&gt;
+  (Packet Too Big)
+  DATA          -----------------&gt;
+  (Segment 1)
+                &lt;-----------------      SACK
+                                        (Segment 1)
+  DATA          -----------------&gt;
+  (Segment 2)
+                &lt;-----------------      DATA
+                                        (Segment 1)
+  SACK          -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      DATA
+                                        (Segment 2)
+  SACK          -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send ICMP Packet Too Big message from endpoint A to B with MTU
+     larger than current MTU.
+  2. Send DATA message from endpoint A to B with data size larger
+     than current MTU in two segments and endpoint B will send back
+     that DATA message.
+  3. Check A: PMTU of endpoint B is not changed, DATA message can
+     be received at endpoint A, and it is fragment by current MTU.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  ICMPv4 Fragmentation Needed message with MTU larger than current
+  MTU will cause PMTU be set to 1492.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  Appendix C.  ICMP Handling</pre>
+<pre>
+    Whenever an ICMP message is received by an SCTP endpoint, the
+    following procedures MUST be followed to ensure proper utilization of
+    the information being provided by layer 3.</pre>
+<pre>
+    ICMP1) An implementation MAY ignore all ICMPv4 messages where the
+           type field is not set to &quot;Destination Unreachable&quot;.</pre>
+<pre>
+    ICMP2) An implementation MAY ignore all ICMPv6 messages where the
+           type field is not &quot;Destination Unreachable&quot;, &quot;Parameter
+           Problem&quot;,, or &quot;Packet Too Big&quot;.</pre>
+<pre>
+    ICMP3) An implementation MAY ignore any ICMPv4 messages where the
+           code does not indicate &quot;Protocol Unreachable&quot; or
+           &quot;Fragmentation Needed&quot;.</pre>
+<pre>
+    ICMP4) An implementation MAY ignore all ICMPv6 messages of type
+           &quot;Parameter Problem&quot; if the code is not &quot;Unrecognized Next
+           Header Type Encountered&quot;.</pre>
+<pre>
+    ICMP5) An implementation MUST use the payload of the ICMP message (v4
+           or v6) to locate the association that sent the message to
+           which ICMP is responding.  If the association cannot be found,
+           an implementation SHOULD ignore the ICMP message.</pre>
+<pre>
+    ICMP6) An implementation MUST validate that the Verification Tag
+           contained in the ICMP message matches the Verification Tag of
+           the peer.  If the Verification Tag is not 0 and does NOT
+           match, discard the ICMP message.  If it is 0 and the ICMP
+           message contains enough bytes to verify that the chunk type is
+           an INIT chunk and that the Initiate Tag matches the tag of the
+           peer, continue with ICMP7.  If the ICMP message is too short
+           or the chunk type or the Initiate Tag does not match, silently
+           discard the packet.</pre>
+<PRE>
+    <B>ICMP7) If the ICMP message is either a v6 "Packet Too Big" or a v4
+           "Fragmentation Needed", an implementation MAY process this
+           information as defined for PATH MTU discovery.</B>
+</PRE><pre>
+    ICMP8) If the ICMP code is an &quot;Unrecognized Next Header Type
+           Encountered&quot; or a &quot;Protocol Unreachable&quot;, an implementation
+           MUST treat this message as an abort with the T bit set if it
+           does not contain an INIT chunk.  If it does contain an INIT
+           chunk and the association is in the COOKIE-WAIT state, handle
+           the ICMP message like an ABORT.</pre>
+<pre>
+    ICMP9) If the ICMPv6 code is &quot;Destination Unreachable&quot;, the
+           implementation MAY mark the destination into the unreachable
+           state or alternatively increment the path error counter.</pre>
+<pre>
+    Note that these procedures differ from [RFC1122] and from its
+    requirements for processing of port-unreachable messages and the
+    requirements that an implementation MUST abort associations in
+    response to a &quot;protocol unreachable&quot; message.  Port-unreachable
+    messages are not processed, since an implementation will send an
+    ABORT, not a port unreachable.  The stricter handling of the
+    &quot;protocol unreachable&quot; message is due to security concerns for hosts
+    that do NOT support SCTP.</pre>
+
+</body>
+
+</html>

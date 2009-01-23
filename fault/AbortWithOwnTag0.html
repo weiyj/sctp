@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AbortWithOwnTag0.seq - ABORT chunk is received with the own's Verification Tag and T bit is not set</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  AbortWithOwnTag0.seq - ABORT chunk is received with the own's Verification Tag and T bit is not set</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that receiving ABORT message with the own's Verification Tag
+  and T bit is not set can terminate an association.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./AbortWithOwnTag0.seq">./AbortWithOwnTag0.seq</A> [-tooloption ...] -pkt <A HREF="./AbortWithOwnTag0.def">./AbortWithOwnTag0.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the
+  data in endpoint A such that an ABORT message is sent to endpoint
+  B containing the own's Verification Tag and T bit is not set.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  ABORT       -----------------&gt;       Association is removed
+  (with own's Verification Tag and T bit is not set)
+                                          Communication Lost  ---------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to terminate an association between endpoint A and endpoint 
+     B by sending ABORT message with no error cause.
+  2. ABORT message is sent with own's Verification Tag with T-bit set to 0.
+  3. Check A: No Acknowledgement is sent for the ABORT message and 
+     association is removed.
+  4. Check B: ULP are reported of the association closure.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  8.5.1.  Exceptions in Verification Tag Rules</pre>
+<pre>
+    B) Rules for packet carrying ABORT:</pre>
+<pre>
+    -   The endpoint MUST always fill in the Verification Tag field of
+        the outbound packet with the destination endpoint's tag value, if
+        it is known.</pre>
+<pre>
+    -   If the ABORT is sent in response to an OOTB packet, the endpoint
+        MUST follow the procedure described in Section 8.4.</pre>
+<PRE>
+    -   <B>The receiver of an ABORT MUST accept the packet if the
+        Verification Tag field of the packet matches its own tag and the
+        T bit is not set OR if it is set to its peer's tag and the T bit
+        is set in the Chunk Flags.</B>  Otherwise, the receiver MUST silently
+        discard the packet and take no further action.
+</PRE>
+</body>
+
+</html>

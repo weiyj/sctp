@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Association Termination</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Association Termination</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:49</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:49</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Abort of an Association</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./AbortWithNoError.html">Termination of an association by receiving ABORT with no error cause</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithNoError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithNoError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./AbortWithOneError.html">Termination of an association by receiving ABORT with one error cause</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOneError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOneError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./AbortWithErrors.html">Termination of an association by receiving ABORT with more error causes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithErrors.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithErrors.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./AbortFromULP.html">Termination of an association by receiving Abort primitive from upper layers</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortFromULP.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortFromULP.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Shutdown of an Association</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./ShutdownFromULP.html">Termination of an association by receiving Terminate primitive from upper layers</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutdownFromULP.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutdownFromULP.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./ShutdownFromPeer.html">Termination of an association by receiving SHUTDOWN message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutdownFromPeer.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutdownFromPeer.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle ABORT in Other States</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./AbortInCookieWait.html">ABORT chunk is received in COOKIE-WAIT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInCookieWait.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInCookieWait.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./AbortInCookieEchoed.html">ABORT chunk is received in COOKIE-ECHOED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInCookieEchoed.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./AbortInEstab.html">ABORT chunk is received in ESTABLISHED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInEstab.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInEstab.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./AbortInShutPend.html">ABORT chunk is received in SHUTDOWN-PENDING State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutPend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutPend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./AbortInShutSend.html">ABORT chunk is received in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./AbortInShutRecv.html">ABORT chunk is received in SHUTDOWN-RECEIVED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutRecv.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./AbortInShutAckSend.html">ABORT chunk is received in SHUTDOWN-ACK-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutAckSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortInShutAckSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle SHUTDOWN in ESTABLISHED State</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./ShutInEstab1.html">Stop accepting new data from its SCTP user in SHUTDOWN-RECEIVED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInEstab1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInEstab1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./ShutInEstab2.html">SHUTDOWN MUST NOT be send in SHUTDOWN-RECEIVED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInEstab2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInEstab2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle SHUTDOWN in Other States</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./ShutInCookieWait.html">SHUTDOWN chunk is received in COOKIE-WAIT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInCookieWait.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInCookieWait.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./ShutInCookieEchoed.html">SHUTDOWN chunk is received in COOKIE-ECHOED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInCookieEchoed.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./ShutInShutPend.html">SHUTDOWN chunk is received in SHUTDOWN-PENDING State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutPend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutPend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./ShutInShutSend.html">SHUTDOWN chunk is received in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="19.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="19.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./ShutInShutRecv.html">SHUTDOWN chunk is received in SHUTDOWN-RECEIVED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="20.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutInShutRecv.def">X</A></TD><TD ALIGN="CENTER"><A HREF="20.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle SHUTDOWN-ACK in Other States</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./ShutAckInCookieWait.html">SHUTDOWN-ACK chunk is received in COOKIE-WAIT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="21.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInCookieWait.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInCookieWait.def">X</A></TD><TD ALIGN="CENTER"><A HREF="21.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./ShutAckInCookieEchoed.html">SHUTDOWN-ACK chunk is received in COOKIE-ECHOED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="22.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInCookieEchoed.def">X</A></TD><TD ALIGN="CENTER"><A HREF="22.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>23</TD><TD><A HREF="./ShutAckInShutAckSend.html">SHUTDOWN-ACK chunk is received in SHUTDOWN-ACK-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="23.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInShutAckSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckInShutAckSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="23.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle DATA in SHUTDOWN-SENT State</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>24</TD><TD><A HREF="./DataInShutSend.html">DATA chunk is received in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="24.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="24.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>25</TD><TD><A HREF="./DataWithDupInShutSend.html">DATA chunk is received with duplicate TSNs in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="25.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithDupInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithDupInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="25.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>26</TD><TD><A HREF="./DataWithGapInShutSend.html">DATA chunk is received with gaps exist in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="26.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithGapInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithGapInShutSend.def">X</A></TD><TD ALIGN="CENTER"><A HREF="26.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Cumulative TSN Ack point</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>27</TD><TD><A HREF="./ShutWithNotSendTSN.html">SHUTDOWN is received with TSN greater than the Cumulative TSN Ack point</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="27.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithNotSendTSN.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithNotSendTSN.def">X</A></TD><TD ALIGN="CENTER"><A HREF="27.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>28</TD><TD><A HREF="./ShutWithCTSN.html">SHUTDOWN is received with TSN equal to the Cumulative TSN Ack point</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="28.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithCTSN.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithCTSN.def">X</A></TD><TD ALIGN="CENTER"><A HREF="28.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI>RFC4960: Association Termination</LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 6ad695fe061f17a7d33ae6ca415c11c7 -->

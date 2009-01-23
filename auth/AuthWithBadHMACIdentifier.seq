@@ -1,0 +1,185 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_auth_hmac_nosupp	=> "Send SCTP CHUNK_AUTH (Unsupported HMAC Identifier)",
+	sctp_chunk_error		=> "Recv SCTP CHUNK_ERROR (Unsupported HMAC Identifier)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnectAuth($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_auth_hmac_nosupp);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_error);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_error') {
+	vLogHTML('Cannot receive SCTP CHUNK_ERROR');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AuthWithBadHMACIdentifier.seq - Authentication Chunk is received with an unsupported HMAC Identifier
+
+=head1 PURPOSE
+
+  To verify that if the AUTH chunk is received with unsupported HMAC 
+  identifier, the ERROR chunk SHOULD be sent with the error cause 
+  'Unsupported HMAC Identifier'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AuthWithBadHMACIdentifier.seq">./AuthWithBadHMACIdentifier.seq</A> [-tooloption ...] -pkt <A HREF="./AuthWithBadHMACIdentifier.def">./AuthWithBadHMACIdentifier.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that AUTH chunk with unsupported HMAC identifier
+  is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (ESTABLISHED)                          (ESTABLISHED)
+
+    AUTH          ------------------>
+    (with Unsupported HMAC Identifier)
+                  <------------------  ERROR
+                                       (Unsupported HMAC Identifier Error Cause)
+
+  TEST DESCRIPTION:
+
+  1. Send AUTH chunk from endpoint A to B with Unsupported HMAC 
+     Identifier.
+  2. Check A: ERROR should be received at endpoint A. And Error 
+     cause in ERROR is set to "Unsupported HMAC Identifier".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  4.1.  Unsupported HMAC Identifier Error Cause
+
+=begin html
+<PRE>
+    <B>This error cause is used to indicate that an AUTH chunk has been
+    received with an unsupported HMAC Identifier.</B>
+</PRE>
+
+=end html
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |      Cause Code = 0x0105      |       Cause Length = 6        |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         HMAC Identifier       |            Padding            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                  Figure 4
+
+    Cause Code: 2 bytes (unsigned integer)
+      This value MUST be set to 0x0105.
+
+    Cause Length: 2 bytes (unsigned integer)
+      This value MUST be set to 6.
+
+    HMAC Identifier: 2 bytes (unsigned integer)
+      This value is the HMAC Identifier which is not supported.
+
+    Padding: 2 bytes (unsigned integer)
+      The sender MUST pad the error cause with all zero bytes to make
+      the cause 32-bit aligned.  The Padding MUST be 2 bytes long and it
+      MUST be ignored by the receiver.
+
+  6.3.  Receiving Authenticated Chunks
+
+    The receiver has a list of chunk types that it expects to be received
+    only after an AUTH-chunk.  This list has been sent to the peer during
+    the association setup.  It MUST silently discard these chunks if they
+    are not placed after an AUTH chunk in the packet.
+
+=begin html
+<PRE>
+    The receiver MUST use the HMAC algorithm indicated in the HMAC
+    Identifier field.  <B>If this algorithm was not specified by the
+    receiver in the HMAC-ALGO parameter in the INIT or INIT-ACK chunk
+    during association setup, the AUTH chunk and all the chunks after it
+    MUST be discarded and an ERROR chunk SHOULD be sent with the error
+    cause defined in Section 4.1.</B>
+</PRE>
+
+=end html
+

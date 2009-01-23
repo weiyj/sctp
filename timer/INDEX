@@ -1,0 +1,78 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Handle T1-init Expiration</B>
+./T1InitRetrans.seq:./T1InitRetrans.def:::INIT message is transmitted again if T1-Init timer expires
+./T1InitTimeout.seq:./T1InitTimeout.def:::Failure to receive INIT-ACK after retransmit times to 'Max.Init.Retransmits'
+./T1InitExpires.seq:./T1InitExpires.def:::RTO is updated correctly if T1-init timer expires for a INIT message
+
+########################################################################
+&print:<B>Handle T1-cookie Expiration</B>
+./T1CookieRetrans.seq:./T1CookieRetrans.def:::COOKIE-ECHO message is transmitted again if T1-cookie timer expires
+./T1CookieTimeout.seq:./T1CookieTimeout.def:::Failure to receive COOKIE-ACK after retransmit times to 'Max.Init.Retransmits'
+./T1CookieTimeout2.seq:./T1CookieTimeout2.def:::Retransmit times for failure to receive COOKIE-ACK (retransmitted INIT message)
+./T1CookieExpires.seq:./T1CookieExpires.def:::RTO is updated correctly if T1-Ccookie timer expires for a COOKIE-ECHO message
+
+########################################################################
+&print:<B>Handle T3-rtx Expiration</B>
+./T3RtxRetrans.seq:./T3RtxRetrans.def:::DATA message is transmitted again if T3-rtx timer expires
+./T3RtxTimeout.seq:./T3RtxTimeout.def:::Failure to receive SACK after retransmit times to 'Association.Max.Retrans'
+./T3RtxTimeout2.seq:./T3RtxTimeout2.def:::The counter of retransmissions shall be reset if the DATA chunk is acknowledged
+./T3ExpiresRTOInc.seq:./T3ExpiresRTOInc.def:::RTO is updated correctly if T3-rxt timer expires for a DATA message
+
+########################################################################
+&print:<B>Handle T2-shutdown Expiration</B>
+./T2ShutdownRetrans1.seq:./T2ShutdownRetrans1.def:::SHUTDOWN message is transmitted again if T2-shutdown timer expires
+./T2ShutdownRetrans2.seq:./T2ShutdownRetrans2.def:::SHUTDOWN-ACK message is transmitted again if T2-shutdown timer expires
+./T2ShutdownTimeout1.seq:./T2ShutdownTimeout1.def:::Failure to receive SHUTDOWN-ACK after retransmit times to 'Association.Max.Retrans'
+./T2ShutdownTimeout2.seq:./T2ShutdownTimeout2.def:::Failure to receive SHUTDOWN-COMPLETE after retransmit times to 'Association.Max.Retrans'
+./T2ShutdownTimeReset.seq:./T2ShutdownTimeReset.def:::The counter of retransmissions shall be reset for a SHUTDOWN message if reception of DATA message
+./T2ShutdownExpires1.seq:./T2ShutdownExpires1.def:::RTO is updated correctly if T2-shutdown timer expires for a SHUTDOWN message
+./T2ShutdownExpires2.seq:./T2ShutdownExpires2.def:::RTO is updated correctly if T2-shutdown timer expires for a SHUTDOWN-ACK message
+
+########################################################################
+&print:<B>Handle T5-shutdown-guard Expiration</B>
+./T5ShutdownGuardExpires.seq:./T5ShutdownGuardExpires.def:::Abort the association by sending an ABORT chunk if T5-shutdown-guard timer expires
+
+########################################################################
+&print:<B>Handle HEARTBEAT timer Expiration</B>
+./HBTimerRetrans.seq:./HBTimerRetrans.def:::HEARTBEAT message is transmitted again if HEARTBEAT timer expires
+./HBTimerTimeout.seq:./HBTimerTimeout.def:::Failure to receive HEARTBEAT-ACK after retransmit times to 'Association.Max.Retrans'
+./HBTimerExpires.seq:./HBTimerExpires.def:::RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message
+

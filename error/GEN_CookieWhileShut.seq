@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_shutack_and_error	=> "Recv SCTP CHUNK_ERROR (bundled with the retransmitted SHUTDOWN-ACK)",
+	sctp_chunk_error		=> "Recv SCTP CHUNK_ERROR (Restart of an Association with New Addresses)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vWarpCPP("-DINITTAG=1000");
+
+vSend($IF0, sctp_chunk_init_snd);
+
+%ret = vWarpRecv3($IF0, 10, 0, 0, sctp_chunk_init_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_ack_rcv) {
+    vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+    vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+    exit $V6evalTool::exitFail;
+}
+
+$COOKIE = $ret{sctpGetFieldName("CHUNK_INIT_ACK.StaleCookie.Cookie")};
+$COOKIE =~ s/\n//;
+$VERFTAG = $ret{sctpGetFieldName("CHUNK_INIT_ACK.InitiateTag")};
+
+vWarpCPP();
+vSend($IF0, sctp_chunk_shutdown_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_ack_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vWarpCPP("-DVERFTAG=$VERFTAG -DCOOKIE=hexstr\\\(\\\"$COOKIE\\\"\\\)");
+vSend($IF0, sctp_chunk_cookie_echo_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_error, sctp_chunk_shutack_and_error);
+if($ret{status} != 0 || ($ret{recvFrame} ne sctp_chunk_shutack_and_error && $ret{recvFrame} ne sctp_chunk_error)) {
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('Cannot receive SCTP CHUNK_ERROR<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if($ret{recvFrame} eq sctp_chunk_error) {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_ack_rcv);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_ack_rcv) {
+		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vWarpCPP();
+vSend($IF0, sctp_chunk_shutdown_complete_snd);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  GEN_CookieWhileShut.seq - Generation of error cause Cookie Received While Shutting Down
+
+=head1 PURPOSE
+
+  To check that if a COOKIE-ECHO chunk is sent in SHUTDOWN-ACK-SENT
+  State then an ERROR chunk with cause Restart of Cookie Received
+  While Shutting Down is sent.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./GEN_CookieWhileShut.seq">./GEN_CookieWhileShut.seq</A> [-tooloption ...] -pkt <A HREF="./GEN_CookieWhileShut.def">./GEN_CookieWhileShut.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange
+  the data in endpoint A such that COOKIE-ECHO message is sent to
+  endpoint B after received SHUTDOWN-ACK message.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+   INIT              ----------------->
+   (with NEW TAG)
+                     <----------------- INIT ACK
+                                        (with NEW STATE COOKIE)
+   SHUTUDOWN         ----------------->
+
+                     <----------------- SHUTDOWN-ACK
+
+   COOKIE-ECHO       ----------------->
+   (with NEW STATE COOKIE)
+                     <----------------- SHUTDOWN-ACK with ERROR
+                                        (Cookie Received While Shutting Down)
+   SHUTDOWN-COMPLETE ----------------->    
+
+  TEST DESCRIPTION:
+
+  1. Send COOKIE-ECHO chunk from endpoint A to B after received
+     SHUTDOWN-ACK message.
+  2. Check A: ERROR should be received at endpoint A.
+  3. Check B: Error cause in ERROR is set to "Cookie Received
+     While Shutting Down".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.10.  Cookie Received While Shutting Down (10)
+
+    Cause of error
+    ---------------
+
+    Cookie Received While Shutting Down: A COOKIE ECHO was received while
+    the endpoint was in the SHUTDOWN-ACK-SENT state.  This error is
+    usually returned in an ERROR chunk bundled with the retransmitted
+    SHUTDOWN ACK.
+
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |     Cause Code=10              |      Cause Length=4          |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+  5.2.4.  Handle a COOKIE ECHO when a TCB Exists
+
+    If the endpoint is in the SHUTDOWN-ACK-SENT state and recognizes
+    that the peer has restarted (Action A), it MUST NOT set up a new
+    association but instead resend the SHUTDOWN ACK and send an ERROR
+    chunk with a "Cookie Received While Shutting Down" error cause to
+    its peer.
+

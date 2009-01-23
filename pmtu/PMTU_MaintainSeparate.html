@@ -1,0 +1,133 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>PMTU_MaintainSeparate.seq - PMTU estimates for each destination address of its peer MUST maintain separate</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  PMTU_MaintainSeparate.seq - PMTU estimates for each destination address of its peer MUST maintain separate</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check the endpoint MUST maintain separate MTU estimates for each destination
+  address of its peer.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./PMTU_MaintainSeparate.seq">./PMTU_MaintainSeparate.seq</A> [-tooloption ...] -pkt <A HREF="./PMTU_MaintainSeparate.def">./PMTU_MaintainSeparate.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint B such that upper layers send associate primitive to
+  startup an association with endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                                                   &lt;-----    Send
+  
+                  &lt;----------------       DATA
+                                          (IP=x)
+  ICMP            -----------------&gt;
+  (Packet Too Big)
+                  &lt;----------------       DATA (retransmission without fragment)
+                                          (IP=y)
+  Do Not Send SACK
+                  &lt;----------------       DATA (Fragment 1)
+                                          (IP=x)  
+                  &lt;----------------       DATA (Fragment 2)
+                                          (IP=x)  
+  SACK            -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to change PMTU of an association between endpoint A (IP=x) and
+     endpoint B by sending ICMP message.
+  2. ICMP message is sent with &quot;Fragmentation Needed&quot; or &quot;Packet Too Big.
+  3. Check A: Data be retransmission be not fragmented on IP=y.
+  4. Check B: Data be retransmission be fragmented on IP=x.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  7.3.  Path MTU Discovery</pre>
+<pre>
+    [RFC4821], [RFC1981], and [RFC1191] specify &quot;Packetization Layer Path
+    MTU Discovery&quot;, whereby an endpoint maintains an estimate of the
+    maximum transmission unit (MTU) along a given Internet path and
+    refrains from sending packets along that path that exceed the MTU,
+    other than occasional attempts to probe for a change in the Path MTU
+    (PMTU).  [RFC4821] is thorough in its discussion of the MTU discovery
+    mechanism and strategies for determining the current end-to-end MTU
+    setting as well as detecting changes in this value.</pre>
+<pre>
+    An endpoint SHOULD apply these techniques, and SHOULD do so on a
+    per-destination-address basis.</pre>
+<pre>
+    There are two important SCTP-specific points regarding Path MTU
+    discovery:</pre>
+<PRE>
+    <B>1)  SCTP associations can span multiple addresses.  An endpoint MUST
+        maintain separate MTU estimates for each destination address of
+        its peer.</B>
+</PRE><pre>
+    2)  The sender should track an association PMTU that will be the
+        smallest PMTU discovered for all of the peer's destination
+        addresses.  When fragmenting messages into multiple parts this
+        association PMTU should be used to calculate the size of each
+        fragment.  This will allow retransmissions to be seamlessly sent
+        to an alternate address without encountering IP fragmentation.
+
+</pre>
+
+</body>
+
+</html>

@@ -1,0 +1,228 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateRecvACK(-1);
+vSend($IF0, sctp_chunk_shutdown_snd);
+sctpUpdateRecvACK();
+
+vSend($IF0, sctp_chunk_init_snd);
+
+%ret = vWarpRecv3($IF0, 10, 0, 0, sctp_chunk_init_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_ack_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$VERTAG = $ret{sctpGetFieldName("CHUNK_INIT_ACK.InitiateTag")};
+$COOKIE = $ret{sctpGetFieldName("CHUNK_INIT_ACK.StaleCookie.Cookie")};
+$COOKIE =~ s/\n//;
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_ack_rcv) {
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_shutdown_complete_snd);
+
+if ($VERTAG == $SCTP::CONF{"VERTAG"}) {
+	vLogHTML("verification tag field should be set to the peer's new tag value<BR>");
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if ($COOKIE eq $SCTP::CONF{"COOKIE"}) {
+	vLogHTML('The Cookie sent in the INIT-ACK message should be the newly generated Cookie<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  DupInitInShutRecv.seq - Unexpected INIT chunk is received in SHUTDOWN-RECEIVED state
+
+=head1 PURPOSE
+
+  To check that if unexpected INIT chunk is received in SHUTDOWN-RECEIVED
+  state then the endpoint should response with an INIT-ACK chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./DupInitInShutRecv.seq">./DupInitInShutRecv.seq</A> [-tooloption ...] -pkt <A HREF="./DupInitInShutRecv.def">./DupInitInShutRecv.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Arrange the data in Endpoint A such that an INIT message is sent 
+  to Endpoint B when association is established between endpoint A 
+  and endpoint B. Also source IP address and destination IP address 
+  are same as in the established association.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                <----------------       DATA
+
+  SHUTDOWN      ----------------->
+
+  INIT          ----------------->
+
+                <-----------------      INIT-ACK
+
+                <-----------------      DATA
+
+  SACK          ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint A to endpoint B when 
+     both endpoints have an association between them.
+  2. Send INIT message to endpoint B after send SHUTDOWN message
+     to the endpoint B. 
+  3. Check A: INIT-ACK message is sent in response to INIT message.
+  4. Check B: In the INIT-ACK message, verification tag field is set to 
+     the peer's new tag value received in the duplicate INIT message.
+  5. Check C: In the INIT-ACK message, Init Tag is not equal to the Init 
+     Tag in the existing association and it is a new value generated 
+     randomly.
+  6. Check D: Cookie, sent in the INIT-ACK message,is the newly generated 
+     Cookie with the information in the duplicate INIT message with local 
+     tie tag and peer tie tag equal to current verification tag and peer 
+     verification tag.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  5.2.2.  Unexpected INIT in States Other than CLOSED, COOKIE-ECHOED,
+          COOKIE-WAIT, and SHUTDOWN-ACK-SENT
+
+    Unless otherwise stated, upon receipt of an unexpected INIT for this
+    association, the endpoint shall generate an INIT ACK with a State
+    Cookie.  Before responding, the endpoint MUST check to see if the
+    unexpected INIT adds new addresses to the association.  If new
+    addresses are added to the association, the endpoint MUST respond
+    with an ABORT, copying the 'Initiate Tag' of the unexpected INIT into
+    the 'Verification Tag' of the outbound packet carrying the ABORT.  In
+    the ABORT response, the cause of error MAY be set to 'restart of an
+    association with new addresses'.  The error SHOULD list the addresses
+    that were added to the restarting association.  If no new addresses
+    are added, when responding to the INIT in the outbound INIT ACK, the
+    endpoint MUST copy its current Tie-Tags to a reserved place within
+    the State Cookie and the association's TCB.  We shall refer to these
+    locations inside the cookie as the Peer's-Tie-Tag and the Local-Tie-
+    Tag.  We will refer to the copy within an association's TCB as the
+    Local Tag and Peer's Tag.  The outbound SCTP packet containing this
+    INIT ACK MUST carry a Verification Tag value equal to the Initiate
+    Tag found in the unexpected INIT.  And the INIT ACK MUST contain a
+    new Initiate Tag (randomly generated; see Section 5.3.1).  Other
+    parameters for the endpoint SHOULD be copied from the existing
+    parameters of the association (e.g., number of outbound streams) into
+    the INIT ACK and cookie.
+
+    After sending out the INIT ACK or ABORT, the endpoint shall take no
+    further actions; i.e., the existing association, including its
+    current state, and the corresponding TCB MUST NOT be changed.
+
+    Note: Only when a TCB exists and the association is not in a COOKIE-
+    WAIT or SHUTDOWN-ACK-SENT state are the Tie-Tags populated with a
+    value other than 0.  For a normal association INIT (i.e., the
+    endpoint is in the CLOSED state), the Tie-Tags MUST be set to 0
+    (indicating that no previous TCB existed).
+

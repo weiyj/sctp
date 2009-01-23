@@ -1,0 +1,182 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$DEFAULT_ASSOC_MAX_RETRANS = sctpGetRemoteSys("ASSOCIATION.MAX.RETRANS");
+$ASSOC_MAX_RETRANS = 5;
+sctpSetRemoteSys("ASSOCIATION.MAX.RETRANS", $ASSOC_MAX_RETRANS);
+$TIMEOUT = $SCTP::CONF{"RTO_MAX"} + 5;
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_shutdown_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# SHUTDOWN message is transmitted again if T2-shutdown timer expires
+$retrans = 0;
+while($ret{status} != 1) {
+	%ret = vWarpRecv($IF0, $TIMEOUT, 0, 0, sctp_chunk_shutdown_rcv, sctp_chunk_abort_rcv);
+	last if($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_abort_rcv');
+	if($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_shutdown_rcv') {
+		$retrans++;
+	}
+}
+
+if($retrans != $ASSOC_MAX_RETRANS) {
+	vLogHTML("Received SCTP CHUNK_SHUTDOWN $retrans times, but expect $ASSOC_MAX_RETRANS times<BR>");
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;	
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+END {
+	# remember exit status, this maybe change after following process
+	my $ret = $?;
+
+	sctpSetRemoteSys("ASSOCIATION.MAX.RETRANS", $DEFAULT_ASSOC_MAX_RETRANS);
+
+	# exit with the last exit status
+	exit($ret);
+}
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T2ShutdownTimeout1.seq - Failure to receive SHUTDOWN-ACK after retransmit times to 'Association.Max.Retrans'
+
+=head1 PURPOSE
+
+  To check that if SHUTDOWN is retransmitted for Association.Max.Retrans
+  then association is aborted.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T2ShutdownTimeout1.seq">./T2ShutdownTimeout1.seq</A> [-tooloption ...] -pkt <A HREF="./T2ShutdownTimeout1.def">./T2ShutdownTimeout1.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the
+  data in endpoint A such that no SHUTDOWN-ACK is sent in response
+  to SHUTDOWN.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Terminate
+                <----------------       SHUTDOWN
+                                           |
+                                           | T2-Shutdown
+                                           | Timer
+                                           |
+                <----------------       SHUTDOWN
+                                           .
+                                           . Retransmit x
+                                           .  times
+
+  TEST DESCRIPTION:
+
+  1. Try to terminate an association between endpoint A and endpoint B by 
+     sending SHUTDOWN message from endpoint B.Don't send the SHUTDOWN-ACK 
+     or any DATAGRAM from the endpoint A.
+  2. Check A: If SHUTDOWN message is transmitted for ASSOCIATION.MAX.RETRANS 
+     times without getting an SHUTDOWN-ACK, Association is aborted and 
+     upper layers are reported of this.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  9.2.  Shutdown of an Association
+
+=begin html
+<PRE>
+    <B>An endpoint should limit the number of retransmissions of the
+    SHUTDOWN chunk to the protocol parameter 'Association.Max.Retrans'.</B>
+    If this threshold is exceeded, the endpoint should destroy the TCB
+    and MUST report the peer endpoint unreachable to the upper layer (and
+    thus the association enters the CLOSED state).  The reception of any
+    packet from its peer (i.e., as the peer sends all of its queued DATA
+    chunks) should clear the endpoint's retransmission count and restart
+    the T2-shutdown timer, giving its peer ample opportunity to transmit
+    all of its queued DATA chunks that have not yet been sent.
+</PRE>
+
+=end html
+

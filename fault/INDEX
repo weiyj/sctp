@@ -1,0 +1,108 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Path Heartbeat</B>
+./HB_SendToIdleAddr.seq:./HB_SendToIdleAddr.def:::HEARTBEAT message is sent periodically to an idle active station
+./HB_RecvInCookieEchoed.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in COOKIE-ECHOED State
+./HB_RecvInEstab.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in ESTABLISHED State
+./HB_RecvInShutPend.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in SHUTDOWN-PENDING State
+./HB_RecvInShutSend.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in SHUTDOWN-SENT State
+./HB_RecvInShutRecv.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in SHUTDOWN-RECEIVED State
+./HB_RecvInShutAckSend.seq:./HB_RespondWithAck.def:::HEARTBEAT chunk is received in SHUTDOWN-ACK-SENT State
+
+########################################################################
+&print:<B>Handle Out of the Blue Packets</B>
+
+&print:Silently discard the packet
+./OOTB_NonUnicastSrcAddr.seq:./OOTB_NonUnicastSrcAddr.def:::Valid packet is received from non-unicast address
+./OOTB_NonUnicastDstAddr.seq:./OOTB_NonUnicastDstAddr.def:::Valid packet is sent to non-unicast destination address
+./OOTB_AbortChunk.seq:./OOTB_AbortChunk.def:::ABORT chunk is received from an address with which endpoint has no association
+
+./OOTB_ShutdownAckChunk.seq:./OOTB_ShutdownAckChunk.def:::SHUTDOWN-ACK chunk is received from an address with which endpoint has no association
+./OOTB_ShutdownCompleteChunk.seq:./OOTB_ShutdownCompleteChunk.def:::SHUTDOWN-COMPLETE chunk is received from an address with which endpoint has no association
+./OOTB_StaleCookieErrorChunk.seq:./OOTB_StaleCookieErrorChunk.def:::ERROR chunk with Stale Cookie ERROR is received from an address with which endpoint has no association
+./OOTB_CookieAckChunk.seq:./OOTB_CookieAckChunk.def:::COOKIE-ACK chunk is received from an address with which endpoint has no association
+
+&print:Respond the packet with an ABORT
+./OOTB_InitChunk.seq:./OOTB_InitChunk.def:::INIT chunk is received from an address with which endpoint has no association
+./OOTB_InitAckChunk.seq:./OOTB_InitAckChunk.def:::INIT-ACK chunk is received from an address with which endpoint has no association
+./OOTB_CookieEchoChunk.seq:./OOTB_CookieEchoChunk.def:::COOKIE-ECHO chunk is received from an address with which endpoint has no association
+./OOTB_DataPacket.seq:./OOTB_DataPacket.def:::DATA chunk is received from an address with which endpoint has no association
+./OOTB_SackChunk.seq:./OOTB_SackChunk.def:::SACK chunk is received from an address with which endpoint has no association
+./OOTB_ShutdownChunk.seq:./OOTB_ShutdownChunk.def:::SHUTDOWN chunk is received from an address with which endpoint has no association
+./OOTB_ErrorChunk.seq:./OOTB_ErrorChunk.def:::ERROR chunk (not stale cookie) is received from an address with which endpoint has no association
+./OOTB_HeartbeatChunk.seq:./OOTB_HeartbeatChunk.def:::HEARTBEAT chunk is received from an address with which endpoint has no association
+./OOTB_HeartbeatAckChunk.seq:./OOTB_HeartbeatAckChunk.def:::HEARTBEAT-ACK chunk is received from an address with which endpoint has no association
+./OOTB_UnregChunk.seq:./OOTB_UnregChunk.def:::Unrecognized Chunk is received from an address with which endpoint has no association
+
+########################################################################
+&print:<B>Verification Tag</B>
+
+&print:Rules for packet carrying INIT
+./InitWithBadTag.seq:./InitWithBadTag.def:::INIT chunk is received with the Verification Tag not set to 0
+
+&print:Rules for packet carrying ABORT
+./AbortWithOwnTag0.seq:./AbortWithOwnTag0.def:::ABORT chunk is received with the own's Verification Tag and T bit is not set
+./AbortWithPeerTag1.seq:./AbortWithPeerTag1.def:::ABORT chunk is received with the peer's Tag and T bit is set
+./AbortWithOwnTag1.seq:./AbortWithOwnTag1.def:::ABORT chunk is received with the own's Verification Tag and T bit is set
+./AbortWithPeerTag0.seq:./AbortWithPeerTag0.def:::ABORT chunk is received with the peer's Tag and T bit is not set
+./AbortWithBadTag.seq:./AbortWithBadTag.def:::ABORT chunk is received with invalid Verification Tag
+
+&print:Rules for packet carrying SHUTDOWN-COMPLETE
+./ShutCompWithOwnTag0.seq:./ShutCompWithOwnTag0.def:::SHUTDOWN-COMPLETE chunk is received with the own's Verification Tag and T bit is not set
+./ShutCompWithPeerTag1.seq:./ShutCompWithPeerTag1.def:::SHUTDOWN-COMPLETE chunk is received with the peer's Tag and T bit is set
+./ShutCompWithOwnTag1.seq:./ShutCompWithOwnTag1.def:::SHUTDOWN-COMPLETE chunk is received with the own's Verification Tag and T bit is set
+./ShutCompWithPeerTag0.seq:./ShutCompWithPeerTag0.def:::SHUTDOWN-COMPLETE chunk is received with the peer's Tag and T bit is not set
+./ShutCompWithBadTag.seq:./ShutCompWithBadTag.def:::SHUTDOWN-COMPLETE chunk is received with invalid Verification Tag
+
+&print:Rules for packet carrying a COOKIE ECHO
+./CookieEchoWithBadTag.seq:./CookieEchoWithBadTag.def:::COOKIE-ECHO chunk is received with invalid Verification Tag
+
+&print:Rules for packet carrying a SHUTDOWN-ACK
+./ShutAckWithBadTag1.seq:./ShutAckWithBadTag1.def:::SHUTDOWN-ACK chunk is received with invalid Verification Tag in COOKIE-ECHOED State
+./ShutAckWithBadTag2.seq:./ShutAckWithBadTag2.def:::SHUTDOWN-ACK chunk is received with invalid Verification Tag in COOKIE-WAIT State
+./ShutAckWithBadTag3.seq:./ShutAckWithBadTag3.def:::SHUTDOWN-ACK chunk is received with invalid Verification Tag in SHUTDOWN-SENT State
+
+&print:Rules for packet carrying other chunk
+./InitAckWithBadTag.seq:./InitAckWithBadTag.def:::INIT-ACK chunk is received with invalid Verification Tag
+./CookieAckWithBadTag.seq:./CookieAckWithBadTag.def:::COOKIE-ACK chunk is received with invalid Verification Tag
+./DataWithBadTag.seq:./DataWithBadTag.def:::DATA chunk is received with invalid Verification Tag
+./SackWithBadTag.seq:./SackWithBadTag.def:::SACK chunk is received with invalid Verification Tag
+./ShutWithBadTag.seq:./ShutWithBadTag.def:::SHUTDOWN chunk is received with invalid Verification Tag
+./HeartbeatWithBadTag.seq:./HeartbeatWithBadTag.def:::HEARTBEAT chunk is received with invalid Verification Tag

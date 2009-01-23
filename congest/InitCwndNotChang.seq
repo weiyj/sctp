@@ -1,0 +1,183 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStatusClient($IF0, 4);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+@cwnds = ();
+
+# Now the cwnd is 4380
+$cwnds[@cwnds] = 4380;
+
+vRecvMsg($IF0);
+vRecvMsg($IF0);
+vRecvMsg($IF0);
+vRecvMsg($IF0);
+
+vClose($IF0);
+
+$cwnds[@cwnds] = '-';
+@ret = sctpGetRemoteStatus(@cwnds);
+for($i = 0; $i < @cwnds; $i++) {
+	if((!defined($ret[$i]) && $cwnds[$i] != '-') || $cwnds[$i] != $ret[$i]) {
+		vLogHTML(sprintf("The initial cwnd is not update correctly, except %s, but get %s<BR>",
+					$cwnds[$i] == '-' ? "NO CHANGE" : $cwnds[$i],
+					defined($ret[$i]) ? $ret[$i]: "NO CHANGE"));
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitCwndNotChang.seq - The initial cwnd should not chang as flight_size is less than the cwnd
+
+=head1 PURPOSE
+
+  To check that when the data newly acknowledged by the SACK diminishes
+  the amount of data now in flight to less than cwnd, unchanged value of
+  cwnd now allows new data to be sent.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitCwndNotChang.seq">./InitCwndNotChang.seq</A> [-tooloption ...] -pkt <A HREF="./InitCwndNotChang.def">./InitCwndNotChang.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that DATA chunk is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                            Endpoint B         ULP
+  (ESTABLISHED)                         (ESTABLISHED)  
+                                                   <-----    Send
+                  <----------------       DATA 1
+
+  SACK            ----------------->
+
+                  <----------------       DATA 2
+
+  SACK            ----------------->
+
+                  <----------------       DATA 3
+
+  SACK            ----------------->
+
+                  <----------------       DATA 4
+
+  SACK            ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint B,
+     when there is association between them.
+  3. From endpoint A, send SACK immediately after received DATA message.
+  4. Check B: Congestion control window is not changed.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  7.2.1.  Slow-Start
+
+    In instances where its peer endpoint is multi-homed, if an endpoint
+    receives a SACK that advances its Cumulative TSN Ack Point, then it
+    should update its cwnd (or cwnds) apportioned to the destination
+    addresses to which it transmitted the acknowledged data.  However, if
+    the received SACK does not advance the Cumulative TSN Ack Point, the
+    endpoint MUST NOT adjust the cwnd of any of the destination
+    addresses.
+
+=begin html
+<PRE>
+    Because an endpoint's cwnd is not tied to its Cumulative TSN Ack
+    Point, as duplicate SACKs come in, even though they may not advance
+    the Cumulative TSN Ack Point an endpoint can still use them to clock
+    out new data.  <B>That is, the data newly acknowledged by the SACK
+    diminishes the amount of data now in flight to less than cwnd, and so
+    the current, unchanged value of cwnd now allows new data to be sent.</B>
+    On the other hand, the increase of cwnd must be tied to the
+    Cumulative TSN Ack Point advancement as specified above.  Otherwise,
+    the duplicate SACKs will not only clock out new data, but also will
+    adversely clock out more new data than what has just left the
+    network, during a time of possible congestion.
+</PRE>
+
+=end html
+
+    o  When the endpoint does not transmit data on a given transport
+       address, the cwnd of the transport address should be adjusted to
+       max(cwnd/2, 4*MTU) per RTO.
+

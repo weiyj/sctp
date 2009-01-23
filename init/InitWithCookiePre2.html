@@ -1,0 +1,125 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>InitWithCookiePre2.seq - INIT chunk is received with cookie preservative parameter</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  InitWithCookiePre2.seq - INIT chunk is received with cookie preservative parameter (cookie life time not expire)</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if INIT chunk is received with cookie preservative parameter
+  then the endpoint should increment the life-span of the State Cookie in
+  milliseconds.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./InitWithCookiePre2.seq">./InitWithCookiePre2.seq</A> [-tooloption ...] -pkt <A HREF="./InitWithCookiePre2.def">./InitWithCookiePre2.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is not established between endpoint A and B. Arrange 
+  data in endpoint A such that INIT chunk with Cookie Preservative
+  Parameter is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)</pre>
+<pre>
+  INIT          -----------------&gt;
+  (with Cookie Preservative Parameter)
+                &lt;-----------------      INIT-ACK</pre>
+<pre>
+  COOKIE-ECHO   -----------------&gt;
+  (life time not expire)
+                &lt;-----------------      COOKIE-ACK</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to make an association from endpoint A to endpoint B. Send 
+     INIT message Cookie Preservative Parameter. 
+  2. Check A: INIT message is accepted and INIT-ACK is sent from endpoint B. 
+  3. Check B: The life-span of the State Cookie at endpoint B is incremented
+     in milliseconds.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  3.3.2.1.  Optional/Variable-Length Parameters in INIT</pre>
+<pre>
+    Cookie Preservative (9)</pre>
+<pre>
+    The sender of the INIT shall use this parameter to suggest to the
+    receiver of the INIT for a longer life-span of the State Cookie.</pre>
+<pre>
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |          Type = 9             |          Length = 8           |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |         Suggested Cookie Life-Span Increment (msec.)          |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</pre>
+<pre>
+    Suggested Cookie Life-Span Increment: 32 bits (unsigned integer)</pre>
+<pre>
+      This parameter indicates to the receiver how much increment in
+      milliseconds the sender wishes the receiver to add to its default
+      cookie life-span.</pre>
+<pre>
+      This optional parameter should be added to the INIT chunk by the
+      sender when it reattempts establishing an association with a peer
+      to which its previous attempt of establishing the association
+      failed due to a stale cookie operation error.  The receiver MAY
+      choose to ignore the suggested cookie life-span increase for its
+      own security reasons.</pre>
+
+</body>
+
+</html>

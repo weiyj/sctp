@@ -1,0 +1,144 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>DupInitInShutSend.seq - Unexpected INIT chunk is received in SHUTDOWN-SENT state</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  DupInitInShutSend.seq - Unexpected INIT chunk is received in SHUTDOWN-SENT state</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if unexpected INIT chunk is received in SHUTDOWN-SENT state
+  then the endpoint should response with an INIT-ACK chunk.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./DupInitInShutSend.seq">./DupInitInShutSend.seq</A> [-tooloption ...] -pkt <A HREF="./DupInitInShutSend.def">./DupInitInShutSend.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Arrange the data in Endpoint A such that an INIT message is sent 
+  to Endpoint B when association is established between endpoint A 
+  and endpoint B. Also source IP address and destination IP address 
+  are same as in the established association.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                                                   &lt;-----    Associate
+                &lt;----------------       SHUTDOWN</pre>
+<pre>
+  INIT          -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      INIT-ACK</pre>
+<pre>
+                &lt;----------------       SHUTDOWN
+                                        (retransmit)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to make an association from endpoint A to endpoint B when 
+     both endpoints have an association between them.
+  2. Send INIT message to endpoint B after receiving SHUTDOWN message
+     from endpoint B. 
+  3. Check A: INIT-ACK message is sent in response to INIT message.
+  4. Check B: In the INIT-ACK message, verification tag field is set to 
+     the peer's new tag value received in the duplicate INIT message.
+  5. Check C: In the INIT-ACK message, Init Tag is not equal to the Init 
+     Tag in the existing association and it is a new value generated 
+     randomly.
+  6. Check D: Cookie, sent in the INIT-ACK message,is the newly generated 
+     Cookie with the information in the duplicate INIT message with local 
+     tie tag and peer tie tag equal to current verification tag and peer 
+     verification tag.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  5.2.2.  Unexpected INIT in States Other than CLOSED, COOKIE-ECHOED,
+          COOKIE-WAIT, and SHUTDOWN-ACK-SENT</pre>
+<pre>
+    Unless otherwise stated, upon receipt of an unexpected INIT for this
+    association, the endpoint shall generate an INIT ACK with a State
+    Cookie.  Before responding, the endpoint MUST check to see if the
+    unexpected INIT adds new addresses to the association.  If new
+    addresses are added to the association, the endpoint MUST respond
+    with an ABORT, copying the 'Initiate Tag' of the unexpected INIT into
+    the 'Verification Tag' of the outbound packet carrying the ABORT.  In
+    the ABORT response, the cause of error MAY be set to 'restart of an
+    association with new addresses'.  The error SHOULD list the addresses
+    that were added to the restarting association.  If no new addresses
+    are added, when responding to the INIT in the outbound INIT ACK, the
+    endpoint MUST copy its current Tie-Tags to a reserved place within
+    the State Cookie and the association's TCB.  We shall refer to these
+    locations inside the cookie as the Peer's-Tie-Tag and the Local-Tie-
+    Tag.  We will refer to the copy within an association's TCB as the
+    Local Tag and Peer's Tag.  The outbound SCTP packet containing this
+    INIT ACK MUST carry a Verification Tag value equal to the Initiate
+    Tag found in the unexpected INIT.  And the INIT ACK MUST contain a
+    new Initiate Tag (randomly generated; see Section 5.3.1).  Other
+    parameters for the endpoint SHOULD be copied from the existing
+    parameters of the association (e.g., number of outbound streams) into
+    the INIT ACK and cookie.</pre>
+<pre>
+    After sending out the INIT ACK or ABORT, the endpoint shall take no
+    further actions; i.e., the existing association, including its
+    current state, and the corresponding TCB MUST NOT be changed.</pre>
+<pre>
+    Note: Only when a TCB exists and the association is not in a COOKIE-
+    WAIT or SHUTDOWN-ACK-SENT state are the Tie-Tags populated with a
+    value other than 0.  For a normal association INIT (i.e., the
+    endpoint is in the CLOSED state), the Tie-Tags MUST be set to 0
+    (indicating that no previous TCB existed).</pre>
+
+</body>
+
+</html>

@@ -1,0 +1,152 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>UnorderDelivery.seq - Unordered Data chunks are received for Delivery</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  UnorderDelivery.seq - Unordered Data chunks are received for Delivery</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if receiver deliver data to the upper layer 
+  according to the order it receives data.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./UnorderDelivery.seq">./UnorderDelivery.seq</A> [-tooloption ...] -pkt <A HREF="./UnorderDelivery.def">./UnorderDelivery.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data in
+  endpoint A such that unordered DATA messages are sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  DATA 1        -----------------&gt;
+                                            ---------&gt;DATA 1 Delivered
+                &lt;-----------------   SACK
+ 
+                &lt;-----------------   DATA</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  DATA 2        -----------------&gt;
+                                            ---------&gt;DATA 2 Delivered
+                &lt;-----------------   SACK
+ 
+                &lt;-----------------   DATA</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  DATA 3        -----------------&gt;
+                                            ---------&gt;DATA 3 Delivered
+                &lt;-----------------   SACK
+ 
+                &lt;-----------------   DATA</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  DATA 4        -----------------&gt;
+                                            ---------&gt;DATA 4 Delivered
+                &lt;-----------------   SACK
+ 
+                &lt;-----------------   DATA</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. To check that if DATA chunks arriving out of order of there stream 
+     sequence number the receiver transfer the received DATA chunks to 
+     upper layer as they are received.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  6.6.  Ordered and Unordered Delivery</pre>
+<pre>
+    Within a stream, an endpoint MUST deliver DATA chunks received with
+    the U flag set to 0 to the upper layer according to the order of
+    their Stream Sequence Number.  If DATA chunks arrive out of order of
+    their Stream Sequence Number, the endpoint MUST hold the received
+    DATA chunks from delivery to the ULP until they are reordered.</pre>
+<pre>
+    However, an SCTP endpoint can indicate that no ordered delivery is
+    required for a particular DATA chunk transmitted within the stream by
+    setting the U flag of the DATA chunk to 1.</pre>
+<PRE>
+    <B>When an endpoint receives a DATA chunk with the U flag set to 1, it
+    must bypass the ordering mechanism and immediately deliver the data
+    to the upper layer (after reassembly if the user data is fragmented
+    by the data sender).</B>
+</PRE><pre>
+    This provides an effective way of transmitting &quot;out-of-band&quot; data in
+    a given stream.  Also, a stream can be used as an &quot;unordered&quot; stream
+    by simply setting the U flag to 1 in all DATA chunks sent through
+    that stream.</pre>
+<pre>
+    IMPLEMENTATION NOTE: When sending an unordered DATA chunk, an
+    implementation may choose to place the DATA chunk in an outbound
+    packet that is at the head of the outbound transmission queue if
+    possible.</pre>
+<pre>
+    The 'Stream Sequence Number' field in a DATA chunk with U flag set to
+    1 has no significance.  The sender can fill it with arbitrary value,
+    but the receiver MUST ignore the field.</pre>
+<pre>
+    Note: When transmitting ordered and unordered data, an endpoint does
+    not increment its Stream Sequence Number when transmitting a DATA
+    chunk with U flag set to 1.</pre>
+
+</body>
+
+</html>

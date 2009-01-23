@@ -1,0 +1,64 @@
+#ifndef __SCTP_CONF_DEF_
+#define __SCTP_CONF_DEF_	1
+
+/* whether test under IPv[4|6]: 0/IPv4, 1/IPv6 */
+#define ENABLE_IPV6		0
+
+/* whether remote system support AUTH */
+#define AUTH_ENABLE		0
+
+#define SCTP4_TN_NET0_ADDR	"192.168.0.100"
+#define SCTP4_TN_NET1_ADDR	"192.168.1.100"
+#define SCTP4_NUT_NET0_ADDR	"192.168.0.21"
+#define SCTP4_NUT_NET1_ADDR	"192.168.1.21"
+
+#ifndef SCTP_TN0_PORT
+#define SCTP_TN0_PORT	2008
+#endif
+
+#ifndef SCTP_NUT0_PORT
+#define SCTP_NUT0_PORT	3008
+#endif
+
+/* default AdvRecvWindow */
+#ifndef ARWND
+#define ARWND	0xd600
+#endif
+
+/* default NumOfOutbound */
+#ifndef OS
+#define OS	100
+#endif
+
+/* default NumOfInbound */
+#ifndef MIS
+#define MIS	65535
+#endif
+
+#ifndef INITTAG
+#define INITTAG	1
+#endif
+
+#define INITTSN	100
+
+#ifndef DEFAULT_DATA_LEN
+#define DEFAULT_DATA_LEN	1352
+#endif
+
+/* Used For timer retransmit */
+#define HZ		1000
+#define TIME_PREC	0.5
+
+#define COOKIE_LIFE		60
+#define MAX_INIT_RETRANS	8
+#define ASSOCIATION_MAX_RETRANS	10
+#define HB_INTERVAL		30
+#define RTO_INITIAL		3
+#define RTO_MAX			60
+#define SACK_TIMEOUT		0.2
+
+/* Used For MIB test */
+#define REPEAT	5
+
+#endif
+

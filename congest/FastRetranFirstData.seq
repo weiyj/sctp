@@ -1,0 +1,290 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_1	=> "Recv SCTP CHUNK_DATA (1)",
+	sctp_chunk_data_2	=> "Recv SCTP CHUNK_DATA (2)",
+	sctp_chunk_data_3	=> "Recv SCTP CHUNK_DATA (3)",
+	sctp_chunk_data_4	=> "Recv SCTP CHUNK_DATA (4)",
+	sctp_chunk_data_5	=> "Recv SCTP CHUNK_DATA (5)",
+	sctp_chunk_sack_1	=> "Send SCTP CHUNK_SACK (2)",
+	sctp_chunk_sack_2	=> "Send SCTP CHUNK_SACK (2 and 3)",
+	sctp_chunk_sack_3	=> "Send SCTP CHUNK_SACK (2 to 4)",
+	sctp_chunk_sack_4	=> "Send SCTP CHUNK_SACK (4)",
+	sctp_chunk_sack_5	=> "Send SCTP CHUNK_SACK (5)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$SIZE = 1024;
+$COUNT = 5;
+@cwnds = ();
+
+sctpStatusClient($IF0, $COUNT, "-c $SIZE");
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+$cwnds[@cwnds] = 4380;
+
+sctpUpdateRecvACK();
+
+for($i = 1; $i < $COUNT; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML("Cannot receive SCTP CHUNK_DATA ($i)<BR>");
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_1);
+vSend($IF0, sctp_chunk_sack_2);
+vSend($IF0, sctp_chunk_sack_3);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_1");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_1") {
+	vLogHTML("Cannot receive SCTP CHUNK_DATA (1)<BR>");
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$cwnds[@cwnds] = 6000;
+
+vSend($IF0, sctp_chunk_sack_4);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_5");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_5") {
+	vLogHTML("Cannot receive SCTP CHUNK_DATA (5)<BR>");
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_5);
+
+sctpUpdateRecvACK(4);
+
+vClose($IF0);
+
+$cwnds[@cwnds] = '-';
+@ret = sctpGetRemoteStatus(@cwnds);
+for($i = 0; $i < @cwnds; $i++) {
+	if((!defined($ret[$i]) && $cwnds[$i] != '-') || $cwnds[$i] != $ret[$i]) {
+		vLogHTML(sprintf("The initial cwnd is not update correctly, except %s, but get %s<BR>",
+					$cwnds[$i] == '-' ? "NO CHANGE" : $cwnds[$i],
+					defined($ret[$i]) ? $ret[$i]: "NO CHANGE"));
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FastRetranFirstData.seq - Restart T3-rtx timer if the endpoint is retransmitting the first outstanding DATA chunk
+
+=head1 PURPOSE
+
+  To chech that the endpoint should restart the T3-rtx timer if the
+  endpoint is retransmitting the first outstanding DATA chunk sent
+  to that address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FastRetranFirstData.seq">./FastRetranFirstData.seq</A> [-tooloption ...] -pkt <A HREF="./FastRetranFirstData.def">./FastRetranFirstData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B 
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                <----------------       DATA 1
+
+                <----------------       DATA 2
+
+                <----------------       DATA 3
+
+                <----------------       DATA 4
+
+  SACK          ----------------->
+  (For DATA 2)
+  SACK          ----------------->
+  (For DATA 2 and DATA 3)
+  SACK          ----------------->
+  (For DATA 2 to DATA 4)
+                <----------------       DATA 1
+
+  SACK          ----------------->
+  (For DATA 1 to DATA 4)
+                <----------------       DATA 5
+
+  SACK          ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint A,
+     when there is association between them.
+  3. From endpoint A, receive DATA message 4 times.
+  4. From endpoint A, send SACK of the 2nd DATA messages to endpoint 
+     B, report the 1st message is missing.
+  5. From endpoint A, send SACK of the 2nd, 3rd DATA messages to 
+     endpoint B, report the 1st message is missing.
+  6. From endpoint A, send SACK of the 2nd, 3rd and 4th DATA messages
+     to endpoint B, report the 1st message is missing.
+  7. Check B: The 1st DATA messages is send again immediately.
+  8. Check C: Congestion control window is 6000 now.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  7.2.4.  Fast Retransmit on Gap Reports
+
+    In the absence of data loss, an endpoint performs delayed
+    acknowledgement.  However, whenever an endpoint notices a hole in the
+    arriving TSN sequence, it SHOULD start sending a SACK back every time
+    a packet arrives carrying data until the hole is filled.
+
+    Whenever an endpoint receives a SACK that indicates that some TSNs
+    are missing, it SHOULD wait for two further miss indications (via
+    subsequent SACKs for a total of three missing reports) on the same
+    TSNs before taking action with regard to Fast Retransmit.
+
+    Miss indications SHOULD follow the HTNA (Highest TSN Newly
+    Acknowledged) algorithm.  For each incoming SACK, miss indications
+    are incremented only for missing TSNs prior to the highest TSN newly
+    acknowledged in the SACK.  A newly acknowledged DATA chunk is one not
+    previously acknowledged in a SACK.  If an endpoint is in Fast
+    Recovery and a SACK arrives that advances the Cumulative TSN Ack
+    Point, the miss indications are incremented for all TSNs reported
+    missing in the SACK.
+
+    When the third consecutive miss indication is received for a TSN(s),
+    the data sender shall do the following:
+
+    1)  Mark the DATA chunk(s) with three miss indications for
+        retransmission.
+
+    2)  If not in Fast Recovery, adjust the ssthresh and cwnd of the
+        destination address(es) to which the missing DATA chunks were
+        last sent, according to the formula described in Section 7.2.3.
+
+    3)  Determine how many of the earliest (i.e., lowest TSN) DATA chunks
+        marked for retransmission will fit into a single packet, subject
+        to constraint of the path MTU of the destination transport
+        address to which the packet is being sent.  Call this value K.
+        Retransmit those K DATA chunks in a single packet.  When a Fast
+        Retransmit is being performed, the sender SHOULD ignore the value
+        of cwnd and SHOULD NOT delay retransmission for this single
+        packet.
+
+=begin html
+<PRE>
+    4)  Restart the T3-rtx timer only if the last SACK acknowledged the
+        lowest outstanding TSN number sent to that address, <B>or the
+        endpoint is retransmitting the first outstanding DATA chunk sent
+        to that address.</B>
+</PRE>
+
+=end html
+
+    5)  Mark the DATA chunk(s) as being fast retransmitted and thus
+        ineligible for a subsequent Fast Retransmit.  Those TSNs marked
+        for retransmission due to the Fast-Retransmit algorithm that did
+        not fit in the sent datagram carrying K other TSNs are also
+        marked as ineligible for a subsequent Fast Retransmit.  However,
+        as they are marked for retransmission they will be retransmitted
+        later on as soon as cwnd allows.
+
+    6)  If not in Fast Recovery, enter Fast Recovery and mark the highest
+        outstanding TSN as the Fast Recovery exit point.  When a SACK
+        acknowledges all TSNs up to and including this exit point, Fast
+        Recovery is exited.  While in Fast Recovery, the ssthresh and
+        cwnd SHOULD NOT change for any destinations due to a subsequent
+        Fast Recovery event (i.e., one SHOULD NOT reduce the cwnd further
+        due to a subsequent Fast Retransmit).
+
+    Note: Before the above adjustments, if the received SACK also
+    acknowledges new DATA chunks and advances the Cumulative TSN Ack
+    Point, the cwnd adjustment rules defined in Section 7.2.1 and Section
+    7.2.2 must be applied first.
+
+    A straightforward implementation of the above keeps a counter for
+    each TSN hole reported by a SACK.  The counter increments for each
+    consecutive SACK reporting the TSN hole.  After reaching 3 and
+    starting the Fast-Retransmit procedure, the counter resets to 0.
+
+    Because cwnd in SCTP indirectly bounds the number of outstanding
+    TSN's, the effect of TCP Fast Recovery is achieved automatically with
+    no adjustment to the congestion control window size.
+

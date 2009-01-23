@@ -1,0 +1,103 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#include "../common/STD_PKT_COMMON.def"
+
+//
+// SCTP CHUNK_INIT
+//
+PKG_SCTP_EXTH_RECV(
+	sctp_chunk_init_icmp_payload,
+	{
+		SourcePort = SCTP_NUT0_PORT;
+		DestinationPort = SCTP_TN0_PORT;
+	},
+	{
+		chunk = chunk_init_icmp_payload;
+	}
+)
+
+CHUNK_INIT chunk_init_icmp_payload {
+	InitiateTag = VERFTAG;
+}
+
+#if (ENABLE_IPV6 == 0)
+
+//
+// ICMPv4 Destination Unreachable
+//
+FEM_icmp4_destination_unreachable(
+	icmp_too_short,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET0_ADDR));
+		_DST(v4(SCTP4_NUT_NET0_ADDR));
+	},
+	{
+		Type = 3;
+		Code = 2;
+		payload = errdata;
+	}
+)
+
+Payload errdata {
+	data = left(_PACKET_IPV4_NAME(sctp_chunk_init_icmp_payload), 36);
+}
+
+#else 
+
+//
+// ICMPv6 Parameter Problem
+//
+FEM_icmp6_parameter_problem(
+	icmp_too_short,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET0_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+	},
+	{
+		Code = 1;	// unrecognized Next Header type encounted
+		Pointer = 6;
+		payload = errdata;
+	}
+)
+
+Payload errdata {
+	data = left(_PACKET_IPV6_NAME(sctp_chunk_init_icmp_payload), 36);
+}
+
+#endif
+

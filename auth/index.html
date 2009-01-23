@@ -1,0 +1,94 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Authentication Chunks</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Authentication Chunks</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:53</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:53</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Initialize</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./Initialize.html">Initialization Test Environment</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./Initialize.seq">X</A></TD><TD ALIGN="CENTER">-</TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Establishment of an Association Shared Key</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./AuthInitWithoutRandom.html">The RANDOM parameter MUST be included once in the INIT or INIT-ACK chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutRandom.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutRandom.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./AuthInitWithoutChunks.html">The CHUNKS parameter MAY be omitted in the INIT or INIT-ACK chunk if it is empty</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutChunks.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutChunks.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./AuthInitWithoutHmacAlgo.html">The HMAC-ALGO parameter MUST be included once in the INIT or INIT-ACK chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutHmacAlgo.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthInitWithoutHmacAlgo.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Sending Authenticated Chunks</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./AuthWithChunkAuth.html">Send all requested chunks that have been authenticated where this has been requested by the peer</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithChunkAuth.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithChunkAuth.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./AuthIgnoreChunkTypes.html">INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks listed in the CHUNKS parameter MUST be ignored</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./AuthUsedFirstAlgo.html">The receiver of an HMAC-ALGO parameter SHOULD use the first listed algorithm it supports</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Receiving Authenticated Chunks</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./AuthWithBadHMACIdentifier.html">Authentication Chunk is received with an unsupported HMAC Identifier</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./AuthWithBadShareID.html">Authentication Chunk is received with no shared key match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./AuthWithBadHmac.html">Authentication Chunk is received with Message Authentication Code not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./AuthWithoutCapable.html">Authentication Chunk is received from endpoint which has no AUTH capable</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Authentication Chunk Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./AuthWithBadChunkLength.html">Authentication Chunk is received with chunk length less than AUTH chunk header</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./AuthWithBadHmacLength.html">Authentication Chunk is received with HMAC length not match HMAC Algorithm</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Random Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./RandomNumberWithBadLength.html">The association MUST be aborted if the Random Number is not 32 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Chunk List Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./ChunkListLengthLargerThan260.html">The maximum length of Chunk List Parameter is 260 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Requested HMAC Algorithm Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./HMACAlgoWithNoAlgoList.html">The list of HMAC Identifiers in HMAC-ALGO parameter is empty</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./HMACAlgoWithoutSha1.html">The HMAC algorithm based on SHA-1 MUST be supported and included in the HMAC-ALGO parameter</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI>RFC4895: Authentication Chunks</LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 63f3b4a2841b787867920cb3990e1223 -->

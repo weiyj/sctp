@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Retransmission Timer</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Retransmission Timer</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:51</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:51</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Handle T1-init Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./T1InitRetrans.html">INIT message is transmitted again if T1-Init timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitRetrans.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitRetrans.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./T1InitTimeout.html">Failure to receive INIT-ACK after retransmit times to 'Max.Init.Retransmits'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitTimeout.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitTimeout.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./T1InitExpires.html">RTO is updated correctly if T1-init timer expires for a INIT message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitExpires.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1InitExpires.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle T1-cookie Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./T1CookieRetrans.html">COOKIE-ECHO message is transmitted again if T1-cookie timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieRetrans.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieRetrans.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./T1CookieTimeout.html">Failure to receive COOKIE-ACK after retransmit times to 'Max.Init.Retransmits'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieTimeout.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieTimeout.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./T1CookieTimeout2.html">Retransmit times for failure to receive COOKIE-ACK (retransmitted INIT message)</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieTimeout2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieTimeout2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./T1CookieExpires.html">RTO is updated correctly if T1-Ccookie timer expires for a COOKIE-ECHO message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieExpires.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T1CookieExpires.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle T3-rtx Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./T3RtxRetrans.html">DATA message is transmitted again if T3-rtx timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxRetrans.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxRetrans.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./T3RtxTimeout.html">Failure to receive SACK after retransmit times to 'Association.Max.Retrans'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxTimeout.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxTimeout.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./T3RtxTimeout2.html">The counter of retransmissions shall be reset if the DATA chunk is acknowledged</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxTimeout2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3RtxTimeout2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./T3ExpiresRTOInc.html">RTO is updated correctly if T3-rxt timer expires for a DATA message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3ExpiresRTOInc.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T3ExpiresRTOInc.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle T2-shutdown Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./T2ShutdownRetrans1.html">SHUTDOWN message is transmitted again if T2-shutdown timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownRetrans1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownRetrans1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./T2ShutdownRetrans2.html">SHUTDOWN-ACK message is transmitted again if T2-shutdown timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownRetrans2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownRetrans2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./T2ShutdownTimeout1.html">Failure to receive SHUTDOWN-ACK after retransmit times to 'Association.Max.Retrans'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeout1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeout1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./T2ShutdownTimeout2.html">Failure to receive SHUTDOWN-COMPLETE after retransmit times to 'Association.Max.Retrans'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeout2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeout2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./T2ShutdownTimeReset.html">The counter of retransmissions shall be reset for a SHUTDOWN message if reception of DATA message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeReset.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownTimeReset.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./T2ShutdownExpires1.html">RTO is updated correctly if T2-shutdown timer expires for a SHUTDOWN message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownExpires1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownExpires1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./T2ShutdownExpires2.html">RTO is updated correctly if T2-shutdown timer expires for a SHUTDOWN-ACK message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownExpires2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T2ShutdownExpires2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle T5-shutdown-guard Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./T5ShutdownGuardExpires.html">Abort the association by sending an ABORT chunk if T5-shutdown-guard timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="19.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T5ShutdownGuardExpires.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T5ShutdownGuardExpires.def">X</A></TD><TD ALIGN="CENTER"><A HREF="19.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle HEARTBEAT timer Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./HBTimerRetrans.html">HEARTBEAT message is transmitted again if HEARTBEAT timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="20.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerRetrans.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerRetrans.def">X</A></TD><TD ALIGN="CENTER"><A HREF="20.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./HBTimerTimeout.html">Failure to receive HEARTBEAT-ACK after retransmit times to 'Association.Max.Retrans'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="21.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerTimeout.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerTimeout.def">X</A></TD><TD ALIGN="CENTER"><A HREF="21.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./HBTimerExpires.html">RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="22.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerExpires.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HBTimerExpires.def">X</A></TD><TD ALIGN="CENTER"><A HREF="22.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI>RFC4960: Retransmission Timer</LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 7fd23e7a0a5638425d4bb4f66f1409f0 -->

@@ -1,0 +1,193 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ResetInitCwnd.seq - The cwnd of the transport address should be adjusted to max when no transmit data</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  ResetInitCwnd.seq - The cwnd of the transport address should be adjusted to max(cwnd/2, 4*MTU) when no transmit data</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To verify that when the sender does not transmit DATA on a 
+  given transport address, the cwnd of the transport address
+  should be adjusted to max(cwnd / 2, 4*MTU) per RTO.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./ResetInitCwnd.seq">./ResetInitCwnd.seq</A> [-tooloption ...] -pkt <A HREF="./ResetInitCwnd.def">./ResetInitCwnd.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                  &lt;----------------       DATA 1
+  Don't Send SACK  
+                  &lt;----------------       DATA 2
+  Don't Send SACK  
+                  &lt;----------------       DATA 3
+  Don't Send SACK  
+                  &lt;----------------       DATA 4</pre>
+<pre>
+  SACK            -----------------&gt;
+  (For DATA 1)
+                  &lt;----------------       DATA 5
+  Don't Send SACK  
+                  &lt;----------------       DATA 6
+  Don't Send SACK  
+  SACK            -----------------&gt;
+  (For DATA 1 and DATA 2)
+  SACK            -----------------&gt;
+  (For DATA 1 and DATA 3, report DATA 2 is missing)
+  SACK            -----------------&gt;
+  (For DATA 1, DATA 3 and DATA 4, report DATA 2 is missing)
+  SACK            -----------------&gt;
+  (For DATA 1, DATA 3 to DATA 5, report DATA 2 is missing)
+                  &lt;----------------       DATA 2
+ 
+                  &lt;----------------       DATA 7
+ 
+  SACK            -----------------&gt;
+  (For all DATAs)
+  DATA            -----------------&gt;</pre>
+<pre>
+                  &lt;----------------       SACK</pre>
+<pre>
+                  &lt;----------------       DATA 1
+  Don't Send SACK  
+                  &lt;----------------       DATA 2
+  Don't Send SACK  
+                  &lt;----------------       DATA 3
+  Don't Send SACK  
+                  &lt;----------------       DATA 4
+  Don't Send SACK  
+                  &lt;----------------       DATA 5</pre>
+<pre>
+  SACK            -----------------&gt;
+  (For DATA 1 and DATA2)
+                  &lt;----------------       DATA 6</pre>
+<pre>
+                  &lt;----------------       DATA 7</pre>
+<pre>
+  SACK            -----------------&gt;
+  (For all DATAs)
+              (Does not transmit data)
+                  &lt;-----------------     HEARTBEAT</pre>
+<pre>
+  HEARTBEAT-ACK   ------------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint A,
+     when there is association between them.
+  3. From endpoint A, send SACK of the first DATA message to 
+     endpoint B.
+  4. Check B: Congestion control window is increased by DATA size.
+  5. From endpoint A, receive DATA message 2 times.
+  6. From endpoint A, send SACK of the 1st, 3rd DATA messages to 
+     endpoint B, report the 2nd message is missing.
+  7. From endpoint A, send SACK of the 1st, 3rd and 4th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  8. From endpoint A, send SACK of the 1st, 3rd to 5th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  9. Check C: The 2nd DATA messages is send again immediately.
+  10.Check D: Congestion control window is 6000 now.
+  11.Send SACK of all DATA to endpoint B.
+  12.From endpoint A, Send DATA message to endpoint and receive SACK.
+  13.From endpoint A, receive DATA message 5 times.
+  14.Send SACK of first two messages.
+  15.Check E: Congestion control window is 7500 now.
+  17.Receive DATA message 2 times and send SACK of above DATA messages.
+  18.Do not send any message to another endpoint within the current
+     Heartbeat period. HEARTBEAT message is sent from endpoint B. 
+  19.Check F: Congestion control window is 6000 now.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  7.2.2.  Congestion Avoidance</pre>
+<pre>
+    When cwnd is greater than ssthresh, cwnd should be incremented by
+    1*MTU per RTT if the sender has cwnd or more bytes of data
+    outstanding for the corresponding transport address.</pre>
+<pre>
+    In practice, an implementation can achieve this goal in the following
+    way:</pre>
+<pre>
+    o  partial_bytes_acked is initialized to 0.</pre>
+<pre>
+    o  Whenever cwnd is greater than ssthresh, upon each SACK arrival
+       that advances the Cumulative TSN Ack Point, increase
+       partial_bytes_acked by the total number of bytes of all new chunks
+       acknowledged in that SACK including chunks acknowledged by the new
+       Cumulative TSN Ack and by Gap Ack Blocks.</pre>
+<pre>
+    o  When partial_bytes_acked is equal to or greater than cwnd and
+       before the arrival of the SACK the sender had cwnd or more bytes
+       of data outstanding (i.e., before arrival of the SACK, flightsize
+       was greater than or equal to cwnd), increase cwnd by MTU, and
+       reset partial_bytes_acked to (partial_bytes_acked - cwnd).</pre>
+<PRE>
+    <B>o  Same as in the slow start, when the sender does not transmit DATA
+       on a given transport address, the cwnd of the transport address
+       should be adjusted to max(cwnd / 2, 4*MTU) per RTO.</B>
+</PRE><pre>
+    o  When all of the data transmitted by the sender has been
+       acknowledged by the receiver, partial_bytes_acked is initialized
+       to 0.</pre>
+
+</body>
+
+</html>

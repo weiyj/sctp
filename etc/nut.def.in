@@ -1,0 +1,32 @@
+#
+# nut.def
+#
+#  Information about the Node Under Test (NUT)
+#
+
+# System type
+System		linux-v6
+
+# System information
+TargetName	RHEL5GA
+
+# Name
+HostName	FNST
+
+# Type
+#   IPv4, IPv6
+Type		IPv4
+
+# Super user name and it's password
+# if you select manual as "System", you don't care "User" and "Password"
+#
+User		root
+Password	goodluck
+
+#linkname	interface	The EXACT ether source address
+#		name		of the Interface Under Test
+Link0		eth0		00:0C:29:3B:29:BE
+Link1		eth1		00:0C:29:3B:29:C8
+#Link2		de0		00:c0:f6:b0:aa:ef
+#Link3		de1		00:00:92:a7:6d:f8
+#Link4		de2		00:90:27:14:ce:e3

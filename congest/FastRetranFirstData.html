@@ -1,0 +1,192 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FastRetranFirstData.seq - Restart T3-rtx timer if the endpoint is retransmitting the first outstanding DATA chunk</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  FastRetranFirstData.seq - Restart T3-rtx timer if the endpoint is retransmitting the first outstanding DATA chunk</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To chech that the endpoint should restart the T3-rtx timer if the
+  endpoint is retransmitting the first outstanding DATA chunk sent
+  to that address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./FastRetranFirstData.seq">./FastRetranFirstData.seq</A> [-tooloption ...] -pkt <A HREF="./FastRetranFirstData.def">./FastRetranFirstData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B 
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                &lt;----------------       DATA 1</pre>
+<pre>
+                &lt;----------------       DATA 2</pre>
+<pre>
+                &lt;----------------       DATA 3</pre>
+<pre>
+                &lt;----------------       DATA 4</pre>
+<pre>
+  SACK          -----------------&gt;
+  (For DATA 2)
+  SACK          -----------------&gt;
+  (For DATA 2 and DATA 3)
+  SACK          -----------------&gt;
+  (For DATA 2 to DATA 4)
+                &lt;----------------       DATA 1</pre>
+<pre>
+  SACK          -----------------&gt;
+  (For DATA 1 to DATA 4)
+                &lt;----------------       DATA 5</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint A,
+     when there is association between them.
+  3. From endpoint A, receive DATA message 4 times.
+  4. From endpoint A, send SACK of the 2nd DATA messages to endpoint 
+     B, report the 1st message is missing.
+  5. From endpoint A, send SACK of the 2nd, 3rd DATA messages to 
+     endpoint B, report the 1st message is missing.
+  6. From endpoint A, send SACK of the 2nd, 3rd and 4th DATA messages
+     to endpoint B, report the 1st message is missing.
+  7. Check B: The 1st DATA messages is send again immediately.
+  8. Check C: Congestion control window is 6000 now.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  7.2.4.  Fast Retransmit on Gap Reports</pre>
+<pre>
+    In the absence of data loss, an endpoint performs delayed
+    acknowledgement.  However, whenever an endpoint notices a hole in the
+    arriving TSN sequence, it SHOULD start sending a SACK back every time
+    a packet arrives carrying data until the hole is filled.</pre>
+<pre>
+    Whenever an endpoint receives a SACK that indicates that some TSNs
+    are missing, it SHOULD wait for two further miss indications (via
+    subsequent SACKs for a total of three missing reports) on the same
+    TSNs before taking action with regard to Fast Retransmit.</pre>
+<pre>
+    Miss indications SHOULD follow the HTNA (Highest TSN Newly
+    Acknowledged) algorithm.  For each incoming SACK, miss indications
+    are incremented only for missing TSNs prior to the highest TSN newly
+    acknowledged in the SACK.  A newly acknowledged DATA chunk is one not
+    previously acknowledged in a SACK.  If an endpoint is in Fast
+    Recovery and a SACK arrives that advances the Cumulative TSN Ack
+    Point, the miss indications are incremented for all TSNs reported
+    missing in the SACK.</pre>
+<pre>
+    When the third consecutive miss indication is received for a TSN(s),
+    the data sender shall do the following:</pre>
+<pre>
+    1)  Mark the DATA chunk(s) with three miss indications for
+        retransmission.</pre>
+<pre>
+    2)  If not in Fast Recovery, adjust the ssthresh and cwnd of the
+        destination address(es) to which the missing DATA chunks were
+        last sent, according to the formula described in Section 7.2.3.</pre>
+<pre>
+    3)  Determine how many of the earliest (i.e., lowest TSN) DATA chunks
+        marked for retransmission will fit into a single packet, subject
+        to constraint of the path MTU of the destination transport
+        address to which the packet is being sent.  Call this value K.
+        Retransmit those K DATA chunks in a single packet.  When a Fast
+        Retransmit is being performed, the sender SHOULD ignore the value
+        of cwnd and SHOULD NOT delay retransmission for this single
+        packet.</pre>
+<PRE>
+    4)  Restart the T3-rtx timer only if the last SACK acknowledged the
+        lowest outstanding TSN number sent to that address, <B>or the
+        endpoint is retransmitting the first outstanding DATA chunk sent
+        to that address.</B>
+</PRE><pre>
+    5)  Mark the DATA chunk(s) as being fast retransmitted and thus
+        ineligible for a subsequent Fast Retransmit.  Those TSNs marked
+        for retransmission due to the Fast-Retransmit algorithm that did
+        not fit in the sent datagram carrying K other TSNs are also
+        marked as ineligible for a subsequent Fast Retransmit.  However,
+        as they are marked for retransmission they will be retransmitted
+        later on as soon as cwnd allows.</pre>
+<pre>
+    6)  If not in Fast Recovery, enter Fast Recovery and mark the highest
+        outstanding TSN as the Fast Recovery exit point.  When a SACK
+        acknowledges all TSNs up to and including this exit point, Fast
+        Recovery is exited.  While in Fast Recovery, the ssthresh and
+        cwnd SHOULD NOT change for any destinations due to a subsequent
+        Fast Recovery event (i.e., one SHOULD NOT reduce the cwnd further
+        due to a subsequent Fast Retransmit).</pre>
+<pre>
+    Note: Before the above adjustments, if the received SACK also
+    acknowledges new DATA chunks and advances the Cumulative TSN Ack
+    Point, the cwnd adjustment rules defined in Section 7.2.1 and Section
+    7.2.2 must be applied first.</pre>
+<pre>
+    A straightforward implementation of the above keeps a counter for
+    each TSN hole reported by a SACK.  The counter increments for each
+    consecutive SACK reporting the TSN hole.  After reaching 3 and
+    starting the Fast-Retransmit procedure, the counter resets to 0.</pre>
+<pre>
+    Because cwnd in SCTP indirectly bounds the number of outstanding
+    TSN's, the effect of TCP Fast Recovery is achieved automatically with
+    no adjustment to the congestion control window size.</pre>
+
+</body>
+
+</html>

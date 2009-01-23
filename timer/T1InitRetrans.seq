@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_init_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_init_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_abort_snd);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T1InitRetrans.seq - INIT message is transmitted again if T1-Init timer expires
+
+=head1 PURPOSE
+
+  To check that if the T1-init timer expires, the endpoint MUST retransmit INIT
+  and restart the T1-init timer without changing state.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T1InitRetrans.seq">./T1InitRetrans.seq</A> [-tooloption ...] -pkt <A HREF="./T1InitRetrans.def">./T1InitRetrans.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in Endpoint A such that INIT-ACK is not sent in response to INIT
+  message.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                                   <-----    Associate
+                <----------------       INIT
+  Don't send                            Start T1-Init timer
+  INIT-ACK                                   |
+                                             | T1-INIT timer Expires
+                                             |
+                <----------------       INIT
+                                              Restart T1-Init timer
+
+  TEST DESCRIPTION:
+
+  1. Try to make an association from endpoint B to endpoint A by sending
+     INIT message from endpoint B. Don't send INIT-ACK in response to 
+     INIT message. Record the message sequence using a signal emulator.
+  2. Check A: INIT message is sent again after expiry of T1-Init timer.
+  3. Check B: In the retransmitted message, Init-Tag value is same as 
+     was in the previous INIT message.
+  4. Check C: Was the message sequence as above.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  4.  SCTP Association State Diagram
+
+    Notes:
+
+    1)  If the State Cookie in the received COOKIE ECHO is invalid (i.e.,
+        failed to pass the integrity check), the receiver MUST silently
+        discard the packet.  Or, if the received State Cookie is expired
+        (see Section 5.1.5), the receiver MUST send back an ERROR chunk.
+        In either case, the receiver stays in the CLOSED state.
+
+=begin html
+<PRE>
+    2)  <B>If the T1-init timer expires, the endpoint MUST retransmit INIT
+        and restart the T1-init timer without changing state.</B>  This MUST
+        be repeated up to 'Max.Init.Retransmits' times.  After that, the
+        endpoint MUST abort the initialization process and report the
+        error to the SCTP user.
+</PRE>
+
+=end html
+

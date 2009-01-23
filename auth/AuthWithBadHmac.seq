@@ -1,0 +1,164 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_auth_bad_hmac	=> "Send SCTP CHUNK_AUTH (with Bad Message Authentication Code)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnectAuth($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_auth_bad_hmac);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_any_rcv') {
+	vLogHTML('Authenticated chunks not be silently discarded<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML('All authenticated chunks be silently discarded');
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AuthWithBadShareID.seq - Authentication Chunk is received with Message Authentication Code not match
+
+=head1 PURPOSE
+
+  To verify that if the AUTH chunk is received with bad Message Authentication
+  Code, all authenticated chunks MUST be silently discarded.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AuthWithBadHmac.seq">./AuthWithBadHmac.seq</A> [-tooloption ...] -pkt <A HREF="./AuthWithBadHmac.def">./AuthWithBadHmac.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that AUTH chunk with bad Message Authentication
+  Code is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (ESTABLISHED)                          (ESTABLISHED)
+
+    AUTH          ------------------>
+    (with Message Authentication Code)
+                                        Silently discard
+
+  TEST DESCRIPTION:
+
+  1. Send AUTH chunk from endpoint A to B with bad Message Authentication
+     Code.
+  2. Check A: All authenticated chunks be silently discarded.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  6.3.  Receiving Authenticated Chunks
+
+    The receiver has a list of chunk types that it expects to be received
+    only after an AUTH-chunk.  This list has been sent to the peer during
+    the association setup.  It MUST silently discard these chunks if they
+    are not placed after an AUTH chunk in the packet.
+
+    The receiver MUST use the HMAC algorithm indicated in the HMAC
+    Identifier field.  If this algorithm was not specified by the
+    receiver in the HMAC-ALGO parameter in the INIT or INIT-ACK chunk
+    during association setup, the AUTH chunk and all the chunks after it
+    MUST be discarded and an ERROR chunk SHOULD be sent with the error
+    cause defined in Section 4.1.
+
+    If an endpoint with no shared key receives a Shared Key Identifier
+    other than 0, it MUST silently discard all authenticated chunks. If
+    the endpoint has at least one endpoint pair shared key for the peer,
+    it MUST use the key specified by the Shared Key Identifier if a key
+    has been configured for that Shared Key Identifier.  If no endpoint
+    pair shared key has been configured for that Shared Key Identifier,
+    all authenticated chunks MUST be silently discarded.
+
+=begin html
+<PRE>
+    The receiver now performs the same calculation as described for the
+    sender based on Figure 6.  If the result of the calculation is the
+    same as given in the HMAC field, all the chunks following the AUTH
+    chunk are processed.  <B>If the field does not match the result of the
+    calculation, all the chunks following the AUTH chunk MUST be silently
+    discarded.</B>
+</PRE>
+
+=end html
+

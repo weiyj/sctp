@@ -1,0 +1,350 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#ifndef __SCTP_AUTH_COMMON_DEF_
+#define __SCTP_AUTH_COMMON_DEF_	1
+
+#include "SCTP_COMMON.def"
+
+#if (AUTH_ENABLE == 1)
+
+#if (ENABLE_IPV6 == 0)
+#define PKG_SCTP_NORM_SEND_AUTH		PKG_SCTP_NORM_SEND4_AUTH
+#define PKG_SCTP_NORM_RECV_AUTH		PKG_SCTP_NORM_RECV4_AUTH
+#define PKG_SCTP_EXTH_SEND_AUTH		PKG_SCTP_EXTH_SEND4_AUTH
+#define PKG_SCTP_EXTH_RECV_AUTH		PKG_SCTP_EXTH_RECV4_AUTH
+#define PKG_SCTP_SHORT_SEND_AUTH	PKG_SCTP_SHORT_SEND4_AUTH
+#define PKG_SCTP_SHORT_RECV_AUTH	PKG_SCTP_SHORT_RECV4_AUTH
+#else 
+#define PKG_SCTP_NORM_SEND_AUTH		PKG_SCTP_NORM_SEND6_AUTH
+#define PKG_SCTP_NORM_RECV_AUTH		PKG_SCTP_NORM_RECV6_AUTH
+#define PKG_SCTP_EXTH_SEND_AUTH		PKG_SCTP_EXTH_SEND6_AUTH
+#define PKG_SCTP_EXTH_RECV_AUTH		PKG_SCTP_EXTH_RECV6_AUTH
+#define PKG_SCTP_SHORT_SEND_AUTH	PKG_SCTP_SHORT_SEND6_AUTH
+#define PKG_SCTP_SHORT_RECV_AUTH	PKG_SCTP_SHORT_RECV6_AUTH
+#endif /* #if (ENABLE_IPV6 == 0) */
+
+#else
+
+#if (ENABLE_IPV6 == 0)
+#define PKG_SCTP_NORM_SEND_AUTH		PKG_SCTP_NORM_SEND4
+#define PKG_SCTP_NORM_RECV_AUTH		PKG_SCTP_NORM_RECV4
+#define PKG_SCTP_EXTH_SEND_AUTH		PKG_SCTP_EXTH_SEND4
+#define PKG_SCTP_EXTH_RECV_AUTH		PKG_SCTP_EXTH_RECV4
+#define PKG_SCTP_SHORT_SEND_AUTH	PKG_SCTP_SHORT_SEND4
+#define PKG_SCTP_SHORT_RECV_AUTH	PKG_SCTP_SHORT_RECV4
+#else 
+#define PKG_SCTP_NORM_SEND_AUTH		PKG_SCTP_NORM_SEND6
+#define PKG_SCTP_NORM_RECV_AUTH		PKG_SCTP_NORM_RECV6
+#define PKG_SCTP_EXTH_SEND_AUTH		PKG_SCTP_EXTH_SEND6
+#define PKG_SCTP_EXTH_RECV_AUTH		PKG_SCTP_EXTH_RECV6
+#define PKG_SCTP_SHORT_SEND_AUTH	PKG_SCTP_SHORT_SEND6
+#define PKG_SCTP_SHORT_RECV_AUTH	PKG_SCTP_SHORT_RECV6
+#endif /* #if (ENABLE_IPV6 == 0) */
+
+#endif /* #if (AUTH_ENABLE == 0) */
+
+#define PKG_SCTP_NORM_SEND4_AUTH(_pNAME, _oHDR_IPV4, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	_oHDR_IPV4, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_TN0_PORT; \
+		DestinationPort = SCTP_NUT0_PORT;	\
+		VerificationTag = VERFTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_NORM_RECV4_AUTH(_pNAME, _oHDR_IPV4, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	_oHDR_IPV4, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_NUT0_PORT; \
+		DestinationPort = SCTP_TN0_PORT;	\
+		VerificationTag = INITTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_EXTH_SEND4_AUTH(_pNAME, _oHDR_SCTP, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	{ \
+		_SRC(v4(SCTP4_TN_NET0_ADDR)); \
+		_DST(v4(SCTP4_NUT_NET0_ADDR)); \
+	}, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	_oHDR_SCTP, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_EXTH_RECV4_AUTH(_pNAME, _oHDR_SCTP, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	{ \
+		_SRC(v4(SCTP4_NUT_NET0_ADDR)); \
+		_DST(v4(SCTP4_TN_NET0_ADDR)); \
+	}, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	_oHDR_SCTP, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_SHORT_SEND4_AUTH(_pNAME, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	{ \
+		_SRC(v4(SCTP4_TN_NET0_ADDR)); \
+		_DST(v4(SCTP4_NUT_NET0_ADDR)); \
+	}, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_TN0_PORT; \
+		DestinationPort = SCTP_NUT0_PORT;	\
+		VerificationTag = VERFTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_SHORT_RECV4_AUTH(_pNAME, _oUPP_SCTP) \
+FEM_sctp4_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	{ \
+		_SRC(v4(SCTP4_NUT_NET0_ADDR)); \
+		_DST(v4(SCTP4_TN_NET0_ADDR)); \
+	}, \
+	{ \
+		header = _HDR_IPV4_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_NUT0_PORT; \
+		DestinationPort = SCTP_TN0_PORT;	\
+		VerificationTag = INITTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_NORM_SEND6_AUTH(_pNAME, _oHDR_IPV6, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	_oHDR_IPV6, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_TN0_PORT; \
+		DestinationPort = SCTP_NUT0_PORT;	\
+		VerificationTag = VERFTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_NORM_RECV6_AUTH(_pNAME, _oHDR_IPV6, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	_oHDR_IPV6, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_NUT0_PORT; \
+		DestinationPort = SCTP_TN0_PORT;	\
+		VerificationTag = INITTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_EXTH_SEND6_AUTH(_pNAME, _oHDR_SCTP, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	{ \
+		_SRC(SCTP6_TN_NET0_ADDR); \
+		_DST(SCTP6_NUT_NET0_ADDR); \
+	}, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	_oHDR_SCTP, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_EXTH_RECV6_AUTH(_pNAME, _oHDR_SCTP, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	{ \
+		_SRC(SCTP6_NUT_NET0_ADDR); \
+		_DST(SCTP6_TN_NET0_ADDR); \
+	}, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	_oHDR_SCTP, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_SHORT_SEND6_AUTH(_pNAME, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_tn2nut, \
+	{ \
+		_SRC(SCTP6_TN_NET0_ADDR); \
+		_DST(SCTP6_NUT_NET0_ADDR); \
+	}, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_TN0_PORT; \
+		DestinationPort = SCTP_NUT0_PORT;	\
+		VerificationTag = VERFTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_snd; \
+		_oUPP_SCTP \
+	} \
+)
+
+#define PKG_SCTP_SHORT_RECV6_AUTH(_pNAME, _oUPP_SCTP) \
+FEM_sctp6_exth( \
+	_pNAME, \
+	_HETHER_nut2tn, \
+	{ \
+		_SRC(SCTP6_NUT_NET0_ADDR); \
+		_DST(SCTP6_TN_NET0_ADDR); \
+	}, \
+	{ \
+		header = _HDR_IPV6_NAME(_pNAME); \
+		upper = _UPP_SCTP_NAME(_pNAME); \
+	}, \
+	{ \
+		SourcePort = SCTP_NUT0_PORT; \
+		DestinationPort = SCTP_TN0_PORT;	\
+		VerificationTag = INITTAG; \
+	}, \
+	{ \
+		header = _HDR_SCTP_NAME(_pNAME); \
+		chunk = chunk_auth_std_rcv; \
+		_oUPP_SCTP \
+	} \
+)
+
+CHUNK_AUTH chunk_auth_std_snd {
+	SharedKeyIdentifier = 0;
+	HMACIdentifier = 1;
+	HMAC = repeat(0x00, 20);
+}
+
+CHUNK_AUTH chunk_auth_std_rcv {
+	SharedKeyIdentifier = 0;
+	HMACIdentifier = stop;
+}
+
+#endif /* #ifndef __SCTP_AUTH_COMMON_DEF_ */

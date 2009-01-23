@@ -1,0 +1,160 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_ack_bad_param	=> "Send SCTP CHUNK_INIT_ACK (with Invalid Mandatory Parameter)",
+	sctp_chunk_abort_invalid_param	=> "Recv SCTP CHUNK_ABORT (Invalid Mandatory Parameter)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_rcv) {
+	vLogHTML('Cannot receive SCTP SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchInitField(\%ret);
+
+vSend($IF0, sctp_chunk_init_ack_bad_param);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_invalid_param);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_abort_invalid_param') {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitAckWithZeroTag.seq - INIT-ACK chunk is received with initiate tag set to zero
+
+=head1 PURPOSE
+
+  To check that if INIT-ACK chunk is received with initiate tag set to
+  zero, the endpoint should responded it with ABORT chunk including
+  cause of invalid mandatory parameter.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitAckWithZeroTag.seq">./InitAckWithZeroTag.seq</A> [-tooloption ...] -pkt <A HREF="./InitAckWithZeroTag.def">./InitAckWithZeroTag.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that INIT-ACK message with initiate tag set
+  to zero is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                                   <-----    Associate
+                <-----------------       INIT
+
+  INIT-ACK      ----------------->
+  (with initiate tag = 0)
+                <-----------------      ABORT
+                                        (Invalid Mandatory Parameter)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint A to endpoint B. Send 
+     INIT-ACK message with initiate tag set to zero.
+     Record the message sequence using a signal emulator.
+  2. Check A: INIT-ACK message is responded with ABORT including cause of 
+     invalid mandatory parameter.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.3.  Initiation Acknowledgement (INIT ACK) (2)
+
+    Initiate Tag: 32 bits (unsigned integer)
+
+      The receiver of the INIT ACK records the value of the Initiate Tag
+      parameter.  This value MUST be placed into the Verification Tag
+      field of every SCTP packet that the INIT ACK receiver transmits
+      within this association.
+
+      The Initiate Tag MUST NOT take the value 0.  See Section 5.3.1 for
+      more on the selection of the Initiate Tag value.
+
+=begin html
+<PRE>
+      <B>If the value of the Initiate Tag in a received INIT ACK chunk is
+      found to be 0, the receiver MUST destroy the association
+      discarding its TCB.  The receiver MAY send an ABORT for debugging
+      purpose.</B>
+</PRE>
+
+=end html

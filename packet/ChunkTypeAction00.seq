@@ -1,0 +1,162 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_00	=> "Send SCTP CHUNK_DATA (bundled with unrecognized chunk type which higher two bytes are set to 00)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_data_00);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Receive unexpected SCTP CHUNK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML('<B>Packet is silently discard</B>');
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ChunkTypeAction00.seq - Unrecognized Chunk Type with higher two bytes are set to 00
+
+=head1 PURPOSE
+
+  To check that if a chunk type is not recognized by the receiver then 
+  the highest order 2 bits decide the action that must be taken.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ChunkTypeAction00.seq">./ChunkTypeAction00.seq</A> [-tooloption ...] -pkt <A HREF="./ChunkTypeAction00.def">./ChunkTypeAction00.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint B such that a datagram with reserved chunk type is sent to 
+  endpoint A bundled with DATA chunk in any state and higher two bytes are
+  set to 00.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  Chunk Type 3F   ------------------>    Silently discard
+  (bundled with DATA)
+  DATA            ------------------>
+
+                  <------------------    SACK
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. In the 
+     established state send a datagram with reserved chunk type bundled 
+     with DATA. Highest order two bits have been set to 00 in the 
+     reserved chunk type.
+  2. Check A: Datgram with reserved chunk type is discarded and SACK is 
+     not sent for the DATA chunk.
+  3. Check B: ERROR is also not received at endpoint A.
+  4. Check C: Association is not disturbed.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.2.  Chunk Field Descriptions
+
+      Chunk Types are encoded such that the highest-order 2 bits specify
+      the action that must be taken if the processing endpoint does not
+      recognize the Chunk Type.
+
+=begin html
+<PRE>
+      <B>00 -  Stop processing this SCTP packet and discard it, do not
+            process any further chunks within it.</B>
+</PRE>
+
+=end html
+
+      01 -  Stop processing this SCTP packet and discard it, do not
+            process any further chunks within it, and report the
+            unrecognized chunk in an 'Unrecognized Chunk Type'.
+
+      10 -  Skip this chunk and continue processing.
+
+      11 -  Skip this chunk and continue processing, but report in an
+            ERROR chunk using the 'Unrecognized Chunk Type' cause of
+            error.
+

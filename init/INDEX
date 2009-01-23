@@ -1,0 +1,127 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Normal Establishment of an Association</B>
+./NormalInitClient.seq:./NormalInitClient.def:::Normal Association of SCTP Client
+./NormalInitServer.seq:./NormalInitServer.def:::Normal Association of SCTP Server
+
+########################################################################
+&print:<B>Missing Mandatory parameter</B>
+./InitWithParamMissing.seq:./InitWithParamMissing.def:::INIT chunk is received with mandatory parameter missing
+./InitAckWithParamMissing.seq:./InitAckWithParamMissing.def:::INIT-ACK chunk is received with mandatory parameter missing
+
+########################################################################
+&print:<B>Handle Stream Parameters</B>
+./InitStreamMismatch.seq:./InitStreamMismatch.def:::INIT chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters
+./InitZeroStream.seq:./InitZeroStream.def:::INIT chunk is received with Outbound Stream and Inbound Stream parameters set to zero
+./InitAckStreamMismatch.seq:./InitAckStreamMismatch.def:::INIT-ACK chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters
+./InitAckZeroStream.seq:./InitAckZeroStream.def:::INIT-ACK chunk is received with Outbound Stream and Inbound Stream parameters set to zero
+
+########################################################################
+&print:<B>Handle IP Address Parameter</B>
+./InitWithoutAddr.seq:./InitWithoutAddr.def:::INIT chunk is received with no address parameters present
+./InitWithOneAddr.seq:./InitWithOneAddr.def:::INIT chunk is received with one address parameter
+./InitWithMoreAddr.seq:./InitWithMoreAddr.def:::INIT chunk is received with more than one address parameters
+./InitWithMultiAddrType.seq:./InitWithMultiAddrType.def:::INIT chunk is received with both IPv4 and IPv6 addresses
+./InitAckWithoutAddr.seq:./InitAckWithoutAddr.def:::INIT-ACK chunk is received with no address parameters present
+./InitAckWithOneAddr.seq:./InitAckWithOneAddr.def:::INIT-ACK chunk is received with one address parameter
+./InitAckWithMoreAddr.seq:./InitAckWithMoreAddr.def:::INIT-ACK chunk is received with more than one address parameters
+./InitAckWithMultiAddrType.seq:./InitAckWithMultiAddrType.def:::INIT-ACK chunk is received with both IPv4 and IPv6 addresses
+
+########################################################################
+&print:<B>Handle Cookie Preservative Parameter</B>
+./InitWithCookiePre.seq:./InitWithCookiePre.def:::INIT chunk is received with cookie preservative parameter (cookie life time expired)
+./InitWithCookiePre2.seq:./InitWithCookiePre2.def:::INIT chunk is received with cookie preservative parameter (cookie life time not expire)
+
+########################################################################
+&print:<B>Handle Host Name Address Parameter</B>
+#./InitWithHostName.seq:./InitWithHostName.def:::INIT chunk is received with Host Name Address
+./InitBadHostName.seq:./InitBadHostName.def:::INIT chunk is received with Unresolvable Host Name Address
+#./InitNameAndAddr.seq:./InitNameAndAddr.def:::INIT chunk is received with Both Host Name Address And IP Address Parameter
+#./InitAckWithHostName.seq:./InitAckWithHostName.def:::INIT-ACK chunk is received with Host Name Address
+./InitAckBadHostName.seq:./InitAckBadHostName.def:::INIT-ACK chunk is received with Unresolvable Host Name Address
+#./InitAckNameAndAddr.seq:./InitAckNameAndAddr.def:::INIT-ACK chunk is received with Both Host Name Address And IP Address Parameter
+
+########################################################################
+&print:<B>Handle Supported Address Types Parameter</B>
+./InitSuppIPv4Addr.seq:./InitSuppIPv4Addr.def:::INIT chunk is received with Supported Address Field containing only IPv4 Address type
+./InitSuppIPv6Addr.seq:./InitSuppIPv6Addr.def:::INIT chunk is received with Supported Address Field containing only IPv6 Address type
+./InitSuppBothAddrType.seq:./InitSuppBothAddrType.def:::INIT chunk is received with Supported Address Field containing both IPv4 And IPv6 address types
+./InitBadSuppAddrType.seq:./InitBadSuppAddrType.def:::INIT chunk is received with Supported Address Type which the receiver is incapable of using
+
+########################################################################
+&print:<B>State Cookie Authentication</B>
+./CookieEchoBadMD5.seq:./CookieEchoBadMD5.def:::COOKIE-ECHO chunk is received with wrong MD5 signature
+./CookieEchoExpired.seq:./CookieEchoExpired.def:::COOKIE-ECHO chunk is received with life time expired
+./CookieEchoValid.seq:./CookieEchoValid.def:::COOKIE-ECHO chunk is received with life time not expire
+
+########################################################################
+&print:<B>Handle Duplicate or unexpected INIT, INIT ACK, COOKIE ECHO, and COOKIE ACK</B>
+
+&print:Duplicate INIT Message in COOKIE-WAIT or COOKIE-ECHOED State
+./DupInitInCookieWait.seq:./DupInitInCookieWait.def:::Duplicate INIT chunk is received in COOKIE-WAIT state
+./DupInitInCookieWait2.seq:./DupInitInCookieWait2.def:::Duplicate INIT chunk is received in COOKIE-WAIT state (MUST NOT change state)
+./DupInitInCookieEchoed.seq:./DupInitInCookieEchoed.def:::Duplicate INIT chunk is received in COOKIE-ECHOED state
+./DupInitInCookieEchoed2.seq:./DupInitInCookieEchoed2.def:::Duplicate INIT chunk is received in COOKIE-ECHOED state (MUST NOT change state)
+
+&print:Unexpected INIT in Other States
+./DupInitInEstab.seq:./DupInitInEstab.def:::Unexpected INIT chunk is received in ESTABLISHED state
+./DupInitInShutSend.seq:./DupInitInShutSend.def:::Unexpected INIT chunk is received in SHUTDOWN-SENT state
+./DupInitInShutRecv.seq:./DupInitInShutRecv.def:::Unexpected INIT chunk is received in SHUTDOWN-RECEIVED state
+
+&print:Unexpected INIT-ACK
+./DupInitAckInCookieEchoed.seq:./DupInitAckInCookieEchoed.def:::Unexpected INIT-ACK chunk is received in COOKIE-ECHOED state
+./DupInitAckInEstab.seq:./DupInitAckInEstab.def:::Unexpected INIT-ACK chunk is received in ESTABLISHED state
+./DupInitAckInShutSend.seq:./DupInitAckInShutSend.def:::Unexpected INIT-ACK chunk is received in SHUTDOWN-SENT state
+./DupInitAckInShutRecv.seq:./DupInitAckInShutRecv.def:::Unexpected INIT-ACK chunk is received in SHUTDOWN-RECEIVED state
+./DupInitAckInShutAckSend.seq:./DupInitAckInShutAckSend.def:::Unexpected INIT-ACK chunk is received in SHUTDOWN-ACK-SENT state
+
+&print:Handle a COOKIE ECHO when a TCB exists
+./DupCookieEchoBadMD5.seq:./DupCookieEchoBadMD5.def:::Duplicate COOKIE-ECHO chunk is received with wrong MD5 signature
+./RestartModeA.seq:./RestartModeA.def:::COOKIE ECHO chunk is received when a TCB exists (Case A)
+./RestartModeB.seq:./RestartModeB.def:::COOKIE ECHO chunk is received when a TCB exists (Case B)
+./RestartModeD.seq:./RestartModeD.def:::COOKIE ECHO chunk is received when a TCB exists (Case D)
+./RestartModeE.seq:./RestartModeE.def:::COOKIE ECHO chunk is received when a TCB exists (Case E)
+
+&print:Duplicate COOKIE-ACK
+./DupCookieAckInCookieWait.seq:./DupCookieAckInCookieWait.def:::Duplicate COOKIE-ACK chunk is received in COOKIE-WAIT state
+./DupCookieAckInEstab.seq:./DupCookieAckInEstab.def:::Duplicate COOKIE-ACK chunk is received in ESTABLISHED state
+./DupCookieAckInShutSend.seq:./DupCookieAckInShutSend.def:::Duplicate COOKIE-ACK chunk is received in SHUTDOWN-SENT state
+./DupCookieAckInShutRecv.seq:./DupCookieAckInShutRecv.def:::Duplicate COOKIE-ACK chunk is received in SHUTDOWN-RECEIVED state
+./DupCookieAckInShutAckSend.seq:./DupCookieAckInShutAckSend.def:::Duplicate COOKIE-ACK chunk is received in SHUTDOWN-ACK-SENT state

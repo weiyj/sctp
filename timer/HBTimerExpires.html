@@ -1,0 +1,202 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>HBTimerExpires.seq - RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  HBTimerExpires.seq - RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if HEARTBEAT expires on a destination address then 
+  value of RTO is updated correctly for that address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./HBTimerExpires.seq">./HBTimerExpires.seq</A> [-tooloption ...] -pkt <A HREF="./HBTimerExpires.def">./HBTimerExpires.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A and B such that no DATA or control chunk is exchanged
+  between them.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+        No message is exchanged within current
+                   Heartbeat period
+                &lt;-----------------   HEARTBEAT
+                                         |
+                                         |   T1-Cookie timer expires
+                                         | 
+                &lt;-----------------   HEARTBEAT
+                                         .
+                                         . Retransmit x 
+                                         .  times</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. From an endpoint in established state, do not send any message to 
+     another endpoint within the current Heartbeat period. HEARTBEAT
+     message is sent to its peer. Record the message sequence using
+     a signal emulator.
+  2. HEARTBEAT message is sent again after expiry of 
+     HEARTBEAT timer.
+  3. Check A: Value of the T3-rxt is updated correctly.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  8.3.  Path Heartbeat</pre>
+<pre>
+    By default, an SCTP endpoint SHOULD monitor the reachability of the
+    idle destination transport address(es) of its peer by sending a
+    HEARTBEAT chunk periodically to the destination transport
+    address(es).  HEARTBEAT sending MAY begin upon reaching the
+    ESTABLISHED state and is discontinued after sending either SHUTDOWN
+    or SHUTDOWN-ACK.  A receiver of a HEARTBEAT MUST respond to a
+    HEARTBEAT with a HEARTBEAT-ACK after entering the COOKIE-ECHOED state
+    (INIT sender) or the ESTABLISHED state (INIT receiver), up until
+    reaching the SHUTDOWN-SENT state (SHUTDOWN sender) or the SHUTDOWN-
+    ACK-SENT state (SHUTDOWN receiver).</pre>
+<pre>
+    A destination transport address is considered &quot;idle&quot; if no new chunk
+    that can be used for updating path RTT (usually including first
+    transmission DATA, INIT, COOKIE ECHO, HEARTBEAT, etc.) and no
+    HEARTBEAT has been sent to it within the current heartbeat period of
+    that address.  This applies to both active and inactive destination
+    addresses.</pre>
+<pre>
+    The upper layer can optionally initiate the following functions:</pre>
+<pre>
+    A) Disable heartbeat on a specific destination transport address of a
+       given association,</pre>
+<pre>
+    B) Change the HB.interval,</pre>
+<pre>
+    C) Re-enable heartbeat on a specific destination transport address of
+       a given association, and</pre>
+<pre>
+    D) Request an on-demand HEARTBEAT on a specific destination transport
+       address of a given association.</pre>
+<pre>
+    The endpoint should increment the respective error counter of the
+    destination transport address each time a HEARTBEAT is sent to that
+    address and not acknowledged within one RTO.</pre>
+<pre>
+    When the value of this counter reaches the protocol parameter
+    'Path.Max.Retrans', the endpoint should mark the corresponding
+    destination address as inactive if it is not so marked, and may also
+    optionally report to the upper layer the change of reachability of
+    this destination address.  After this, the endpoint should continue
+    HEARTBEAT on this destination address but should stop increasing the
+    counter.</pre>
+<pre>
+    The sender of the HEARTBEAT chunk should include in the Heartbeat
+    Information field of the chunk the current time when the packet is
+    sent out and the destination address to which the packet is sent.</pre>
+<pre>
+    IMPLEMENTATION NOTE: An alternative implementation of the heartbeat
+    mechanism that can be used is to increment the error counter variable
+    every time a HEARTBEAT is sent to a destination.  Whenever a
+    HEARTBEAT ACK arrives, the sender SHOULD clear the error counter of
+    the destination that the HEARTBEAT was sent to.  This in effect would
+    clear the previously stroked error (and any other error counts as
+    well).</pre>
+<pre>
+    The receiver of the HEARTBEAT should immediately respond with a
+    HEARTBEAT ACK that contains the Heartbeat Information TLV, together
+    with any other received TLVs, copied unchanged from the received
+    HEARTBEAT chunk.</pre>
+<pre>
+    Upon the receipt of the HEARTBEAT ACK, the sender of the HEARTBEAT
+    should clear the error counter of the destination transport address
+    to which the HEARTBEAT was sent, and mark the destination transport
+    address as active if it is not so marked.  The endpoint may
+    optionally report to the upper layer when an inactive destination
+    address is marked as active due to the reception of the latest
+    HEARTBEAT ACK.  The receiver of the HEARTBEAT ACK must also clear the
+    association overall error count as well (as defined in Section 8.1).</pre>
+<pre>
+    The receiver of the HEARTBEAT ACK should also perform an RTT
+    measurement for that destination transport address using the time
+    value carried in the HEARTBEAT ACK chunk.</pre>
+<PRE>
+    <B>On an idle destination address that is allowed to heartbeat, it is
+    recommended that a HEARTBEAT chunk is sent once per RTO of that
+    destination address plus the protocol parameter 'HB.interval', with
+    jittering of +/- 50% of the RTO value, and exponential backoff of the
+    RTO if the previous HEARTBEAT is unanswered.</B>
+</PRE><pre>
+    A primitive is provided for the SCTP user to change the HB.interval
+    and turn on or off the heartbeat on a given destination address.  The
+    heartbeat interval set by the SCTP user is added to the RTO of that
+    destination (including any exponential backoff).  Only one heartbeat
+    should be sent each time the heartbeat timer expires (if multiple
+    destinations are idle).  It is an implementation decision on how to
+    choose which of the candidate idle destinations to heartbeat to (if
+    more than one destination is idle).</pre>
+<pre>
+    Note: When tuning the heartbeat interval, there is a side effect that
+    SHOULD be taken into account.  When this value is increased, i.e.,
+    the HEARTBEAT takes longer, the detection of lost ABORT messages
+    takes longer as well.  If a peer endpoint ABORTs the association for
+    any reason and the ABORT chunk is lost, the local endpoint will only
+    discover the lost ABORT by sending a DATA chunk or HEARTBEAT chunk
+    (thus causing the peer to send another ABORT).  This must be
+    considered when tuning the HEARTBEAT timer.  If the HEARTBEAT is
+    disabled, only sending DATA to the association will discover a lost
+    ABORT from the peer.</pre>
+
+</body>
+
+</html>

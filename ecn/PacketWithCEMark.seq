@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_mark_ce		=> "Send SCTP CHUNK_DATA (with CE bit marked)",
+	sctp_chunk_ecne_and_sack	=> "Recv SCTP CHUNK_ECN_ECHO and CHUNK_SACK",
+	sctp_chunk_ecn_echo_rcv		=> "Recv SCTP CHUNK_ECN_ECHO",
+	sctp_chunk_ecn_cwr_snd		=> "Send SCTP CHUNK_ECN_CWR",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_mark_ce);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ecne_and_sack, sctp_chunk_ecn_echo_rcv);
+if ($ret{status} != 0 || ($ret{recvFrame} ne sctp_chunk_ecne_and_sack && $ret{recvFrame} ne sctp_chunk_ecn_echo_rcv)) {
+	vLogHTML('Cannot receive SCTP CHUNK_ECN_CWR<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_ecn_cwr_snd);
+
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_ecn_echo_rcv) {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_rcv) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  PacketWithCEMark.seq - Data chunk is received with IP datagram marked with the CE bit while endpoint is ECN capable
+
+=head1 PURPOSE
+
+  To check that if a Data chunk is received with IP datagram marked with 
+  the CE bit while endpoint is ECN capable, the endpoint will send ECN_ECHO 
+  chunk to notify IP datagram marked with the CE bit.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./PacketWithCEMark.seq">./PacketWithCEMark.seq</A> [-tooloption ...] -pkt <A HREF="./PacketWithCEMark.def">./PacketWithCEMark.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that DATA chunk with IP datagram marked with 
+  the CE bit is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA          ----------------->
+  (marked with CE bit)
+                <----------------      ECN_ECHO
+
+  ECN_CWR       ----------------->
+
+                <----------------      SACK
+
+  TEST DESCRIPTION:
+
+  1. Send DATA chunk with IP datagram marked with the CE bit from
+     endpoint A to endpoint B.
+  2. Check A: ECN_ECHO chunk is received from endpoint B to reponse
+     the DATA chunk.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  Appendix A.  Explicit Congestion Notification
+
+    ECN [RFC3168] describes a proposed extension to IP that details a
+    method to become aware of congestion outside of datagram loss.  This
+    is an optional feature that an implementation MAY choose to add to
+    SCTP.  This appendix details the minor differences implementers will
+    need to be aware of if they choose to implement this feature.  In
+    general, [RFC3168] should be followed with the following exceptions.
+
+    Negotiation:
+
+    [RFC3168] details negotiation of ECN during the SYN and SYN-ACK
+    stages of a TCP connection.  The sender of the SYN sets 2 bits in the
+    TCP flags, and the sender of the SYN-ACK sets only 1 bit.  The
+    reasoning behind this is to ensure that both sides are truly ECN
+    capable.  For SCTP, this is not necessary.  To indicate that an
+    endpoint is ECN capable, an endpoint SHOULD add to the INIT and or
+    INIT ACK chunk the TLV reserved for ECN.  This TLV contains no
+    parameters, and thus has the following format:
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |   Parameter Type = 32768      |     Parameter Length = 4      |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    ECN-Echo:
+
+    [RFC3168] details a specific bit for a receiver to send back in its
+    TCP acknowledgements to notify the sender of the Congestion
+    Experienced (CE) bit having arrived from the network.  For SCTP, this
+    same indication is made by including the ECNE chunk.  This chunk
+    contains one data element, i.e., the lowest TSN associated with the
+    IP datagram marked with the CE bit, and looks as follows:
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Chunk Type=12 | Flags=00000000|    Chunk Length = 8           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                      Lowest TSN Number                        |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+        Note: The ECNE is considered a Control chunk.
+
+    CWR:
+
+    [RFC3168] details a specific bit for a sender to send in the header
+    of its next outbound TCP segment to indicate to its peer that it has
+    reduced its congestion window.  This is termed the CWR bit.  For
+    SCTP, the same indication is made by including the CWR chunk.  This
+    chunk contains one data element, i.e., the TSN number that was sent
+    in the ECNE chunk.  This element represents the lowest TSN number in
+    the datagram that was originally marked with the CE bit.
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Chunk Type=13 | Flags=00000000|    Chunk Length = 8           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                      Lowest TSN Number                        |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+        Note: The CWR is considered a Control chunk.
+

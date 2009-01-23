@@ -1,0 +1,147 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitWithoutAddr.seq - INIT chunk is received with no address parameters present
+
+=head1 PURPOSE
+
+  To check that if INIT chunk is received with no address parameters present
+  then the endpoint shall take the source IP address from which the chunk
+  arrives and record it, in combination with the SCTP source port number, as
+  the only destination transport address for this peer.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitWithoutAddr.seq">./InitWithoutAddr.seq</A> [-tooloption ...] -pkt <A HREF="./InitWithoutAddr.def">./InitWithoutAddr.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that INIT message with no transport address
+  is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  INIT          ----------------->
+
+                <-----------------      INIT-ACK
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint A to B. Send INIT 
+     message containing no IP address. 
+     Record the message sequence using a signal emulator.
+  2. Check A: INIT-ACK is sent at the source IP address from which INIT 
+     is received. 
+  3. Check B: Other messages from endpoint B are sent at the source IP 
+     address from which INIT is received.
+  4. Check C: Association is established between endpoint A and B.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  5.1.2.  Handle Address Parameters
+
+    During the association initialization, an endpoint shall use the
+    following rules to discover and collect the destination transport
+    address(es) of its peer.
+
+=begin html
+<PRE>
+    <B>A) If there are no address parameters present in the received INIT or
+       INIT ACK chunk, the endpoint shall take the source IP address from
+       which the chunk arrives and record it, in combination with the
+       SCTP source port number, as the only destination transport address
+       for this peer.</B>
+</PRE>
+
+=end html
+
+    B) If there is a Host Name parameter present in the received INIT or
+       INIT ACK chunk, the endpoint shall resolve that host name to a
+       list of IP address(es) and derive the transport address(es) of
+       this peer by combining the resolved IP address(es) with the SCTP
+       source port.
+

@@ -1,0 +1,262 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_big		=> "Recv SCTP CHUNK_DATA",
+	sctp_chunk_data_frag_1st	=> "Recv SCTP CHUNK_DATA (1st fragment)",
+	sctp_chunk_data_frag_2nd	=> "Recv SCTP CHUNK_DATA (2nd fragment)",
+	sctp_chunk_data_seg1		=> "Recv SCTP CHUNK_DATA (1st segment)",
+	sctp_chunk_data_seg2		=> "Recv SCTP CHUNK_DATA (2st segment)",
+	icmp_pkt_too_big		=> "Send ICMP Packet Too Big messages",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartEchoClient($IF0, 2, ($SCTP::CONF{ENABLE_IPV6} == 0) ? 1452 : 1432);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_big);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_big) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$TSN = $ret{sctpGetFieldName("CHUNK_DATA.TSN")};
+$PROTO = $ret{sctpGetFieldName("CHUNK_DATA.Protocol")};
+vWarpCPP("-DSACK=$TSN -DPROTO=$PROTO");
+vSend($IF0, "icmp_pkt_too_big");
+
+# We have changed Remote System's PMTU, need reboot to restore it
+$SCTP::CONF{"NEEDREBOOT"} = 1;
+
+vLogHTML('<B>== DATA chunk will be fragmented by IP layer ==</B>');
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_frag_1st, sctp_chunk_data_frag_2nd);
+if($ret{status} != 0) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if ($ret{recvFrame} eq sctp_chunk_data_frag_1st) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_frag_2nd);
+
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_frag_2nd) {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA (2nd fragment)<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+} elsif ($ret{recvFrame} eq sctp_chunk_data_frag_2nd) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_frag_1st);
+
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_frag_1st) {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA (1st fragment)<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vSendMsg($IF0);
+
+vLogHTML('<B>== Check whether this PMTU is used to transmission new DATA ==</B><BR>');
+
+vRecvMsg($IF0, sctp_chunk_data_seg1);
+
+vRecvMsg($IF0, sctp_chunk_data_seg2);
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_snd);
+
+vShutdown($IF0, sctp_chunk_sack_rcv);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ICMP_PacketTooBig.seq - Handling ICMP "Fragmentation Needed" or "Packet Too Big" message
+
+=head1 PURPOSE
+
+  To check the receiver can handle the ICMP "Fragmentation Needed" or a "Packet Too Big" message.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ICMP_PacketTooBig.seq">./ICMP_PacketTooBig.seq</A> [-tooloption ...] -pkt <A HREF="./ICMP_PacketTooBig.def">./ICMP_PacketTooBig.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also 
+  arrange the data in endpoint B such that upper layers send 
+  Associate primitive to startup an association with endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                            Endpoint B             ULP
+  (CLOSED)                              (CLOSED) 
+  
+                                                   <-----    Send
+  
+                  <----------------       DATA
+  
+  ICMP            ----------------->
+  Fragmentation Needed
+  or Packet Too Big
+                  <----------------       DATA (Fragment 1)
+
+                  <----------------       DATA (Fragment 2)
+
+  SACK            ----------------->
+                                                   <-----    Send
+                  <----------------       DATA Segment 1
+                                          B bit =1, E bit =0
+  SACK            ----------------->
+
+                  <----------------       DATA Segment 2
+                                          B bit =0, E bit =1
+  SACK            ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Attempt to change PMTU of an association between endpoint A and endpoint 
+     B by sending ICMP message.
+  2. ICMP message is sent with "Fragmentation Needed" or "Packet Too Big".
+  3. Check A: Data be retransmission be fragmented.
+  4. Check B: Next Data be transmission used new PMTU.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  Appendix C.  ICMP Handling
+
+    Whenever an ICMP message is received by an SCTP endpoint, the
+    following procedures MUST be followed to ensure proper utilization of
+    the information being provided by layer 3.
+
+    ICMP1) An implementation MAY ignore all ICMPv4 messages where the
+           type field is not set to "Destination Unreachable".
+
+    ICMP2) An implementation MAY ignore all ICMPv6 messages where the
+           type field is not "Destination Unreachable", "Parameter
+           Problem",, or "Packet Too Big".
+
+    ICMP3) An implementation MAY ignore any ICMPv4 messages where the
+           code does not indicate "Protocol Unreachable" or
+           "Fragmentation Needed".
+
+    ICMP4) An implementation MAY ignore all ICMPv6 messages of type
+           "Parameter Problem" if the code is not "Unrecognized Next
+           Header Type Encountered".
+
+    ICMP5) An implementation MUST use the payload of the ICMP message (v4
+           or v6) to locate the association that sent the message to
+           which ICMP is responding.  If the association cannot be found,
+           an implementation SHOULD ignore the ICMP message.
+
+    ICMP6) An implementation MUST validate that the Verification Tag
+           contained in the ICMP message matches the Verification Tag of
+           the peer.  If the Verification Tag is not 0 and does NOT
+           match, discard the ICMP message.  If it is 0 and the ICMP
+           message contains enough bytes to verify that the chunk type is
+           an INIT chunk and that the Initiate Tag matches the tag of the
+           peer, continue with ICMP7.  If the ICMP message is too short
+           or the chunk type or the Initiate Tag does not match, silently
+           discard the packet.
+
+=begin html
+<PRE>
+    <B>ICMP7) If the ICMP message is either a v6 "Packet Too Big" or a v4
+           "Fragmentation Needed", an implementation MAY process this
+           information as defined for PATH MTU discovery.</B>
+</PRE>
+
+=end html
+
+    ICMP8) If the ICMP code is an "Unrecognized Next Header Type
+           Encountered" or a "Protocol Unreachable", an implementation
+           MUST treat this message as an abort with the T bit set if it
+           does not contain an INIT chunk.  If it does contain an INIT
+           chunk and the association is in the COOKIE-WAIT state, handle
+           the ICMP message like an ABORT.
+
+    ICMP9) If the ICMPv6 code is "Destination Unreachable", the
+           implementation MAY mark the destination into the unreachable
+           state or alternatively increment the path error counter.
+
+    Note that these procedures differ from [RFC1122] and from its
+    requirements for processing of port-unreachable messages and the
+    requirements that an implementation MUST abort associations in
+    response to a "protocol unreachable" message.  Port-unreachable
+    messages are not processed, since an implementation will send an
+    ABORT, not a port unreachable.  The stricter handling of the
+    "protocol unreachable" message is due to security concerns for hosts
+    that do NOT support SCTP.
+

@@ -1,0 +1,68 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Slow-Start</B>
+./InitCwndBeforeTrans.seq:./InitCwndBeforeTrans.def:::The initial cwnd before DATA transmission MUST be set to min(4*MTU, max (2*MTU, 4380bytes))
+#./InitCwndAfterIdle.seq:./InitCwndAfterIdle.def:::The initial cwnd after a sufficiently long idle period MUST be set to min(4*MTU, max (2*MTU, 4380bytes))
+./InitCwndAfterRetran.seq:./InitCwndAfterRetran.def:::The initial cwnd after a retransmission timeout MUST be no more than 1*MTU
+./InitCwndWhenSACK.seq:./InitCwndWhenSACK.def:::The cwnd MUST be increased the size of outstanding DATA chunk(s) acknowledged if it is less than PMTU
+./InitCwndWhenSACK2.seq:./InitCwndWhenSACK2.def:::The cwnd MUST be increased 1 PMTU if size of outstanding DATA chunk(s) acknowledged is larger than PMTU
+./InitCwndNotChang.seq:./InitCwndNotChang.def:::The initial cwnd should not chang as flight_size is less than the cwnd
+./InitCwndAfterIdle.seq:./InitCwndAfterIdle.def:::The cwnd of the transport address should be adjusted to max(cwnd/2, 4*MTU) when does not transmit data
+./MaxBurstLimit.seq:./MaxBurstLimit.def:::Protocol parameter Max.Burst limits the number of new data chunks that can be sent
+
+########################################################################
+&print:<B>Congestion Avoidance</B>
+./UsedCongestAvoid.seq:./UsedCongestAvoid.def:::Increase cwnd by MTU when partial_bytes_acked is equal to or greater than cwnd
+./ResetInitCwnd.seq:./ResetInitCwnd.def:::The cwnd of the transport address should be adjusted to max(cwnd/2, 4*MTU) when no transmit data
+./ResetPartialBytesAck.seq:./ResetPartialBytesAck.def:::The partial_bytes_acked is set to 0 when all of the data transmitted has been acknowledged
+
+########################################################################
+&print:<B>Congestion Control</B>
+./InitCwndUnderFastRetran.seq:./InitCwndUnderFastRetran.def:::Verify that cwnd is update correctly after a fast retransmit
+./InitCwndUnderFastRetran2.seq:./InitCwndUnderFastRetran2.def:::Verify that cwnd is update correctly when T3-rtx timer expires on an address
+
+########################################################################
+&print:<B>Fast Retransmit</B>
+./FastRetranFirstData.seq:./FastRetranFirstData.def:::Restart T3-rtx timer if the endpoint is retransmitting the first outstanding DATA chunk
+
+########################################################################
+&print:<B>Fast Recovery</B>
+./FastRecoveryCwnd.seq:./FastRecoveryCwnd.def:::The ssthresh and cwnd SHOULD NOT change while in Fast Recovery
+

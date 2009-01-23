@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ChunkTypeAction10.seq - Unrecognized Chunk Type with higher two bytes are set to 10</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  ChunkTypeAction10.seq - Unrecognized Chunk Type with higher two bytes are set to 10</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if Unrecognized Chunk Type is received with higher two bytes
+  are set to 10, the endpoint should skip this chunk and continue processing.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./ChunkTypeAction10.seq">./ChunkTypeAction10.seq</A> [-tooloption ...] -pkt <A HREF="./ChunkTypeAction10.def">./ChunkTypeAction10.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is not established between endpoint A and B. Arrange the data
+  in endpoint A such that a datagram with reserved chunk type is sent to 
+  endpoint B bundled with DATA chunk in any state and higher two bytes are
+  set to 10.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  Chunk Type BF  -----------------&gt;
+  (bundled with DATA)
+                &lt;------------------     SACK</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send SCTP message from endpoint A to B with higher two bytes
+     are set to 10, which is bundled with DATA chunk.
+     Record the message sequence using a signal emulator.
+  2. Check A: Datgram with reserved chunk type is discarded and ERROR is
+     not received at endpoint A.
+  3. Check B: SACK is received at endpoint A for the DATA chunk.
+  4. Check C: Association is not disturbed.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  3.2.  Chunk Field Descriptions</pre>
+<pre>
+      Chunk Types are encoded such that the highest-order 2 bits specify
+      the action that must be taken if the processing endpoint does not
+      recognize the Chunk Type.</pre>
+<pre>
+      00 -  Stop processing this SCTP packet and discard it, do not
+            process any further chunks within it.</pre>
+<pre>
+      01 -  Stop processing this SCTP packet and discard it, do not
+            process any further chunks within it, and report the
+            unrecognized chunk in an 'Unrecognized Chunk Type'.</pre>
+<PRE>
+      <B>10 -  Skip this chunk and continue processing.</B>
+</PRE><pre>
+      11 -  Skip this chunk and continue processing, but report in an
+            ERROR chunk using the 'Unrecognized Chunk Type' cause of
+            error.</pre>
+
+</body>
+
+</html>

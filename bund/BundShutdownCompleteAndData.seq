@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_shut_comp_bund	=> "Send SCTP CHUNK_SHUTDOWN_COMPLETE (Bunding with DATA)",
+	sctp_chunk_abort_bad_chunk	=> "Recv SCTP CHUNK_ABORT (Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_shutdown_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_ack_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_shut_comp_bund);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_bad_chunk);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_bad_chunk) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  BundShutdownCompleteAndData.seq - SHUTDOWN-COMPLETE chunk is received bundled with DATA chunk
+
+=head1 PURPOSE
+
+  To check that if SHUTDOWN-COMPLETE chunk is received bundled with DATA
+  chunk then endpoint should response with ABORT message.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./BundShutdownCompleteAndData.seq">./BundShutdownCompleteAndData.seq</A> [-tooloption ...] -pkt <A HREF="./BundShutdownCompleteAndData.def">./BundShutdownCompleteAndData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association established between endpoint A and B. Also arrange the
+  data in endpoint A such that SHUTDOWN-COMPLETE chunk bundled with
+  DATA chunk is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  SHUTDOWN          ----------------->
+
+                    <----------------       SHUTDOWN-ACK
+
+  SHUTDOWN-COMPLETE ----------------->
+  (data chunk multiplexed)
+                <----------------       ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to terminate an association between endpoint A and B by
+     sending SHUTDOWN message from endpoint A. SHUTDOWN-ACK messages will
+     be received. Send SHUTDOWN COMPLETE chunk bundled with data chunks
+     in response to SHUTDOWN-ACK Chunk. SHUTDOWN COMPLETE chunk should
+     be first chunk in the packet.
+  2. Check A: ABORT should be received at endpoint A.
+  3. Check B: Error cause in ABORT is set to "Protocol Violation".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.10.  Bundling
+
+    An endpoint bundles chunks by simply including multiple chunks in one
+    outbound SCTP packet.  The total size of the resultant IP datagram,
+
+    including the SCTP packet and IP headers, MUST be less that or equal
+    to the current Path MTU.
+
+    If its peer endpoint is multi-homed, the sending endpoint shall
+    choose a size no larger than the latest MTU of the current primary
+    path.
+
+    When bundling control chunks with DATA chunks, an endpoint MUST place
+    control chunks first in the outbound SCTP packet.  The transmitter
+    MUST transmit DATA chunks within an SCTP packet in increasing order
+    of TSN.
+
+    Note: Since control chunks must be placed first in a packet and since
+    DATA chunks must be transmitted before SHUTDOWN or SHUTDOWN ACK
+    chunks, DATA chunks cannot be bundled with SHUTDOWN or SHUTDOWN ACK
+    chunks.
+
+    Partial chunks MUST NOT be placed in an SCTP packet.  A partial chunk
+    is a chunk that is not completely contained in the SCTP packet; i.e.,
+    the SCTP packet is too short to contain all the bytes of the chunk as
+    indicated by the chunk length.
+
+    An endpoint MUST process received chunks in their order in the
+    packet.  The receiver uses the Chunk Length field to determine the
+    end of a chunk and beginning of the next chunk taking account of the
+    fact that all chunks end on a 4-byte boundary.  If the receiver
+    detects a partial chunk, it MUST drop the chunk.
+
+    An endpoint MUST NOT bundle INIT, INIT ACK, or SHUTDOWN COMPLETE with
+    any other chunks.
+

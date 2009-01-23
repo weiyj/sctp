@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>InitCwndNotChang.seq - The initial cwnd should not chang as flight_size is less than the cwnd</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  InitCwndNotChang.seq - The initial cwnd should not chang as flight_size is less than the cwnd</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that when the data newly acknowledged by the SACK diminishes
+  the amount of data now in flight to less than cwnd, unchanged value of
+  cwnd now allows new data to be sent.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./InitCwndNotChang.seq">./InitCwndNotChang.seq</A> [-tooloption ...] -pkt <A HREF="./InitCwndNotChang.def">./InitCwndNotChang.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that DATA chunk is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                            Endpoint B         ULP
+  (ESTABLISHED)                         (ESTABLISHED)  
+                                                   &lt;-----    Send
+                  &lt;----------------       DATA 1</pre>
+<pre>
+  SACK            -----------------&gt;</pre>
+<pre>
+                  &lt;----------------       DATA 2</pre>
+<pre>
+  SACK            -----------------&gt;</pre>
+<pre>
+                  &lt;----------------       DATA 3</pre>
+<pre>
+  SACK            -----------------&gt;</pre>
+<pre>
+                  &lt;----------------       DATA 4</pre>
+<pre>
+  SACK            -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint B,
+     when there is association between them.
+  3. From endpoint A, send SACK immediately after received DATA message.
+  4. Check B: Congestion control window is not changed.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  7.2.1.  Slow-Start</pre>
+<pre>
+    In instances where its peer endpoint is multi-homed, if an endpoint
+    receives a SACK that advances its Cumulative TSN Ack Point, then it
+    should update its cwnd (or cwnds) apportioned to the destination
+    addresses to which it transmitted the acknowledged data.  However, if
+    the received SACK does not advance the Cumulative TSN Ack Point, the
+    endpoint MUST NOT adjust the cwnd of any of the destination
+    addresses.</pre>
+<PRE>
+    Because an endpoint's cwnd is not tied to its Cumulative TSN Ack
+    Point, as duplicate SACKs come in, even though they may not advance
+    the Cumulative TSN Ack Point an endpoint can still use them to clock
+    out new data.  <B>That is, the data newly acknowledged by the SACK
+    diminishes the amount of data now in flight to less than cwnd, and so
+    the current, unchanged value of cwnd now allows new data to be sent.</B>
+    On the other hand, the increase of cwnd must be tied to the
+    Cumulative TSN Ack Point advancement as specified above.  Otherwise,
+    the duplicate SACKs will not only clock out new data, but also will
+    adversely clock out more new data than what has just left the
+    network, during a time of possible congestion.
+</PRE><pre>
+    o  When the endpoint does not transmit data on a given transport
+       address, the cwnd of the transport address should be adjusted to
+       max(cwnd/2, 4*MTU) per RTO.</pre>
+
+</body>
+
+</html>

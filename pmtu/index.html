@@ -1,0 +1,76 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Path MTU Discovery</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Path MTU Discovery</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:52</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:52</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>ICMP Handling Procedures</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./ICMP_NoMatchAssoc.html">Ignore the ICMP message if the association cannot be found</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_NoMatchAssoc.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_NoMatchAssoc.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./ICMP_BadVerifTag.html">Handling ICMP message with Verification Tag is not 0 and does not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadVerifTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadVerifTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./ICMP_ShortPacket.html">Handling ICMP message which is too short and Verification Tag is 0</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_ShortPacket.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_ShortPacket.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./ICMP_BadChunkType.html">Handling ICMP message with Verification Tag is 0 and the chunk type does not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadChunkType.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadChunkType.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./ICMP_BadInitTag.html">Handling ICMP message with Verification Tag is 0 and the Initiate Tag does not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadInitTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_BadInitTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./ICMP_PacketTooBig.html">Handling ICMP "Fragmentation Needed" or "Packet Too Big" message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_PacketTooBig.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_PacketTooBig.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./ICMP_ProtoUnreach.html">Handling ICMP "Protocol Unreachable" or "Unrecognized next header type encountered" message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_ProtoUnreach.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ICMP_ProtoUnreach.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Path MTU Discovery</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./PMTU_TooBig.html">ICMP Packet Too Big message is received with MTU larger than current MTU</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_TooBig.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_TooBig.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./PMTU_TooSlow.html">ICMP Packet Too Big message is received with MTU less than default minimum PMTU</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_TooSlow.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_TooSlow.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./PMTU_MaintainSeparate.html">PMTU estimates for each destination address of its peer MUST maintain separate</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_MaintainSeparate.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_MaintainSeparate.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./PMTU_UseSmallest.html">Association PMTU is the smallest Path MTU of all destination addresses if its peer is multi-homed</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_UseSmallest.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./PMTU_UseSmallest.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI>RFC4960: Path MTU Discovery</LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 926973e2192ca1dcefd4ed838a7755ba -->

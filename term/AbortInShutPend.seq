@@ -1,0 +1,166 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_abort_snd);
+
+vLogHTML('<B>=== Check Whether Association is removed ===</B>');
+
+vSend($IF0, sctp_chunk_data_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AbortInShutPend.seq - ABORT chunk is received in SHUTDOWN-PENDING State
+
+=head1 PURPOSE
+
+  To check that receiving ABORT message in SHUTDOWN-PENDING State can
+  terminate an association.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AbortInShutPend.seq">./AbortInShutPend.seq</A> [-tooloption ...] -pkt <A HREF="./AbortInShutPend.def">./AbortInShutPend.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange 
+  the data in endpoint A such that an ABORT message is sent to 
+  endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+              <----------------        DATA
+                                                   <-----    Terminate
+  ABORT       ----------------->       Association is removed
+                                          Communication Lost  ---------> 
+
+  TEST DESCRIPTION:
+
+  1. Attempt to terminate an association between endpoint A and endpoint 
+     B by sending ABORT message.
+  2. Check A: No Acknowledgement is sent for the ABORT message and 
+     association is removed.
+  3. Check B: ULP are reported of the association closure.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  9.1.  Abort of an Association
+
+    When an endpoint decides to abort an existing association, it MUST
+    send an ABORT chunk to its peer endpoint.  The sender MUST fill in
+    the peer's Verification Tag in the outbound packet and MUST NOT
+    bundle any DATA chunk with the ABORT.  If the association is aborted
+    on request of the upper layer, a User-Initiated Abort error cause
+    (see Section 3.3.10.12) SHOULD be present in the ABORT chunk.
+
+    An endpoint MUST NOT respond to any received packet that contains an
+    ABORT chunk (also see Section 8.4).
+
+    An endpoint receiving an ABORT MUST apply the special Verification
+    Tag check rules described in Section 8.5.1.
+
+=begin html
+<PRE>
+    <B>After checking the Verification Tag, the receiving endpoint MUST
+    remove the association from its record and SHOULD report the
+    termination to its upper layer.</B>  If a User-Initiated Abort error
+    cause is present in the ABORT chunk, the Upper Layer Abort Reason
+    SHOULD be made available to the upper layer.
+</PRE>
+
+=end html
+

@@ -1,0 +1,249 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_heartbeat		=> "Recv SCTP CHUNK_HEARTBEAT",
+	sctp_chunk_heartbeat_ack	=> "Send SCTP CHUNK_HEARTBEAT_ACK",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv3($IF0, 60, 0, 0, sctp_chunk_heartbeat);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_heartbeat') {
+	vLogHTML('Cannot receive SCTP CHUNK_HEARTBEAT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# HEARTBEAT message is transmitted again if HEARTBEAT timer expires
+%ret = vWarpRecv3($IF0, 60, 0, 0, sctp_chunk_heartbeat);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_heartbeat') {
+	vLogHTML('Cannot receive SCTP CHUNK_HEARTBEAT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
+vWarpCPP("-DHBINFO=\\\"$HBINFO\\\"");
+vSend($IF0, sctp_chunk_heartbeat_ack);
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  HBTimerRetrans.seq - HEARTBEAT message is transmitted again if HEARTBEAT timer expires
+
+=head1 PURPOSE
+
+  To check that when HEARTBEAT timer expires EARTBEAT message
+  is transmitted again.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./HBTimerRetrans.seq">./HBTimerRetrans.seq</A> [-tooloption ...] -pkt <A HREF="./HBTimerRetrans.def">./HBTimerRetrans.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange 
+  the data in endpoint A and B such that no DATA or control chunk
+  is exchanged between them.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+        No message is exchanged within current
+                   Heartbeat period
+                <-----------------   HEARTBEAT
+                                         |
+                                         |   HEARTBEAT timer expires
+                                         | 
+                <-----------------   HEARTBEAT
+
+  HEARTBEAT-ACK ----------------->
+
+  TEST DESCRIPTION:
+
+  1. From an endpoint in established state, do not send any message to 
+     another endpoint within the current Heartbeat period. HEARTBEAT
+     message is sent to its peer. Record the message sequence using
+     a signal emulator.
+  2. Check A: HEARTBEAT message is sent again after expiry of 
+     HEARTBEAT timer.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  8.3.  Path Heartbeat
+
+    By default, an SCTP endpoint SHOULD monitor the reachability of the
+    idle destination transport address(es) of its peer by sending a
+    HEARTBEAT chunk periodically to the destination transport
+    address(es).  HEARTBEAT sending MAY begin upon reaching the
+    ESTABLISHED state and is discontinued after sending either SHUTDOWN
+    or SHUTDOWN-ACK.  A receiver of a HEARTBEAT MUST respond to a
+    HEARTBEAT with a HEARTBEAT-ACK after entering the COOKIE-ECHOED state
+    (INIT sender) or the ESTABLISHED state (INIT receiver), up until
+    reaching the SHUTDOWN-SENT state (SHUTDOWN sender) or the SHUTDOWN-
+    ACK-SENT state (SHUTDOWN receiver).
+
+    A destination transport address is considered "idle" if no new chunk
+    that can be used for updating path RTT (usually including first
+    transmission DATA, INIT, COOKIE ECHO, HEARTBEAT, etc.) and no
+    HEARTBEAT has been sent to it within the current heartbeat period of
+    that address.  This applies to both active and inactive destination
+    addresses.
+
+    The upper layer can optionally initiate the following functions:
+
+    A) Disable heartbeat on a specific destination transport address of a
+       given association,
+
+    B) Change the HB.interval,
+
+    C) Re-enable heartbeat on a specific destination transport address of
+       a given association, and
+
+    D) Request an on-demand HEARTBEAT on a specific destination transport
+       address of a given association.
+
+    The endpoint should increment the respective error counter of the
+    destination transport address each time a HEARTBEAT is sent to that
+    address and not acknowledged within one RTO.
+
+    When the value of this counter reaches the protocol parameter
+    'Path.Max.Retrans', the endpoint should mark the corresponding
+    destination address as inactive if it is not so marked, and may also
+    optionally report to the upper layer the change of reachability of
+    this destination address.  After this, the endpoint should continue
+    HEARTBEAT on this destination address but should stop increasing the
+    counter.
+
+    The sender of the HEARTBEAT chunk should include in the Heartbeat
+    Information field of the chunk the current time when the packet is
+    sent out and the destination address to which the packet is sent.
+
+    IMPLEMENTATION NOTE: An alternative implementation of the heartbeat
+    mechanism that can be used is to increment the error counter variable
+    every time a HEARTBEAT is sent to a destination.  Whenever a
+    HEARTBEAT ACK arrives, the sender SHOULD clear the error counter of
+    the destination that the HEARTBEAT was sent to.  This in effect would
+    clear the previously stroked error (and any other error counts as
+    well).
+
+    The receiver of the HEARTBEAT should immediately respond with a
+    HEARTBEAT ACK that contains the Heartbeat Information TLV, together
+    with any other received TLVs, copied unchanged from the received
+    HEARTBEAT chunk.
+
+    Upon the receipt of the HEARTBEAT ACK, the sender of the HEARTBEAT
+    should clear the error counter of the destination transport address
+    to which the HEARTBEAT was sent, and mark the destination transport
+    address as active if it is not so marked.  The endpoint may
+    optionally report to the upper layer when an inactive destination
+    address is marked as active due to the reception of the latest
+    HEARTBEAT ACK.  The receiver of the HEARTBEAT ACK must also clear the
+    association overall error count as well (as defined in Section 8.1).
+
+    The receiver of the HEARTBEAT ACK should also perform an RTT
+    measurement for that destination transport address using the time
+    value carried in the HEARTBEAT ACK chunk.
+
+    On an idle destination address that is allowed to heartbeat, it is
+    recommended that a HEARTBEAT chunk is sent once per RTO of that
+    destination address plus the protocol parameter 'HB.interval', with
+    jittering of +/- 50% of the RTO value, and exponential backoff of the
+    RTO if the previous HEARTBEAT is unanswered.
+
+    A primitive is provided for the SCTP user to change the HB.interval
+    and turn on or off the heartbeat on a given destination address.  The
+    heartbeat interval set by the SCTP user is added to the RTO of that
+    destination (including any exponential backoff).  Only one heartbeat
+    should be sent each time the heartbeat timer expires (if multiple
+    destinations are idle).  It is an implementation decision on how to
+    choose which of the candidate idle destinations to heartbeat to (if
+    more than one destination is idle).
+
+    Note: When tuning the heartbeat interval, there is a side effect that
+    SHOULD be taken into account.  When this value is increased, i.e.,
+    the HEARTBEAT takes longer, the detection of lost ABORT messages
+    takes longer as well.  If a peer endpoint ABORTs the association for
+    any reason and the ABORT chunk is lost, the local endpoint will only
+    discover the lost ABORT by sending a DATA chunk or HEARTBEAT chunk
+    (thus causing the peer to send another ABORT).  This must be
+    considered when tuning the HEARTBEAT timer.  If the HEARTBEAT is
+    disabled, only sending DATA to the association will discover a lost
+    ABORT from the peer.
+

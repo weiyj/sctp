@@ -1,0 +1,158 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_ack_bad_len	=> "Send SCTP CHUNK_INIT_ACK (Invalid Chunk Length)",
+	sctp_chunk_abort_bad_len	=> "Recv SCTP CHUNK_ABORT (Protocol Violation - Invalid Chunk Length)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchInitField(\%ret);
+
+vSend($IF0, sctp_chunk_init_ack_bad_len);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_bad_len);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_bad_len) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  GEN_InvalidChunkLen.seq - Generation of error cause Protocol Violation (Invalid Chunk Length)
+
+=head1 PURPOSE
+
+  To check that if INIT-ACK chunk is received with invalid chunk length
+  then the endpoint should send ABORT message with cause Protocol
+  Violation.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./GEN_InvalidChunkLen.seq">./GEN_InvalidChunkLen.seq</A> [-tooloption ...] -pkt <A HREF="./GEN_InvalidChunkLen.def">./GEN_InvalidChunkLen.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange data 
+  in endpoint A such that INIT-ACK chunk with invalid chunk length is
+  sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                  <-----------------    INIT
+
+   INIT-ACK       ----------------->
+   (with Invalid Chunk Length)
+                  <-----------------    ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Send INIT-ACK chunk from endpoint A to B with invalid chunk
+     length.
+  2. Check A: ABORT should be received at endpoint A.
+  3. Check B: Error cause in ABORT is set to "Protocol Violation".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.13.  Protocol Violation (13)
+
+    Cause of error
+    --------------
+
+    This error cause MAY be included in ABORT chunks that are sent
+    because an SCTP endpoint detects a protocol violation of the peer
+    that is not covered by the error causes described in Section 3.3.10.1
+    to Section 3.3.10.12.  An implementation MAY provide additional
+    information specifying what kind of protocol violation has been
+    detected.
+
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |         Cause Code=13         |      Cause Length=Variable    |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       /                    Additional Information                     /
+       \                                                               \
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+

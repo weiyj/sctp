@@ -1,0 +1,199 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_invalid_stream	=> "Send SCTP CHUNK_DATA (Invalid Stream Identifier)",
+	sctp_chunk_error		=> "Recv SCTP CHUNK_ERROR (Invalid Stream Identifier)",
+	sctp_chunk_error_and_sack	=> "Recv SCTP CHUNK_ERROR bundling with CHUNK_SACK",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN();
+
+vSend($IF0, sctp_chunk_data_invalid_stream);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv, sctp_chunk_error, sctp_chunk_error_and_sack);
+if($ret{status} != 0) {
+	vLogHTML('Cannot receive SCTP CHUNK_ERROR<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if($ret{recvFrame} eq sctp_chunk_error) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_sack_rcv);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_rcv) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+if($ret{recvFrame} eq sctp_chunk_sack_rcv) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_error);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_error) {
+		vLogHTML('Cannot receive SCTP CHUNK_ERROR<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  GEN_InvalidStreamIdent.seq - Generation of error cause Invalid Stream Identifier
+
+=head1 PURPOSE
+
+  To check that if DATA chunk is received with an invalid stream identifier, the
+  endpoint should immediately send an ERROR chunk with cause set to "Invalid
+  Stream Identifier" and discard the DATA chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./GEN_InvalidStreamIdent.seq">./GEN_InvalidStreamIdent.seq</A> [-tooloption ...] -pkt <A HREF="./GEN_InvalidStreamIdent.def">./GEN_InvalidStreamIdent.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that DATA chunk with invalid stream identifier
+  is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA          ----------------->
+  (with Invalid Stream Identifier)
+                <-----------------      ERROR
+                                        Invalid Stream Identifier)
+
+  TEST DESCRIPTION:
+
+  1. Send DATA chunk from endpoint A to B with invalid stream
+     identifier.
+  2. Check A: ERROR should be received at endpoint A.
+  3. Check B: Error cause in ERROR is set to "Invalid Stream
+     Identifier".
+  4. Check C: SACK should be received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.1.  Invalid Stream Identifier (1)
+
+    Cause of error
+    ---------------
+
+    Invalid Stream Identifier: Indicates endpoint received a DATA chunk
+    sent to a nonexistent stream.
+
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |     Cause Code=1              |      Cause Length=8           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |        Stream Identifier      |         (Reserved)            |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    Stream Identifier: 16 bits (unsigned integer)
+
+      Contains the Stream Identifier of the DATA chunk received in
+      error.
+
+    Reserved: 16 bits
+
+      This field is reserved.  It is set to all 0's on transmit and
+      ignored on receipt.
+
+  6.5.  Stream Identifier and Stream Sequence Number
+
+=begin html
+<PRE>
+    Every DATA chunk MUST carry a valid stream identifier.  <B>If an
+    endpoint receives a DATA chunk with an invalid stream identifier, it
+    shall acknowledge the reception of the DATA chunk following the
+    normal procedure, immediately send an ERROR chunk with cause set to
+    "Invalid Stream Identifier" (see Section 3.3.10), and discard the
+    DATA chunk.</B>  The endpoint may bundle the ERROR chunk in the same
+    packet as the SACK as long as the ERROR follows the SACK.
+</PRE>
+
+=end html
+
+    The Stream Sequence Number in all the streams MUST start from 0 when
+    the association is established.  Also, when the Stream Sequence
+    Number reaches the value 65535 the next Stream Sequence Number MUST
+    be set to 0.
+

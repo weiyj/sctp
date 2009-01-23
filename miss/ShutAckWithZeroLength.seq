@@ -1,0 +1,150 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_shutdown_ack	=> "Send SCTP CHUNK_SHUTDOWN_ACK (Chunk Length is set to zero)",
+	sctp_chunk_abort	=> "Recv SCTP CHUNK_ABORT (Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+# This packet may cause Remote System dead loop
+vSend($IF0, sctp_chunk_shutdown_ack);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# If we can ping to Remote System, this problem has been fixed
+sctpCheckEnv($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ShutAckWithZeroLength.seq - SHUTDOWN-ACK chunk is received with chunk length set to zero in ESTABLISHED state
+
+=head1 PURPOSE
+
+  To check that if OOTB SHUTDOWN chunk is received with chunk length set to
+  zero in ESTABLISHED state, the endpoint should response with ABORT message
+  and error cause is set to Protocol Violation.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ShutAckWithZeroLength.seq">./ShutAckWithZeroLength.seq</A> [-tooloption ...] -pkt <A HREF="./ShutAckWithZeroLength.def">./ShutAckWithZeroLength.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that SHUTDOWN-ACK chunk with chunk length set to
+  zero is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  SHUTDOWN-ACK  ----------------->
+  (with chunk length set to zero)
+                <-----------------      ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. From endpoint A, send valid SHUTDOWN-ACK message to endpoint B,
+     when there is association between them. 
+  2. Check A: ABORT should be received at endpoint A.
+  3. Check B: Error cause in ABORT is set to "Protocol Violation".
+  4. Check C: Remote System not enter dead loop.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  8.4.  Handle "Out of the Blue" Packets
+
+=begin html
+<PRE>
+    <B>An SCTP packet is called an "out of the blue" (OOTB) packet if it is
+    correctly formed (i.e., passed the receiver's CRC32c check; see
+    Section 6.8), but the receiver is not able to identify the
+    association to which this packet belongs.</B>
+</PRE>
+
+=end html
+
+    The receiver of an OOTB packet MUST do the following:
+
+    1)  If the OOTB packet is to or from a non-unicast address, a
+        receiver SHOULD silently discard the packet.  Otherwise,
+

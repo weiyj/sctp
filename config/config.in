@@ -1,0 +1,25 @@
+# ==== Information about the Tester Node (TN) ====
+# * Remote Controal Configuration
+"Serial Device Name"			RemoteDevice	ttyS0		ttyS[0-9]+
+# * Network Device Interface to be used
+"First interface name of TN"		interface00	eth0		eth[0-9]+
+"Second interface name of TN"		interface01	eth1		eth[0-9]+
+
+
+# ==== Information about the Node Under Test (NUT) ====
+# * System Type
+"Operation System Type of NUT"		System		linux-v6	.*
+
+# * System information
+"Operation System Name of NUT"		TargetName	RHEL5GA		.*
+
+# * Host Name
+"Host Name of NUT"			HostName	FNST		.*
+
+# * User and password to login to NUT
+"Super User Name"			User		root		.*
+"User Password"				Password	goodluck	.*
+
+# * Network Device Interface to be used
+"First interface name of NUT"		interface10	eth0		eth[0-9]+
+"Second interface name of NUT"		interface11	eth1		eth[0-9]+

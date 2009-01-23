@@ -1,0 +1,184 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_auth_bad_hmac_len	=> "Send SCTP CHUNK_AUTH (HMAC length not match HMAC Algorithm)",
+	sctp_chunk_abort		=> "Recv SCTP CHUNK_ABORT (Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnectAuth($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_auth_bad_hmac_len);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_abort') {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AuthWithBadHmacLength.seq - Authentication Chunk is received with HMAC length not match HMAC Algorithm
+
+=head1 PURPOSE
+
+  To verify that if the AUTH chunk is received with HMAC length not
+  match HMAC Algorithm, the ABORT chunk SHOULD be sent with the error
+  cause 'Protocol Violation'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AuthWithBadHmacLength.seq">./AuthWithBadHmacLength.seq</A> [-tooloption ...] -pkt <A HREF="./AuthWithBadHmacLength.def">./AuthWithBadHmacLength.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that AUTH chunk with HMAC length not match HMAC
+  Algorithm is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (ESTABLISHED)                          (ESTABLISHED)
+
+    AUTH          ------------------>
+    (with HMAC length not match HMAC Algorithm)
+                  <------------------  ABORT
+                                       (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Send AUTH chunk from endpoint A to B with HMAC length not 
+     match HMAC Algorithm.
+  2. Check A: ABORT should be received at endpoint A. And Error 
+     cause in ERROR is set to "Protocol Violation".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  5.1.  Authentication Chunk (AUTH)
+
+    This chunk is used to hold the result of the HMAC calculation.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Type = 0x0F   |   Flags=0     |             Length            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |    Shared Key Identifier      |        HMAC Identifier        |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    \                             HMAC                              /
+    /                                                               \
+    /                               +-------------------------------\
+    |                               |           Padding             |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                  Figure 5
+
+    Type: 1 byte (unsigned integer)
+      This value MUST be set to 0x0F for all AUTH-chunks.
+
+    Flags: 1 byte (unsigned integer)
+      SHOULD be set to zero on transmit and MUST be ignored on receipt.
+
+    Length: 2 bytes (unsigned integer)
+      This value holds the length of the HMAC in bytes plus 8.
+
+    Shared Key Identifier: 2 bytes (unsigned integer)
+      This value describes which endpoint pair shared key is used.
+
+    HMAC Identifier: 2 bytes (unsigned integer)
+      This value describes which message digest is being used.  Table 2
+      shows the currently defined values.
+
+=begin html
+<PRE>
+    <B>HMAC: n bytes (unsigned integer)
+      This holds the result of the HMAC calculation.</B>
+</PRE>
+
+=end html
+
+    Padding: 0, 1, 2, or 3 bytes (unsigned integer)
+      If the length of the HMAC is not a multiple of 4 bytes, the sender
+      MUST pad the chunk with all zero bytes to make the chunk 32-bit
+      aligned.  The Padding MUST NOT be longer than 3 bytes and it MUST
+      be ignored by the receiver.
+
+    The control chunk AUTH MUST NOT appear more than once in an SCTP
+    packet.  All control and data chunks that are placed after the AUTH
+    chunk in the packet are sent in an authenticated way.  Those chunks
+    placed in a packet before the AUTH chunk are not authenticated.
+    Please note that DATA chunks can not appear before control chunks in
+    an SCTP packet.

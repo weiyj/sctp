@@ -1,0 +1,149 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_heartbeat_ack_bad_plen	=> "Send SCTP CHUNK_HEARTBEAT_ACK (with Invalid Parameter Length)",
+	sctp_chunk_abort_bad_plen		=> "Recv SCTP CHUNK_ABORT (with Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_heartbeat_ack_bad_plen);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_bad_plen);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_bad_plen) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InvalidParamInHeartbeatAck.seq - HEARTBEAT-ACK chunk is received with invalid parameter length
+
+=head1 PURPOSE
+
+  To check that if HEARTBEAT-ACK chunk is received with invalid parameter length, the
+  endpoint should send ABORT message with a Protocol Violation error cause.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InvalidParamInHeartbeatAck.seq">./InvalidParamInHeartbeatAck.seq</A> [-tooloption ...] -pkt <A HREF="./InvalidParamInHeartbeatAck.def">./InvalidParamInHeartbeatAck.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data
+  in endpoint A such that HEARTBEAT-ACK message is sent to endpoint B
+  with invalid parameter length.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  HEARTBEAT-ACK   ----------------->
+  (with Invalid Parameter Length)
+                  <-----------------    ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Send HEARTBEAT-ACK message from endpoint A to B with invalid
+     parameter length.
+     Record the message sequence using a signal emulator.
+  2. Check A: ABORT should be received at endpoint A.
+  3. Check B: Error cause in ABORT is set to "Protocol Violation".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.13.  Protocol Violation (13)
+
+    Cause of error
+    --------------
+
+    This error cause MAY be included in ABORT chunks that are sent
+    because an SCTP endpoint detects a protocol violation of the peer
+    that is not covered by the error causes described in Section 3.3.10.1
+    to Section 3.3.10.12.  An implementation MAY provide additional
+    information specifying what kind of protocol violation has been
+    detected.
+
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |         Cause Code=13         |      Cause Length=Variable    |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       /                    Additional Information                     /
+       \                                                               \
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+

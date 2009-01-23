@@ -1,0 +1,220 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vConnect($IF0);
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  RestartModeB.seq - COOKIE ECHO chunk is received when a TCB exists (Case B)
+
+=head1 PURPOSE
+
+  To check that if COOKIE ECHO chunk is received when a TCB exists in mode B
+  then the endpoint should update its peer's Verification Tag from the State
+  Cookie, stop any init or cookie timers that may be running, and send a
+  COOKIE-ACK.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./RestartModeB.seq">./RestartModeB.seq</A> [-tooloption ...] -pkt <A HREF="./RestartModeB.def">./RestartModeB.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint B such that upper layers send Associate primitive to
+  startup an association with endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                                   <-----    Associate
+                <-----------------      INIT
+
+  INIT          ----------------->
+
+                <-----------------      INIT-ACK
+
+  COOKIE-ECHO   ----------------->
+
+                <-----------------      COOKIE-ACK
+                                         Communication Up ---------->
+
+  TEST DESCRIPTION:
+
+  1. Try to send a COOKIE-ECHO message when a TCB exists from
+     endpoint A to B.
+  2. Check A: COOKIE-ECHO message is accepted and COOKIE-ACK message
+     is received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  5.2.4.  Handle a COOKIE ECHO when a TCB Exists
+
+    5)  Refer to Table 2 to determine the correct action to be taken.
+
+    +------------+------------+---------------+--------------+-------------+
+    |  Local Tag | Peer's Tag | Local-Tie-Tag |Peer's-Tie-Tag|   Action/   |
+    |            |            |               |              | Description |
+    +------------+------------+---------------+--------------+-------------+
+    |    X       |     X      |      M        |      M       |     (A)     |
+    +------------+------------+---------------+--------------+-------------+
+    |    M       |     X      |      A        |      A       |     (B)     |
+    +------------+------------+---------------+--------------+-------------+
+    |    M       |     0      |      A        |      A       |     (B)     |
+    +------------+------------+---------------+--------------+-------------+
+    |    X       |     M      |      0        |      0       |     (C)     |
+    +------------+------------+---------------+--------------+-------------+
+    |    M       |     M      |      A        |      A       |     (D)     |
+    +======================================================================+
+    |       Table 2: Handling of a COOKIE ECHO when a TCB Exists           |
+    +======================================================================+
+
+    Legend:
+
+      X - Tag does not match the existing TCB.
+      M - Tag matches the existing TCB.
+      0 - No Tie-Tag in cookie (unknown).
+      A - All cases, i.e., M, X, or 0.
+
+    Note: For any case not shown in Table 2, the cookie should be
+    silently discarded.
+
+    Action
+
+    A) In this case, the peer may have restarted.  When the endpoint
+       recognizes this potential 'restart', the existing session is
+       treated the same as if it received an ABORT followed by a new
+       COOKIE ECHO with the following exceptions:
+
+       -  Any SCTP DATA chunks MAY be retained (this is an
+          implementation-specific option).
+
+       -  A notification of RESTART SHOULD be sent to the ULP instead of
+          a "COMMUNICATION LOST" notification.
+
+       All the congestion control parameters (e.g., cwnd, ssthresh)
+       related to this peer MUST be reset to their initial values (see
+       Section 6.2.1).
+
+       After this, the endpoint shall enter the ESTABLISHED state.
+
+       If the endpoint is in the SHUTDOWN-ACK-SENT state and recognizes
+       that the peer has restarted (Action A), it MUST NOT set up a new
+       association but instead resend the SHUTDOWN ACK and send an ERROR
+       chunk with a "Cookie Received While Shutting Down" error cause to
+       its peer.
+
+=begin html
+<PRE>
+    <B>B) In this case, both sides may be attempting to start an association
+       at about the same time, but the peer endpoint started its INIT
+       after responding to the local endpoint's INIT.  Thus, it may have
+       picked a new Verification Tag, not being aware of the previous tag
+       it had sent this endpoint.  The endpoint should stay in or enter
+       the ESTABLISHED state, but it MUST update its peer's Verification
+       Tag from the State Cookie, stop any init or cookie timers that may
+       be running, and send a COOKIE ACK.</B>
+</PRE>
+
+=end html
+
+    C) In this case, the local endpoint's cookie has arrived late.
+       Before it arrived, the local endpoint sent an INIT and received an
+       INIT ACK and finally sent a COOKIE ECHO with the peer's same tag
+       but a new tag of its own.  The cookie should be silently
+       discarded.  The endpoint SHOULD NOT change states and should leave
+       any timers running.
+
+    D) When both local and remote tags match, the endpoint should enter
+       the ESTABLISHED state, if it is in the COOKIE-ECHOED state.  It
+       should stop any cookie timer that may be running and send a COOKIE
+       ACK.
+
+    Note: The "peer's Verification Tag" is the tag received in the
+    Initiate Tag field of the INIT or INIT ACK chunk.
+

@@ -1,0 +1,557 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#ifndef __STD_PKT_MULTI_COMMON_DEF_
+#define __STD_PKT_MULTI_COMMON_DEF_	1
+
+#include "../common/SCTP_COMMON.def"
+#include "../common/STD_PKT_COMMON.def"
+
+//
+// SCTP CHUNK_INIT
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_INIT
+PKG_SCTP_EXTH_SEND(
+	sctp_chunk_init_snd,
+	{
+		SourcePort = SCTP_TN0_PORT;
+		DestinationPort = SCTP_NUT0_PORT;
+	},
+	{
+		chunk = chunk_init_snd;
+	}
+)
+
+CHUNK_INIT chunk_init_snd {
+	InitiateTag = INITTAG;
+	AdvRecvWindow = ARWND;
+	NumOfOutbound = OS;
+	NumOfInbound = MIS;
+	TSN = INITTSN;
+	Param = enccap_snd;
+	Param = fwdtsn_snd;
+	Param = adtindt_snd;
+}
+#endif
+
+//
+// SCTP CHUNK_INIT with AUTH
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_INIT_AUTH
+PKG_SCTP_EXTH_SEND(
+	sctp_chunk_init_auth_snd,
+	{
+		SourcePort = SCTP_TN0_PORT;
+		DestinationPort = SCTP_NUT0_PORT;
+	},
+	{
+		chunk = chunk_init_auth_snd;
+	}
+)
+
+CHUNK_INIT chunk_init_auth_snd {
+	InitiateTag = INITTAG;
+	AdvRecvWindow = ARWND;
+	NumOfOutbound = OS;
+	NumOfInbound = MIS;
+	TSN = INITTSN;
+	Param = auth_random_snd;
+	Param = auth_chunk_list_snd;
+	Param = auth_hmac_algo_snd;
+	Param = auth_support_ext_snd;
+}
+
+Random auth_random_snd {
+	RandomNumber = repeat(0x00, 32);
+}
+
+#ifndef NO_STD_MULTI_SND_AUTH_CHUNK_LIST
+ChunkList auth_chunk_list_snd {
+	Length = 6;
+	ChunkType = TP_CHUNK_ASCONF;
+	ChunkType = TP_CHUNK_ASCONF_ACK;
+	Padding = repeat(0x00, 2);
+}
+#endif
+
+#ifndef NO_STD_MULTI_SND_AUTH_HMAC_ALGO
+RequestedHMACAlgorithm auth_hmac_algo_snd {
+	HMACIdentifier = 1;
+	HMACIdentifier = 3;
+}
+#endif
+
+#ifndef NO_STD_MULTI_SND_AUTH_SUPPORT_EXT
+SupportedExtensions auth_support_ext_snd {
+	Length = 7;
+	ChunkType = TP_CHUNK_AUTH;
+	ChunkType = TP_CHUNK_ASCONF;
+	ChunkType = TP_CHUNK_ASCONF_ACK;
+	Padding = repeat(0x00, 1);
+}
+#endif
+#endif
+
+//
+// SCTP CHUNK_INIT
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_INIT
+PKG_SCTP_EXTH_RECV(
+	sctp_chunk_init_rcv,
+	{
+		SourcePort = SCTP_NUT0_PORT;
+		DestinationPort = SCTP_TN0_PORT;
+	},
+	{
+		chunk = chunk_init_rcv;
+	}
+)
+
+CHUNK_INIT  chunk_init_rcv {
+	InitiateTag = stop;
+}
+#endif
+
+//
+// SCTP CHUNK_INIT_ACK
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_INIT_ACK
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_init_ack_snd,
+	{
+		chunk = chunk_init_ack_snd;
+	}
+)
+
+#define INIT_ACK_PARAMS	\
+	Param = enccap_snd; \
+	Param = fwdtsn_snd; \
+	Param = adtindt_snd;
+
+CHUNK_INIT_ACK chunk_init_ack_snd {
+	InitiateTag = INITTAG;
+	AdvRecvWindow = ARWND;
+	NumOfOutbound = OS;
+	NumOfInbound = MIS;
+	TSN = INITTSN;
+	Param = cookie_snd;
+	INIT_ACK_PARAMS
+}
+
+StaleCookie cookie_snd {
+#ifdef COOKIE
+	Cookie = COOKIE;
+#else
+	Cookie = COOKIE_VALUE;
+#endif
+}
+
+#endif
+
+ENCCapable enccap_snd {
+}
+
+ForwardTSN fwdtsn_snd {
+}
+
+AdaptationLayerIndication adtindt_snd {
+}
+
+//
+// SCTP CHUNK_INIT_ACK
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_INIT_ACK
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_init_ack_rcv,
+	{
+		chunk = chunk_init_ack_rcv;
+	}
+)
+
+CHUNK_INIT_ACK chunk_init_ack_rcv {
+	InitiateTag = any;
+	AdvRecvWindow = any;
+	NumOfOutbound = any;
+	NumOfInbound = any;
+	TSN = any;
+//	Param = cookie_rcv;
+	Param = stop;
+}
+
+StaleCookie cookie_rcv {
+	Cookie = any;
+}
+#endif
+
+//
+// SCTP CHUNK_COOKIE_ECHO
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_COOKIE_ECHO
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_cookie_echo_snd,
+	{
+		chunk = cookie_echo_snd;
+	}
+)
+
+CHUNK_COOKIE_ECHO cookie_echo_snd {
+#ifdef COOKIE
+	Cookie = COOKIE;
+#endif
+}
+#endif
+
+//
+// SCTP CHUNK_COOKIE_ECHO
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_COOKIE_ECHO
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_cookie_echo_rcv,
+	{
+		chunk = cookie_echo_rcv;
+	}
+)
+
+CHUNK_COOKIE_ECHO cookie_echo_rcv {
+#ifdef COOKIE
+	Cookie = COOKIE;
+#else
+	Cookie = COOKIE_VALUE;
+#endif
+}
+#endif
+
+//
+// SCTP CHUNK_COOKIE_ACK
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_COOKIE_ACK
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_cookie_ack_snd,
+	{
+		chunk = chunk_cookie_ack_snd;
+	}
+)
+
+CHUNK_COOKIE_ACK chunk_cookie_ack_snd {
+}
+#endif
+
+//
+// SCTP CHUNK_COOKIE_ACK
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_COOKIE_ACK
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_cookie_ack_rcv,
+	{
+		chunk = chunk_cookie_ack_rcv;
+	}
+)
+
+CHUNK_COOKIE_ACK chunk_cookie_ack_rcv {
+}
+#endif
+
+//
+// SCTP CHUNK_DATA
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_DATA
+PKG_SCTP_NORM_SEND(
+	sctp_chunk_data_snd_link1,
+	{
+		_SRC(SCTP_TN_NET1_ADDR);
+		_DST(SCTP_NUT_NET1_ADDR);
+	},
+	{
+		chunk = chunk_data_snd_link1;
+	}
+)
+
+CHUNK_DATA chunk_data_snd_link1 {
+	UFlag = 1;
+	BFlag = 1;
+	EFlag = 1;
+#ifndef SNDTSN
+	TSN = INITTSN;
+#else
+	TSN = SNDTSN;
+#endif
+	payload = datax_snd_link1;
+}
+
+Payload datax_snd_link1 {
+	data = left(data1500, DATALEN - 1);
+	data = hexstr("00");
+}
+#endif
+
+//
+// SCTP CHUNK_DATA
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_DATA
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_data_rcv_link1,
+	{
+		_SRC(SCTP_NUT_NET1_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = chunk_data_rcv_link1;
+	}
+)
+
+CHUNK_DATA chunk_data_rcv_link1 {
+	UFlag = any;
+	BFlag = 1;
+	EFlag = 1;
+#ifdef SACK
+	TSN = SACK;
+#else
+	TSN = any;
+#endif
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = datax_rcv;
+}
+
+Payload datax_rcv_link1 {
+	data = left(data1500, DATALEN - 1);
+	data = hexstr("00");
+}
+#endif
+
+//
+// SCTP CHUNK_SACK
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_SACK
+PKG_SCTP_NORM_SEND(
+	sctp_chunk_sack_snd_link1,
+	{
+		_SRC(SCTP_TN_NET1_ADDR);
+		_DST(SCTP_NUT_NET1_ADDR);
+	},
+	{
+		chunk = chunk_sack_snd_link1;
+	}
+)
+
+CHUNK_SACK chunk_sack_snd_link1 {
+#ifdef SACK
+	ACK = SACK;
+#endif
+	AdvRecvWindow = ARWND;
+	NumOfGapAck = 0;
+	NumOfDupTSN = 0;
+}
+#endif
+
+//
+// SCTP CHUNK_SACK
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_SACK
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_sack_rcv_link1,
+	{
+		_SRC(SCTP_NUT_NET1_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = chunk_sack_rcv_link1;
+	}
+)
+
+CHUNK_SACK chunk_sack_rcv_link1 {
+#ifndef SNDTSN
+	ACK = INITTSN;
+#else
+	ACK = SNDTSN;
+#endif
+	AdvRecvWindow = oneof(ARWND, ARWND - DATALEN);
+	NumOfGapAck = 0;
+	NumOfDupTSN = 0;
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_SHUTDOWN
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_shutdown_snd,
+	{
+		chunk = chunk_shutdown_snd;
+	}
+)
+
+CHUNK_SHUTDOWN chunk_shutdown_snd {
+#ifdef SACK
+	TSN = SACK;
+#else
+	TSN = INITTSN;
+#endif
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_SHUTDOWN
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_shutdown_rcv,
+	{
+		chunk = chunk_shutdown_rcv;
+	}
+)
+
+CHUNK_SHUTDOWN chunk_shutdown_rcv {
+#ifdef SNDTSN
+	TSN = SNDTSN;
+#else
+	TSN = any;
+#endif
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN_ACK
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_SHUTDOWN_ACK
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_shutdown_ack_snd,
+	{
+		chunk = chunk_shutdown_ack_snd;
+	}
+)
+
+CHUNK_SHUTDOWN_ACK chunk_shutdown_ack_snd {
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN_ACK
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_SHUTDOWN_ACK
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_shutdown_ack_rcv,
+	{
+		chunk = chunk_shutdown_ack_rcv;
+	}
+)
+
+CHUNK_SHUTDOWN_ACK chunk_shutdown_ack_rcv {
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN_COMPLETE
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_SHUTDOWN_COMPLETE
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_shutdown_complete_snd,
+	{
+		chunk = chunk_shutdown_complete_snd;
+	}
+)
+
+CHUNK_SHUTDOWN_COMPLETE chunk_shutdown_complete_snd {
+}
+#endif
+
+//
+// SCTP CHUNK_SHUTDOWN_COMPLETE
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_SHUTDOWN_COMPLETE
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_shutdown_complete_rcv,
+	{
+		chunk = chunk_shutdown_complete_rcv;
+	}
+)
+
+CHUNK_SHUTDOWN_COMPLETE chunk_shutdown_complete_rcv {
+}
+#endif
+
+//
+// SCTP CHUNK_ABORT SEND
+//
+#ifndef NO_STD_MULTI_SND_CHUNK_ABORT
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_abort_snd,
+	{
+		chunk = chunk_abort_snd;
+	}
+)
+
+CHUNK_ABORT chunk_abort_snd {
+	TFlag = 0;
+}
+#endif
+
+//
+// SCTP CHUNK_ABORT RECV
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_ABORT
+PKG_SCTP_EXTH_RECV(
+	sctp_chunk_abort_rcv,
+	{
+		SourcePort = SCTP_NUT0_PORT;
+		DestinationPort = SCTP_TN0_PORT;
+		VerificationTag = oneof(VERFTAG, INITTAG);
+	},
+	{
+		chunk = chunk_abort_rcv;
+	}
+)
+
+CHUNK_ABORT chunk_abort_rcv {
+	TFlag = any;
+	Length = stop;
+}
+#endif
+
+//
+// SCTP CHUNK_ANY
+//
+#ifndef NO_STD_MULTI_RCV_CHUNK_ANY
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_any_rcv,
+	{
+		chunk = stop;
+	}
+)
+#endif
+
+#endif // #ifndef __STD_PKT_MULTI_COMMON_DEF_

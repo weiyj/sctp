@@ -1,0 +1,193 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_sack_auth_rcv	=> "Recv SCTP CHUNK_SACK (with AUTH chunk)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnectAuth($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_auth_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_auth_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AuthIgnoreChunkTypes.seq - INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks listed in the CHUNKS parameter MUST be ignored
+
+=head1 PURPOSE
+
+  To verify that if the chunk types for INIT, INIT-ACK, SHUTDOWN-COMPLETE,
+  and AUTH chunks be listed in the CHUNKS parameter, then the types for
+  INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks MUST be ignored.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AuthIgnoreChunkTypes.seq">./AuthIgnoreChunkTypes.seq</A> [-tooloption ...] -pkt <A HREF="./AuthIgnoreChunkTypes.def">./AuthIgnoreChunkTypes.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange
+  data in endpoint A such that INIT chunk with CHUNKS parameter.
+  The chunk types for INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH 
+  chunks be listed in CHUNKS parameter.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (CLOSED)                               (CLOSED)
+
+    INIT          ------------------>
+    (with CHUNKS parameter)
+                  <------------------   INIT-ACK
+                                        (with AUTH capable)
+    COOKIE-ECHO   ------------------>
+
+                  <------------------   COOKIE-ACK
+
+    DATA          ------------------>
+
+                  <------------------   AUTH + SACK
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint A to B. Send INIT 
+     message containing CHUNKS Parameter. The chunk types for INIT, 
+     INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks be listed in 
+     CHUNKS parameter.
+  2. Check A: Association is established between endpoint A and B 
+     with AUTH capable.
+  3. Check B: INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks 
+     should be received at endpoint A in no authenticated way.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  3.2.  Chunk List Parameter (CHUNKS)
+
+    This parameter is used to specify which chunk types are required to
+    be authenticated before being sent by the peer.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |     Parameter Type = 0x8003   |       Parameter Length        |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Chunk Type 1  | Chunk Type 2  | Chunk Type 3  | Chunk Type 4  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    /                                                               /
+    \                              ...                              \
+    /                                                               /
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Chunk Type n  |                   Padding                     |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                  Figure 2
+
+    Parameter Type: 2 bytes (unsigned integer)
+      This value MUST be set to 0x8003.
+
+    Parameter Length: 2 bytes (unsigned integer)
+      This value is the number of listed Chunk Types plus 4.
+
+    Chunk Type n: 1 byte (unsigned integer)
+      Each Chunk Type listed is required to be authenticated when sent
+      by the peer.
+
+    Padding: 0, 1, 2, or 3 bytes (unsigned integer)
+      If the number of Chunk Types is not a multiple of 4, the sender
+      MUST pad the parameter with all zero bytes to make the parameter
+      32-bit aligned.  The Padding MUST NOT be longer than 3 bytes and
+      it MUST be ignored by the receiver.
+
+    The CHUNKS parameter MUST be included once in the INIT or INIT-ACK
+    chunk if the sender wants to receive authenticated chunks.  Its
+    maximum length is 260 bytes.
+
+=begin html
+<PRE>
+    <B>The chunk types for INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH
+    chunks MUST NOT be listed in the CHUNKS parameter.  However, if a
+    CHUNKS parameter is received then the types for INIT, INIT-ACK,
+    SHUTDOWN-COMPLETE, and AUTH chunks MUST be ignored.</B>
+</PRE>
+
+=end html
+

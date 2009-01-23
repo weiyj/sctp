@@ -1,0 +1,153 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_nodata	=> "Send SCTP CHUNK_DATA (No User Data)",
+	sctp_chunk_abort_nodata	=> "Recv SCTP CHUNK_ABORT (No User Data)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_nodata);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_nodata);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_nodata) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  GEN_NoUserData.seq - Generation of error cause No User Data
+
+=head1 PURPOSE
+
+  To check that if DATA chunk is received with no user data then the
+  endpoint should send ABORT message with cause No User Data.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./GEN_NoUserData.seq">./GEN_NoUserData.seq</A> [-tooloption ...] -pkt <A HREF="./GEN_NoUserData.def">./GEN_NoUserData.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that DATA chunk with no user data is sent to 
+  endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+   DATA           ----------------->
+   (with no user data)
+                  <-----------------    ABORT
+                                        (No User Data)
+                                        Communication Down  --------->
+
+  TEST DESCRIPTION:
+
+  1. Send DATA chunk from endpoint A to B with no user data i.e. length
+     should be 16.
+  2. Check A: ABORT should be received at endpoint A.
+  3. Check B: Error cause in ABORT is set to "No User Data".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.10.9.  No User Data (9)
+
+    Cause of error
+    ---------------
+
+    No User Data: This error cause is returned to the originator of a
+
+    DATA chunk if a received DATA chunk has no user data.
+
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |     Cause Code=9              |      Cause Length=8           |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       /                  TSN value                                    /
+       \                                                               \
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    TSN value: 32 bits (unsigned integer)
+
+      The TSN value field contains the TSN of the DATA chunk received
+      with no user data field.
+
+      This cause code is normally returned in an ABORT chunk (see
+      Section 6.2).
+

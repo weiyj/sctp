@@ -1,0 +1,400 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_1	=> "Recv SCTP CHUNK_DATA (1)",
+	sctp_chunk_data_2	=> "Recv SCTP CHUNK_DATA (2)",
+	sctp_chunk_data_3	=> "Recv SCTP CHUNK_DATA (3)",
+	sctp_chunk_data_4	=> "Recv SCTP CHUNK_DATA (4)",
+	sctp_chunk_data_5	=> "Recv SCTP CHUNK_DATA (5)",
+	sctp_chunk_data_6	=> "Recv SCTP CHUNK_DATA (6)",
+	sctp_chunk_data_7	=> "Recv SCTP CHUNK_DATA (7)",
+	sctp_chunk_sack_2	=> "Send SCTP CHUNK_SACK (1 and 2)",
+	sctp_chunk_sack_3	=> "Send SCTP CHUNK_SACK (1 and 3)",
+	sctp_chunk_sack_4	=> "Send SCTP CHUNK_SACK (1, 3 and 4)",
+	sctp_chunk_sack_5	=> "Send SCTP CHUNK_SACK (1, 3 to 4)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>== Modify MAX.BURST configure to let test easy ==</B>');
+$MAX_BURST = sctpGetRemoteSys("MAX.BURST");
+sctpSetRemoteSys("MAX.BURST", 10);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+$SIZE = ($SCTP::CONF{ENABLE_IPV6} == 0) ? 1452 : 1432;
+$COUNT = 8;
+@cwnds = ();
+
+sctpStatusClient($IF0, $COUNT, "-X 7 -x $COUNT -c $SIZE -I 7 -D");
+
+vListen($IF0);
+
+vAccept($IF0);
+
+$cwnds[@cwnds] = 4380;
+vLogHTML('<B>Now the cwnd is 4380</B>');
+
+sctpUpdateRecvACK();
+
+for($i = 1; $i < 5; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+# SACK for the 1st message shoule increase the cwnd by size
+$cwnds[@cwnds] = $cwnds[@cwnds - 1] + $SIZE;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1]</B>");
+vSend($IF0, sctp_chunk_sack_snd);
+
+for($i = 5; $i < 6; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+# SACK with Gap Report for the 2nd message shoule not increase the cwnd
+vSend($IF0, sctp_chunk_sack_2);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_3);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_4);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_5);
+
+# We can receive last two DATA messages now
+for($i = 6; $i < 8; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+# Do Fast Retransmit on Gap Reports 
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_2");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_2") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+# Upon detection of packet losses from SACK, update cwnd to max(cwnd/2, 4*MTU)
+# ssthresh = 6000
+$cwnds[@cwnds] = 6000;
+$pba = 0;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1], partial_bytes_acked = 0</B>");
+sctpUpdateRecvACK(6);
+vSend($IF0, sctp_chunk_sack_snd);
+
+#Send DATA to remote to let following DATAs can be send
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_snd);
+
+sctpUpdateRecvACK();
+# Five DATA message can be send now
+for($i = 1; $i < 6; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+sctpUpdateRecvACK(2);
+vSend($IF0, sctp_chunk_sack_snd);
+sctpUpdateRecvACK(-2);
+$cwnds[@cwnds] = $cwnds[@cwnds - 1] + 1500;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1]</B>");
+
+# We can recv last two DATA messages now
+for($i = 6; $i < 8; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+sctpUpdateRecvACK(6);
+vSend($IF0, sctp_chunk_sack_snd);
+
+for($j = 2; $j < $COUNT; $j++) {
+	sctpUpdateSendTSN();
+	vSend($IF0, sctp_chunk_data_snd);
+
+	sctpUpdateRecvACK();
+	# Six DATA message can be send now
+	for($i = 1; $i < 6; $i++) {
+		%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+		if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+			vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+			vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+			exit $V6evalTool::exitFail;
+		}
+	}
+
+	sctpUpdateRecvACK();
+	vSend($IF0, sctp_chunk_sack_snd);
+	sctpUpdateRecvACK(-1);
+	$pba = $SIZE;
+	vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1], partial_bytes_acked = $pba</B>");
+
+	for($i = 6; $i < 8; $i++) {
+		%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+		if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+			vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+			vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+			exit $V6evalTool::exitFail;
+		}
+	}
+
+	# acknowledge all of the data transmitted by the sender
+	# partial_bytes_acked is initialized to 0.
+	sctpUpdateRecvACK(6);
+	vSend($IF0, sctp_chunk_sack_snd);
+	vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1], partial_bytes_acked = 0</B>");
+	vSleep(5);
+}
+
+vClose($IF0);
+
+$cwnds[@cwnds] = '-';
+@ret = sctpGetRemoteStatus(@cwnds);
+for($i = 0; $i < @cwnds; $i++) {
+	if((!defined($ret[$i]) && $cwnds[$i] != '-') || $cwnds[$i] != $ret[$i]) {
+		vLogHTML(sprintf("The initial cwnd is not update correctly, except %s, but get %s<BR>",
+					$cwnds[$i] == '-' ? "NO CHANGE" : $cwnds[$i],
+					defined($ret[$i]) ? $ret[$i]: "NO CHANGE"));
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+END {
+	# remember exit status, this maybe change after following process
+	my $ret = $?;
+
+	sctpSetRemoteSys("MAX.BURST", $MAX_BURST);
+
+	# exit with the last exit status
+	exit($ret);
+}
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ResetPartialBytesAck.seq - The partial_bytes_acked is set to 0 when all of the data transmitted has been acknowledged
+
+=head1 PURPOSE
+
+  To verify that when all of the data transmitted by the sender
+  has been acknowledged by the receiver, partial_bytes_acked is
+  initialized to 0.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ResetPartialBytesAck.seq">./ResetPartialBytesAck.seq</A> [-tooloption ...] -pkt <A HREF="./ResetPartialBytesAck.def">./ResetPartialBytesAck.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+                                                  <-----    Send
+                  <----------------       DATA 1
+  Don't Send SACK  
+                  <----------------       DATA 2
+  Don't Send SACK  
+                  <----------------       DATA 3
+  Don't Send SACK  
+                  <----------------       DATA 4
+
+  SACK            ----------------->
+  (For DATA 1)
+                  <----------------       DATA 5
+  Don't Send SACK  
+                  <----------------       DATA 6
+  Don't Send SACK  
+  SACK            ----------------->
+  (For DATA 1 and DATA 2)
+  SACK            ----------------->
+  (For DATA 1 and DATA 3, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 and DATA 4, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 to DATA 5, report DATA 2 is missing)
+                  <----------------       DATA 2
+ 
+                  <----------------       DATA 7
+ 
+  SACK            ----------------->
+  (For all DATAs)
+  DATA            ----------------->
+
+                  <----------------       SACK
+
+                  <----------------       DATA 1
+  Don't Send SACK  
+                  <----------------       DATA 2
+  Don't Send SACK  
+                  <----------------       DATA 3
+  Don't Send SACK  
+                  <----------------       DATA 4
+  Don't Send SACK  
+                  <----------------       DATA 5
+
+  SACK            ----------------->
+  (For DATA 1 and DATA2)
+                  <----------------       DATA 6
+
+                  <----------------       DATA 7
+
+  SACK            ----------------->
+  (For all DATAs)
+
+  TEST DESCRIPTION:
+
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 4 times to endpoint A,
+     when there is association between them.
+  3. From endpoint A, send SACK of the first DATA message to 
+     endpoint B.
+  4. Check B: Congestion control window is increased by DATA size.
+  5. From endpoint A, receive DATA message 2 times.
+  6. From endpoint A, send SACK of the 1st, 3rd DATA messages to 
+     endpoint B, report the 2nd message is missing.
+  7. From endpoint A, send SACK of the 1st, 3rd and 4th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  8. From endpoint A, send SACK of the 1st, 3rd to 5th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  9. Check C: The 2nd DATA messages is send again immediately.
+  10.Check D: Congestion control window is 6000 now.
+  11.Send SACK of all DATA to endpoint B.
+  12.From endpoint A, Send DATA message to endpoint and receive SACK.
+  13.From endpoint A, receive DATA message 5 times.
+  14.Send SACK of first two messages.
+  15.Check E: Congestion control window is 7500 now.
+  17.Receive DATA message 2 times and send SACK of above DATA messages.
+  18.From endpoint A, receive DATA message 5 times.
+  19.Send SACK of the first message and receive DATA message 2 times.
+  20.Send SACK of all the above DATA messages.
+  21.Repeat setp 17 ~ 18 some times
+  22.Check F: The cwnd is not increased because of step 20 SACK of all
+     the data transmitted by the sender will cause partial_bytes_acked
+     be initialized to 0.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  7.2.2.  Congestion Avoidance
+
+    When cwnd is greater than ssthresh, cwnd should be incremented by
+    1*MTU per RTT if the sender has cwnd or more bytes of data
+    outstanding for the corresponding transport address.
+
+    In practice, an implementation can achieve this goal in the following
+    way:
+
+    o  partial_bytes_acked is initialized to 0.
+
+    o  Whenever cwnd is greater than ssthresh, upon each SACK arrival
+       that advances the Cumulative TSN Ack Point, increase
+       partial_bytes_acked by the total number of bytes of all new chunks
+       acknowledged in that SACK including chunks acknowledged by the new
+       Cumulative TSN Ack and by Gap Ack Blocks.
+
+    o  When partial_bytes_acked is equal to or greater than cwnd and
+       before the arrival of the SACK the sender had cwnd or more bytes
+       of data outstanding (i.e., before arrival of the SACK, flightsize
+       was greater than or equal to cwnd), increase cwnd by MTU, and
+       reset partial_bytes_acked to (partial_bytes_acked - cwnd).
+
+    o  Same as in the slow start, when the sender does not transmit DATA
+       on a given transport address, the cwnd of the transport address
+       should be adjusted to max(cwnd / 2, 4*MTU) per RTO.
+
+=begin html
+<PRE>
+    <B>o  When all of the data transmitted by the sender has been
+       acknowledged by the receiver, partial_bytes_acked is initialized
+       to 0.</B>
+</PRE>
+
+=end html
+

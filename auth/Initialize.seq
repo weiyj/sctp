@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+vLogHTML("== Check For Whether SCTP is Supported ==");
+if (sctpRemoteCommand("checksctp")) {
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+#vLogHTML("== Enabled Authentication Chunks Support ==");
+if (sctpSetRemoteSys("AUTH.ENABLE", 1)) {
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML("OK");
+exit $V6evalTool::exitIgnore;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  Initialize.seq - Initialization Test Environment
+
+=head1 PURPOSE
+
+  Initialization Test Environment.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./Initialize.seq">./Initialize.seq</A> [-tooloption ...] -pkt /dev/null
+    -tooloption : v6eval tool option
+
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  None
+
+=head1 TEST PROCEDURE
+
+  TEST DESCRIPTION:
+
+  1. Check For Whether SCTP is Supported
+  2. Enabled Authentication Chunks Support on NUT
+
+=head1 NOTE
+
+  Kernel used the value of file /proc/sys/net/sctp/auth_enable to
+  determine whether Authentication Chunks be supported. If this be
+  changed, the initialize script must be rewrite.
+
+=head1 REFERENCE
+
+  None

@@ -1,0 +1,137 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_ack_snd);
+
+%ret = vWarpRecv($IF0, 5, 0, 0, sctp_chunk_any_rcv);
+if($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Received unexpected SCTP CHUNK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  DupInitAckInEstab.seq - Unexpected INIT-ACK chunk is received in ESTABLISHED state
+
+=head1 PURPOSE
+
+  To check that if INIT-ACK chunk is received in ESTABLISHED state then
+  the endpoint should silently discard a received INIT-ACK chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./DupInitAckInEstab.seq">./DupInitAckInEstab.seq</A> [-tooloption ...] -pkt <A HREF="./DupInitAckInEstab.def">./DupInitAckInEstab.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that INIT-ACK message is sent to endpoint B
+  in ESTABLISHED state.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  INIT-ACK      ----------------->      Silently discard
+
+  TEST DESCRIPTION:
+
+  1. Send INIT-ACK message after the association between them is setuped.
+  2. Check A: INIT-ACK message received in ESTABLISHED state is discarded.
+  3. Check B: Current state is not disturbed and an association can be 
+     completed between A and B.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  5.2.3.  Unexpected INIT ACK
+
+=begin html
+<PRE>
+    <B>If an INIT ACK is received by an endpoint in any state other than the
+    COOKIE-WAIT state, the endpoint should discard the INIT ACK chunk.
+    An unexpected INIT ACK usually indicates the processing of an old or
+    duplicated INIT chunk.</B>
+</PRE>
+
+=end html
+

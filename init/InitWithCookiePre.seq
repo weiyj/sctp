@@ -1,0 +1,174 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_cookie	=> "Recv SCTP CHUNK_INIT (with Cookie Preservative Parameter)",
+	sctp_chunk_error	=> "Recv SCTP CHUNK_ERROR (with Stale Cookie Error)"
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_cookie);
+
+%ret = vWarpRecv3($IF0, 10, 0, 0, sctp_chunk_init_ack_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_init_ack_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchInitField(\%ret);
+
+vSleep($SCTP::CONF{COOKIE_LIFE} + 30 + 5);
+
+vSend($IF0, sctp_chunk_cookie_echo_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_error);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_error) {
+	vLogHTML('Cannot receive SCTP CHUNK_ERROR<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_abort_snd);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitWithCookiePre.seq - INIT chunk is received with cookie preservative parameter (cookie life time expired)
+
+=head1 PURPOSE
+
+  To check that if INIT chunk is received with cookie preservative parameter
+  then the endpoint should increment the life-span of the State Cookie in
+  milliseconds.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitWithCookiePre.seq">./InitWithCookiePre.seq</A> [-tooloption ...] -pkt <A HREF="./InitWithCookiePre.def">./InitWithCookiePre.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange 
+  data in endpoint A such that INIT chunk with Cookie Preservative
+  Parameter is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  INIT          ----------------->
+  (with Cookie Preservative Parameter)
+                <-----------------      INIT-ACK
+
+  COOKIE-ECHO   ----------------->
+  (life time expired)
+                <-----------------      ERROR
+                                        (Stale Cookie Error)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint A to endpoint B. Send 
+     INIT message Cookie Preservative Parameter. 
+  2. Check A: INIT message is accepted and INIT-ACK is sent from endpoint B. 
+  3. Check B: The life-span of the State Cookie at endpoint B is incremented
+     in milliseconds.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  3.3.2.1.  Optional/Variable-Length Parameters in INIT
+
+    Cookie Preservative (9)
+
+    The sender of the INIT shall use this parameter to suggest to the
+    receiver of the INIT for a longer life-span of the State Cookie.
+
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |          Type = 9             |          Length = 8           |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |         Suggested Cookie Life-Span Increment (msec.)          |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    Suggested Cookie Life-Span Increment: 32 bits (unsigned integer)
+
+      This parameter indicates to the receiver how much increment in
+      milliseconds the sender wishes the receiver to add to its default
+      cookie life-span.
+
+      This optional parameter should be added to the INIT chunk by the
+      sender when it reattempts establishing an association with a peer
+      to which its previous attempt of establishing the association
+      failed due to a stale cookie operation error.  The receiver MAY
+      choose to ignore the suggested cookie life-span increase for its
+      own security reasons.
+

@@ -1,0 +1,153 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Fault Management</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Fault Management</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/01/23 12:06:49</TD></TR>
+<TR><TD>End :</TD><TD>2009/01/23 12:06:50</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Path Heartbeat</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./HB_SendToIdleAddr.html">HEARTBEAT message is sent periodically to an idle active station</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_SendToIdleAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_SendToIdleAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./HB_RecvInCookieEchoed.html">HEARTBEAT chunk is received in COOKIE-ECHOED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInCookieEchoed.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./HB_RecvInEstab.html">HEARTBEAT chunk is received in ESTABLISHED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInEstab.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./HB_RecvInShutPend.html">HEARTBEAT chunk is received in SHUTDOWN-PENDING State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInShutPend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./HB_RecvInShutSend.html">HEARTBEAT chunk is received in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInShutSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./HB_RecvInShutRecv.html">HEARTBEAT chunk is received in SHUTDOWN-RECEIVED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInShutRecv.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./HB_RecvInShutAckSend.html">HEARTBEAT chunk is received in SHUTDOWN-ACK-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RecvInShutAckSend.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HB_RespondWithAck.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle Out of the Blue Packets</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR><TD><BR></TD><TD>Silently discard the packet</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./OOTB_NonUnicastSrcAddr.html">Valid packet is received from non-unicast address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_NonUnicastSrcAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_NonUnicastSrcAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./OOTB_NonUnicastDstAddr.html">Valid packet is sent to non-unicast destination address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_NonUnicastDstAddr.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_NonUnicastDstAddr.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./OOTB_AbortChunk.html">ABORT chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_AbortChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_AbortChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./OOTB_ShutdownAckChunk.html">SHUTDOWN-ACK chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownAckChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownAckChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./OOTB_ShutdownCompleteChunk.html">SHUTDOWN-COMPLETE chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownCompleteChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownCompleteChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./OOTB_StaleCookieErrorChunk.html">ERROR chunk with Stale Cookie ERROR is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_StaleCookieErrorChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_StaleCookieErrorChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./OOTB_CookieAckChunk.html">COOKIE-ACK chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_CookieAckChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_CookieAckChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Respond the packet with an ABORT</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./OOTB_InitChunk.html">INIT chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_InitChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_InitChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./OOTB_InitAckChunk.html">INIT-ACK chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_InitAckChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_InitAckChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./OOTB_CookieEchoChunk.html">COOKIE-ECHO chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_CookieEchoChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_CookieEchoChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./OOTB_DataPacket.html">DATA chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_DataPacket.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_DataPacket.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./OOTB_SackChunk.html">SACK chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="19.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_SackChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_SackChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="19.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./OOTB_ShutdownChunk.html">SHUTDOWN chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="20.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ShutdownChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="20.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./OOTB_ErrorChunk.html">ERROR chunk (not stale cookie) is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="21.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ErrorChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_ErrorChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="21.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./OOTB_HeartbeatChunk.html">HEARTBEAT chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="22.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_HeartbeatChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_HeartbeatChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="22.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>23</TD><TD><A HREF="./OOTB_HeartbeatAckChunk.html">HEARTBEAT-ACK chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="23.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_HeartbeatAckChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_HeartbeatAckChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="23.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>24</TD><TD><A HREF="./OOTB_UnregChunk.html">Unrecognized Chunk is received from an address with which endpoint has no association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="24.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_UnregChunk.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./OOTB_UnregChunk.def">X</A></TD><TD ALIGN="CENTER"><A HREF="24.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Verification Tag</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying INIT</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>25</TD><TD><A HREF="./InitWithBadTag.html">INIT chunk is received with the Verification Tag not set to 0</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="25.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="25.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying ABORT</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>26</TD><TD><A HREF="./AbortWithOwnTag0.html">ABORT chunk is received with the own's Verification Tag and T bit is not set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="26.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOwnTag0.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOwnTag0.def">X</A></TD><TD ALIGN="CENTER"><A HREF="26.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>27</TD><TD><A HREF="./AbortWithPeerTag1.html">ABORT chunk is received with the peer's Tag and T bit is set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="27.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithPeerTag1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithPeerTag1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="27.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>28</TD><TD><A HREF="./AbortWithOwnTag1.html">ABORT chunk is received with the own's Verification Tag and T bit is set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="28.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOwnTag1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithOwnTag1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="28.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>29</TD><TD><A HREF="./AbortWithPeerTag0.html">ABORT chunk is received with the peer's Tag and T bit is not set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="29.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithPeerTag0.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithPeerTag0.def">X</A></TD><TD ALIGN="CENTER"><A HREF="29.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>30</TD><TD><A HREF="./AbortWithBadTag.html">ABORT chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="30.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AbortWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="30.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying SHUTDOWN-COMPLETE</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>31</TD><TD><A HREF="./ShutCompWithOwnTag0.html">SHUTDOWN-COMPLETE chunk is received with the own's Verification Tag and T bit is not set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="31.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithOwnTag0.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithOwnTag0.def">X</A></TD><TD ALIGN="CENTER"><A HREF="31.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>32</TD><TD><A HREF="./ShutCompWithPeerTag1.html">SHUTDOWN-COMPLETE chunk is received with the peer's Tag and T bit is set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="32.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithPeerTag1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithPeerTag1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="32.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>33</TD><TD><A HREF="./ShutCompWithOwnTag1.html">SHUTDOWN-COMPLETE chunk is received with the own's Verification Tag and T bit is set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="33.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithOwnTag1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithOwnTag1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="33.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>34</TD><TD><A HREF="./ShutCompWithPeerTag0.html">SHUTDOWN-COMPLETE chunk is received with the peer's Tag and T bit is not set</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="34.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithPeerTag0.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithPeerTag0.def">X</A></TD><TD ALIGN="CENTER"><A HREF="34.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>35</TD><TD><A HREF="./ShutCompWithBadTag.html">SHUTDOWN-COMPLETE chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="35.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutCompWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="35.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying a COOKIE ECHO</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>36</TD><TD><A HREF="./CookieEchoWithBadTag.html">COOKIE-ECHO chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="36.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieEchoWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="36.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying a SHUTDOWN-ACK</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>37</TD><TD><A HREF="./ShutAckWithBadTag1.html">SHUTDOWN-ACK chunk is received with invalid Verification Tag in COOKIE-ECHOED State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="37.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="37.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>38</TD><TD><A HREF="./ShutAckWithBadTag2.html">SHUTDOWN-ACK chunk is received with invalid Verification Tag in COOKIE-WAIT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="38.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag2.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag2.def">X</A></TD><TD ALIGN="CENTER"><A HREF="38.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>39</TD><TD><A HREF="./ShutAckWithBadTag3.html">SHUTDOWN-ACK chunk is received with invalid Verification Tag in SHUTDOWN-SENT State</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="39.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag3.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckWithBadTag3.def">X</A></TD><TD ALIGN="CENTER"><A HREF="39.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Rules for packet carrying other chunk</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>40</TD><TD><A HREF="./InitAckWithBadTag.html">INIT-ACK chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="40.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="40.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>41</TD><TD><A HREF="./CookieAckWithBadTag.html">COOKIE-ACK chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="41.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieAckWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieAckWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="41.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>42</TD><TD><A HREF="./DataWithBadTag.html">DATA chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="42.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DataWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="42.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>43</TD><TD><A HREF="./SackWithBadTag.html">SACK chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="43.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./SackWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./SackWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="43.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>44</TD><TD><A HREF="./ShutWithBadTag.html">SHUTDOWN chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="44.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="44.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>45</TD><TD><A HREF="./HeartbeatWithBadTag.html">HEARTBEAT chunk is received with invalid Verification Tag</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="45.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HeartbeatWithBadTag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HeartbeatWithBadTag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="45.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI>RFC4960: Fault Management</LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 92b9029bc60d118b5c8a0b2175feaf56 -->

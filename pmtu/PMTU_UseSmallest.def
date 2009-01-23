@@ -1,0 +1,452 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#define NO_STD_SND_CHUNK_INIT_ACK
+#include "../common/STD_PKT_COMMON.def"
+
+#define PMTU	1280
+#define REQ_ID	1
+#define SEQ_NO	100
+
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_icmp_payload1,
+	{
+		_SRC(SCTP_NUT_NET1_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = right(chunk_payload, 0);
+	}
+)
+
+Payload chunk_payload {
+	data = repeat(0x00, PMTU);
+}
+
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_icmp_payload2,
+	{
+		_SRC(SCTP_NUT_NET0_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = right(chunk_payload, 0);
+	}
+)
+
+#if (ENABLE_IPV6 == 0)
+
+FEM_icmp4_destination_unreachable(
+	icmp_pkt_too_big1,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET1_ADDR));
+		_DST(v4(SCTP4_NUT_NET1_ADDR));
+	},
+	{
+		Code = 4;
+		Unused = PMTU;
+		payload = errdata1;
+	}
+)
+
+Payload errdata1 {
+	data = left(_PACKET_IPV4_NAME(sctp_chunk_icmp_payload1), 64);
+}
+
+FEM_icmp4_destination_unreachable(
+	icmp_pkt_too_big2,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET1_ADDR));
+		_DST(v4(SCTP4_NUT_NET0_ADDR));
+	},
+	{
+		Code = 4;
+		Unused = PMTU;
+		payload = errdata2;
+	}
+)
+
+Payload errdata2 {
+	data = left(_PACKET_IPV4_NAME(sctp_chunk_icmp_payload2), 64);
+}
+
+FEM_icmp4_echo_request(
+	echo_request,
+	_HETHER_tn2nut,
+	{
+		_SRC(v4(SCTP4_TN_NET1_ADDR));
+		_DST(v4(SCTP4_NUT_NET0_ADDR));
+	},
+	{
+		Identifier = REQ_ID;
+		SequenceNumber = SEQ_NO;
+		payload = echo_data1472;
+	}
+)
+
+Payload echo_data1472 {
+     data=repeat(0xff, 1472);
+}
+
+FEM_icmp4_echo_reply(
+	echo_reply,
+	_HETHER_nut2tn,
+	{
+		_SRC(v4(SCTP4_NUT_NET0_ADDR));
+		_DST(v4(SCTP4_TN_NET1_ADDR));
+	},
+	{
+		Identifier = REQ_ID;
+		SequenceNumber = SEQ_NO;
+		payload = echo_data1472;
+	}
+)
+
+FEM_hdr_ipv4_exth( 
+	echo_reply_1st, 
+	_HETHER_nut2tn, 
+	{ 
+		FragmentOffset = 0; 
+		MF = 1; 
+		Protocol = 1;
+		_SRC(v4(SCTP4_NUT_NET0_ADDR)); 
+		_DST(v4(SCTP4_TN_NET1_ADDR)); 
+	},
+	{ 
+		header = _HDR_IPV4_NAME(echo_reply_1st); 
+		upper = payload_1st; 
+	}
+)
+
+Payload payload_1st { 
+	data = substr(_PACKET_IPV4_NAME(echo_reply), 20, PMTU - 24); 
+}
+
+FEM_hdr_ipv4_exth( 
+	echo_reply_2nd, 
+	_HETHER_nut2tn, 
+	{ 
+		FragmentOffset = PMTU / 8 - 3;
+		MF = 0; 
+		Protocol = 1;
+		_SRC(v4(SCTP4_NUT_NET0_ADDR)); 
+		_DST(v4(SCTP4_TN_NET1_ADDR)); 
+	},
+	{ 
+		header = _HDR_IPV4_NAME(echo_reply_2nd); 
+		upper = payload_2nd; 
+	}
+)
+
+Payload payload_2nd { 
+	data = right(_PACKET_IPV4_NAME(echo_reply), PMTU - 4);
+}
+
+#else 
+
+FEM_icmp6_packet_too_big (
+	icmp_pkt_too_big1,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET1_ADDR);
+	},
+	{
+		MTU = PMTU;
+		payload = errdata1;
+	}
+)
+
+Payload errdata1 {
+	data = left(_PACKET_IPV6_NAME(sctp_chunk_icmp_payload1), 64);
+}
+
+FEM_icmp6_packet_too_big (
+	icmp_pkt_too_big2,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+	},
+	{
+		MTU = PMTU;
+		payload = errdata2;
+	}
+)
+
+Payload errdata2 {
+	data = left(_PACKET_IPV6_NAME(sctp_chunk_icmp_payload2), 64);
+}
+
+FEM_icmp6_echo_request(
+	echo_request,
+	_HETHER_tn2nut,
+	{
+		_SRC(SCTP6_TN_NET1_ADDR);
+		_DST(SCTP6_NUT_NET0_ADDR);
+	},
+	{
+		Identifier = REQ_ID;
+		SequenceNumber = SEQ_NO;
+		payload = echo_data1452;
+	}
+)
+
+Payload echo_data1452 {
+     data=repeat(0xff, 1452);
+}
+
+FEM_icmp6_echo_reply(
+	echo_reply,
+	_HETHER_nut2tn,
+	{
+		_SRC(SCTP6_NUT_NET0_ADDR);
+		_DST(SCTP6_TN_NET1_ADDR);
+	},
+	{
+		Identifier = REQ_ID;
+		SequenceNumber = SEQ_NO;
+		payload = echo_data1452;
+	}
+)
+
+FEM_hdr_ipv6_exth(
+	echo_reply_1st,
+	_HETHER_nut2tn,
+	{
+		_SRC(SCTP6_NUT_NET0_ADDR);
+		_DST(SCTP6_TN_NET1_ADDR);
+	},
+	{
+		header = _HDR_IPV6_NAME(echo_reply_1st);
+		exthdr = frag_1st;
+		upper = payload_1st;
+	}
+)
+
+Hdr_Fragment frag_1st {
+	NextHeader = 58;
+	FragmentOffset = 0;
+	MFlag = 1;
+	Identification = any;
+}
+
+Payload payload_1st {
+	data = substr(_PACKET_IPV6_NAME(echo_reply), 40, PMTU - 48);
+}
+
+
+FEM_hdr_ipv6_exth(
+	echo_reply_2nd,
+	_HETHER_nut2tn,
+	{
+		_SRC(SCTP6_NUT_NET0_ADDR);
+		_DST(SCTP6_TN_NET1_ADDR);
+	},
+	{
+		header = _HDR_IPV6_NAME(echo_reply_2nd);
+		exthdr = frag_2nd;
+		upper = payload_2nd;
+	}
+)
+
+Hdr_Fragment frag_2nd {
+	NextHeader = 58;	// ignored
+	FragmentOffset = PMTU / 8 - 6;
+	MFlag = 0;
+	Identification = any;
+}
+
+Payload payload_2nd {
+	data = right(_PACKET_IPV6_NAME(echo_reply), PMTU - 8);
+}
+
+#endif
+
+//
+// SCTP CHUNK_INIT_ACK
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_init_ack_snd,
+	{
+		chunk = chunk_init_ack_snd;
+	}
+)
+
+CHUNK_INIT_ACK chunk_init_ack_snd {
+	InitiateTag = INITTAG;
+	AdvRecvWindow = ARWND;
+	NumOfOutbound = OS;
+	NumOfInbound = MIS;
+	TSN = 8;
+	Param = cookie;
+	Param = addrs;
+	Param = addrs2;
+}
+
+StaleCookie cookie {
+#ifdef COOKIE
+	Cookie = COOKIE;
+#else
+	Cookie = COOKIE_VALUE;
+#endif
+}
+
+#if (ENABLE_IPV6 == 0)
+
+IPv4Address addrs {
+	Address = v4(SCTP4_TN_NET0_ADDR);
+}
+
+IPv4Address addrs2 {
+	Address = v4(SCTP4_TN_NET1_ADDR);
+}
+
+#else
+
+IPv6Address addrs {
+	Address = SCTP6_TN_NET0_ADDR;
+}
+
+IPv6Address addrs2 {
+	Address = SCTP6_TN_NET1_ADDR;
+}
+
+#endif /* #if (ENABLE_IPV6 == 0) */
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_big,
+	{
+		chunk = chunk_data_big;
+	}
+)
+
+CHUNK_DATA chunk_data_big {
+	UFlag = 0;
+#ifdef SACK
+	TSN = SACK;
+#else
+	TSN = any;
+#endif
+	Identifier = 0;
+	SequenceNumber = 0;
+#ifdef PROTO
+	Protocol = PROTO;
+#else
+	Protocol = any;
+#endif
+	payload = data_big;
+}
+
+Payload data_big {
+#if ENABLE_IPV6
+	data = left(data1500, 1432 - 1);
+#else
+	data = left(data1500, 1452 - 1);
+#endif
+	data = repeat(0x00, 1);
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_seg1,
+	{
+		chunk = chunk_data_seg1;
+	}
+)
+
+CHUNK_DATA chunk_data_seg1 {
+	UFlag = any;
+#ifdef SACK
+	TSN = SACK;
+#else
+	TSN = any;
+#endif
+	BFlag = 1;
+	EFlag = 0;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_seg1;
+}
+
+Payload data_seg1 {
+#if ENABLE_IPV6
+	data = substr(data_big, 0, PMTU - 68);
+#else
+	data = substr(data_big, 0, PMTU - 48);
+#endif
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_seg2,
+	{
+		chunk = chunk_data_seg2;
+	}
+)
+
+CHUNK_DATA chunk_data_seg2 {
+	UFlag = any;
+#ifdef SACK
+	TSN = SACK;
+#else
+	TSN = any;
+#endif
+	BFlag = 0;
+	EFlag = 1;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_seg2;
+}
+
+Payload data_seg2 {
+#if ENABLE_IPV6
+	data = right(data_big, PMTU - 68);
+#else
+	data = right(data_big, PMTU - 48);
+#endif
+}
+

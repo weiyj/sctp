@@ -1,0 +1,84 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Unordered Delivery</B>
+./UnorderDelivery.seq:./UnorderDelivery.def:::Unordered Data chunks are received for Delivery
+
+########################################################################
+&print:<B>Ordered Delivery</B>
+./SO_MixA1A2A3A4.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A1->A2->A3->A4)
+./SO_MixA4A3A2A1.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A4->A3->A2->A1)
+./SO_MixA2A1A4A3.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A2->A1->A4->A3)
+
+########################################################################
+&print:<B>Ordered Delivery (Multi-Stream)<B>
+./MS_MixA1B1A2B2.seq:./MS_Segment.def:::Multi-Stream Ordered Data chunks are received for Re-order(A1->B1->A2->B2)
+./MS_MixA1B2A2B1.seq:./MS_Segment.def:::Multi-Stream Ordered Data chunks are received for Re-order(A1->B2->A2->B1)
+./MS_MixA2B1A1B2.seq:./MS_Segment.def:::Multi-Stream Ordered Data chunks are received for Re-order(A2->B1->A1->B2)
+./MS_MixA2B2A1B1.seq:./MS_Segment.def:::Multi-Stream Ordered Data chunks are received for Re-order(A2->B2->A1->B1)
+
+########################################################################
+&print:<B>Fragmentation</B>
+./FM_UnSegData.seq:./FM_UnSegData.def:::Un-Fragment DATA is send if the data size less than the current MTU
+./FM_UnSegDataMTU.seq:./FM_UnSegDataMTU.def:::Un-Fragment DATA is send if the data size equal to the current MTU
+./FM_SegmentData.seq:./FM_SegmentData.def:::Fragment DATA is send if the data size exceed the current MTU
+
+########################################################################
+&print:<B>Fragment Reassembly</B>
+./FM_MixA1A2A3.seq:./FM_MixA1A2A3.def:::Fragmented DATA chunks are received for reassembly (A1->A2->A3)
+./FM_MixA2A3A1.seq:./FM_MixA2A3A1.def:::Fragmented DATA chunks are received for reassembly (A2->A3->A1)
+./FM_MixA3A2A1.seq:./FM_MixA3A2A1.def:::Fragmented DATA chunks are received for reassembly (A3->A2->A1)
+./FM_PartialDelivery.seq:./FM_PartialDelivery.def:::Fragmented DATA chunks are received for reassembly (Partial Delivery)
+
+########################################################################
+&print:<B>Acknowledgement on Reception of DATA Chunks</B>
+./SACK_MultiDataChunks.seq:./SACK_MultiDataChunks.def:::A SACK chunk can acknowledge the reception of multiple DATA chunks
+./SACK_GapBlockReport.seq:./SACK_GapBlockReport.def:::DATA chunk is received chunks with TSN greater than the Cumulative TSN Ack
+./SACK_DupWithNoNewData.seq:./SACK_DupWithNoNewData.def:::Duplicate DATA chunk is received with no new DATA chunk
+
+########################################################################
+&print:<B>Processing a Received SACK</B>
+./TSNLessThanAckPoint.seq:./TSNLessThanAckPoint.def:::SACK containing Cumulative TSN less than the Cumulative TSN Ack point
+./AckMultiDataChunks.seq:./AckMultiDataChunks.def:::SACK containing Cumulative TSN greater than the Cumulative TSN Ack point (ACK multiple DATA chunks)
+./FutureSACKNotSend.seq:./FutureSACKNotSend.def:::SACK containing Cumulative TSN greater than the Cumulative TSN Ack point (NO DATA with that TSN has been send)
+./FastRetranToGap.seq:./FastRetranToGap.def:::TSN missing in SACK which was previously acknowledged by SACK in Gap Ack block
+
+########################################################################
+&print:<B>Other Issues</B>
+./NoUserData.seq:./NoUserData.def:::DATA chunk is received with no user data

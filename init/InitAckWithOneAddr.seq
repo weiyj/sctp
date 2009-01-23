@@ -1,0 +1,154 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_ack_addr	=> "Send SCTP CHUNK_INIT_ACK (with one address parameter)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpStartClient($IF0);
+
+vListen($IF0, sctp_chunk_init_rcv, sctp_chunk_init_ack_addr);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitAckWithOneAddr.seq - INIT-ACK chunk is received with one address parameter
+
+=head1 PURPOSE
+
+  To check that if there is one transport address is received in INIT-ACK message 
+  then the IP address plus the IP address from where INIT-ACK comes combined with 
+  the SCTP source port number is used as the destination transport address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitAckWithOneAddr.seq">./InitAckWithOneAddr.seq</A> [-tooloption ...] -pkt <A HREF="./InitAckWithOneAddr.def">./InitAckWithOneAddr.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that INIT-ACK message with one transport
+  address is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                                   <-----    Associate
+                <-----------------      INIT
+
+  INIT-ACK      ----------------->
+  (Transport Address = x)
+                <-----------------      COOKIE-ECHO
+
+  COOKIE-ACK    ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Attempt to make an association from endpoint B to endpoint A. Send 
+     INIT-ACK Message containing one IPv4/IPv6 addresses. 
+     Record the message sequence using a signal emulator.
+  2. Check A: INIT-ACK message is accepted.
+  3. Check B: COOKIE-ECHO is sent at one of the transport addresses 
+     received in INIT-ACK plus the address from where INIT-ACK was 
+     received.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  5.1.2.  Handle Address Parameters
+
+=begin html
+<PRE>
+    <B>C) If there are only IPv4/IPv6 addresses present in the received INIT
+       or INIT ACK chunk, the receiver MUST derive and record all the
+       transport addresses from the received chunk AND the source IP
+       address that sent the INIT or INIT ACK.  The transport addresses
+       are derived by the combination of SCTP source port (from the
+       common header) and the IP Address parameter(s) carried in the INIT
+       or INIT ACK chunk and the source IP address of the IP datagram.
+       The receiver should use only these transport addresses as
+       destination transport addresses when sending subsequent packets to
+       its peer.</B>
+</PRE>
+
+=end html
+
+    D) An INIT or INIT ACK chunk MUST be treated as belonging to an
+       already established association (or one in the process of being
+       established) if the use of any of the valid address parameters
+       contained within the chunk would identify an existing TCB.
+

@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>NormalInitClient.seq - Normal Association of SCTP Client</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  NormalInitClient.seq - Normal Association of SCTP Client</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check the normal association procedure of SCTP Client.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./NormalInitClient.seq">./NormalInitClient.seq</A> [-tooloption ...] -pkt <A HREF="./NormalInitClient.def">./NormalInitClient.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint B such that upper layers send Associate primitive to
+  startup an association with endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)</pre>
+<pre>
+                                                   &lt;-----    Associate
+                &lt;-----------------      INIT</pre>
+<pre>
+  INIT-ACK      -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      COOKIE-ECHO</pre>
+<pre>
+  COOKIE-ACK    -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      DATA</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Start normal association procedure by sending associate primitive 
+     from ULP in endpoint B.Record the message sequence using a signal 
+     emulator.
+  2. Check A: Association is established.
+  3. Check B: First data chunk sent after establishing association is 
+     immediately acknowledged by SACK.
+  4. Check C: Reception and transmission of various length data chunks on
+     the established association.
+  5. Check D: All the DATA messages are received correctly. (No loss of 
+     messages.)</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  None</pre>
+
+</body>
+
+</html>

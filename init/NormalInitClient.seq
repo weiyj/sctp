@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = ();
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  NormalInitClient.seq - Normal Association of SCTP Client
+
+=head1 PURPOSE
+
+  To check the normal association procedure of SCTP Client.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./NormalInitClient.seq">./NormalInitClient.seq</A> [-tooloption ...] -pkt <A HREF="./NormalInitClient.def">./NormalInitClient.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint B such that upper layers send Associate primitive to
+  startup an association with endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+                                                   <-----    Associate
+                <-----------------      INIT
+
+  INIT-ACK      ----------------->
+
+                <-----------------      COOKIE-ECHO
+
+  COOKIE-ACK    ----------------->
+
+                <-----------------      DATA
+
+  SACK          ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Start normal association procedure by sending associate primitive 
+     from ULP in endpoint B.Record the message sequence using a signal 
+     emulator.
+  2. Check A: Association is established.
+  3. Check B: First data chunk sent after establishing association is 
+     immediately acknowledged by SACK.
+  4. Check C: Reception and transmission of various length data chunks on
+     the established association.
+  5. Check D: All the DATA messages are received correctly. (No loss of 
+     messages.)
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  None
+

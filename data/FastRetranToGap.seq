@@ -1,0 +1,255 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_1	=> "Recv SCTP CHUNK_DATA (1)",
+	sctp_chunk_data_2	=> "Recv SCTP CHUNK_DATA (2)",
+	sctp_chunk_data_3	=> "Recv SCTP CHUNK_DATA (3)",
+	sctp_chunk_data_4	=> "Recv SCTP CHUNK_DATA (4)",
+	sctp_chunk_data_5	=> "Recv SCTP CHUNK_DATA (5)",
+	sctp_chunk_sack_2	=> "Send SCTP CHUNK_SACK (1 and 2)",
+	sctp_chunk_sack_3	=> "Send SCTP CHUNK_SACK (1 and 3)",
+	sctp_chunk_sack_4	=> "Send SCTP CHUNK_SACK (1, 3 and 4)",
+	sctp_chunk_sack_5	=> "Send SCTP CHUNK_SACK (1, 3 to 5)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$SIZE = ($SCTP::CONF{ENABLE_IPV6} == 0) ? 1452 : 1432;
+$COUNT = 5;
+
+sctpStartClient($IF0, $COUNT, $SIZE);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+# This time, wen can receive four DATA messages at one time
+for($i = 1; $i < 5; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_5");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_5") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_2);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_3);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_4);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_5);
+
+# Do Fast Retransmit on Gap Reports 
+%ret = vWarpRecv($IF0, 5, 0, 0, "sctp_chunk_data_2");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_2") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateRecvACK(4);
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FastRetranToGap.seq - TSN missing in SACK which was previously acknowledged by SACK in Gap Ack block
+
+=head1 PURPOSE
+
+  To check that if the SACK is missing a TSN that was previously
+  acknowledged via a Gap Ack Block (e.g., the data receiver reneged
+  on the data), then mark the corresponding DATA chunk as available
+  for retransmit.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FastRetranToGap.seq">./FastRetranToGap.seq</A> [-tooloption ...] -pkt <A HREF="./FastRetranToGap.def">./FastRetranToGap.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                  <-----    Send
+                  <----------------       DATA 1
+  Don't Send SACK  
+                  <----------------       DATA 2
+  Don't Send SACK  
+                  <----------------       DATA 3
+  Don't Send SACK  
+                  <----------------       DATA 4
+
+  SACK            ----------------->
+  (For DATA 1)
+                  <----------------       DATA 5
+  Don't Send SACK  
+  SACK            ----------------->
+  (For DATA 1 and DATA 2)
+  SACK            ----------------->
+  (For DATA 1 and DATA 3, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 and DATA 4, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 to DATA 5, report DATA 2 is missing)
+                  <----------------       DATA 2
+ 
+  SACK            ----------------->
+  (For all DATAs)
+
+  TEST DESCRIPTION:
+
+  1. From endpoint B, send valid DATA message 5 times to endpoint A,
+     when there is association between them.
+  2. From endpoint A, receive DATA message 4 times.
+  3. From endpoint A, send SACK of the first DATA message to 
+     endpoint B.
+  4. From endpoint A, send SACK of the 1st, 3rd DATA messages to 
+     endpoint B, report the 2nd message is missing.
+  5. From endpoint A, send SACK of the 1st, 3rd and 4th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  6. From endpoint A, send SACK of the 1st, 3rd to 5th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  7. Check A: The 2nd DATA messages is send again immediately.
+  8. Send SACK of all the above DATA messages.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.2.1.  Processing a Received SACK
+
+    An endpoint SHOULD use the following rules to calculate the rwnd,
+    using the a_rwnd value, the Cumulative TSN Ack, and Gap Ack Blocks in
+    a received SACK.
+
+    A) At the establishment of the association, the endpoint initializes
+       the rwnd to the Advertised Receiver Window Credit (a_rwnd) the
+       peer specified in the INIT or INIT ACK.
+
+    B) Any time a DATA chunk is transmitted (or retransmitted) to a peer,
+       the endpoint subtracts the data size of the chunk from the rwnd of
+       that peer.
+
+    C) Any time a DATA chunk is marked for retransmission, either via
+       T3-rtx timer expiration (Section 6.3.3) or via Fast Retransmit
+       (Section 7.2.4), add the data size of those chunks to the rwnd.
+
+       Note: If the implementation is maintaining a timer on each DATA
+       chunk, then only DATA chunks whose timer expired would be marked
+       for retransmission.
+
+    D) Any time a SACK arrives, the endpoint performs the following:
+
+        i)  If Cumulative TSN Ack is less than the Cumulative TSN Ack
+            Point, then drop the SACK.  Since Cumulative TSN Ack is
+            monotonically increasing, a SACK whose Cumulative TSN Ack is
+            less than the Cumulative TSN Ack Point indicates an out-of-
+            order SACK.
+
+        ii) Set rwnd equal to the newly received a_rwnd minus the number
+            of bytes still outstanding after processing the Cumulative
+            TSN Ack and the Gap Ack Blocks.
+
+=begin html
+<PRE>
+       iii) <B>If the SACK is missing a TSN that was previously acknowledged
+            via a Gap Ack Block (e.g., the data receiver reneged on the
+            data), then consider the corresponding DATA that might be
+            possibly missing: Count one miss indication towards Fast
+            Retransmit as described in Section 7.2.4, and if no
+            retransmit timer is running for the destination address to
+            which the DATA chunk was originally transmitted, then T3-rtx
+            is started for that destination address.</B>
+</PRE>
+
+=end html
+
+        iv) If the Cumulative TSN Ack matches or exceeds the Fast
+            Recovery exitpoint (Section 7.2.4), Fast Recovery is exited.
+

@@ -1,0 +1,121 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>InitStreamMismatch.seq - INIT chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  InitStreamMismatch.seq - INIT chunk is received with mismatch in the Outbound Stream and Inbound Stream parameters</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if INIT chunk is received with mismatch in the Outbound Stream
+  and Inbound Stream parameters then the endpoint should settle with minimum of
+  the two parameters.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./InitStreamMismatch.seq">./InitStreamMismatch.seq</A> [-tooloption ...] -pkt <A HREF="./InitStreamMismatch.def">./InitStreamMismatch.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is not established between endpoint A and B. Also let the OS
+  of B is Z. Arrange data in endpoint A such that INIT message is sent from
+  endpoint A with MIS Y&lt;Z.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  INIT          -----------------&gt;
+  (OS = X, MIS = Y)
+                &lt;-----------------      INIT-ACK
+                                        (OS = Z, MIS = X, Z &gt; Y)
+  COOKIE-ECHO   -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      COOKIE-ACK</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to initiate an association from endpoint A to B. Send INIT 
+     message with Maximal Inbound stream parameter less than the Outbound 
+     Stream of B. 
+     Record the message sequence using a signal emulator.
+  2. Check A: Either the association is aborted or INIT-ACK is received 
+     with Outbound stream parameter equal to the MIS received in INIT. 
+  3. Check B: Range of OS Stream id in endpoint B and MIS stream id in 
+     endpoint A is 0 to Y-1.
+  4. Check C: Was the message sequence as above.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  Association may be aborted in this case.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  5.1.1.  Handle Stream Parameters</pre>
+<pre>
+    In the INIT and INIT ACK chunks, the sender of the chunk MUST
+    indicate the number of outbound streams (OSs) it wishes to have in
+    the association, as well as the maximum inbound streams (MISs) it
+    will accept from the other endpoint.</pre>
+<PRE>
+    <B>After receiving the stream configuration information from the other
+    side, each endpoint MUST perform the following check: If the peer's
+    MIS is less than the endpoint's OS, meaning that the peer is
+    incapable of supporting all the outbound streams the endpoint wants
+    to configure, the endpoint MUST use MIS outbound streams and MAY
+    report any shortage to the upper layer.  The upper layer can then
+    choose to abort the association if the resource shortage is
+    unacceptable.</B>
+</PRE><pre>
+    After the association is initialized, the valid outbound stream
+    identifier range for either endpoint shall be 0 to min(local OS,
+    remote MIS)-1.</pre>
+
+</body>
+
+</html>

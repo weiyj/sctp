@@ -1,0 +1,243 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_big		=> "Recv SCTP CHUNK_DATA (On Link0)",
+	sctp_chunk_data_big_link1	=> "Recv SCTP CHUNK_DATA (On Link1)",
+	sctp_chunk_data_frag_1st	=> "Recv SCTP CHUNK_DATA (1st fragment)",
+	sctp_chunk_data_frag_2nd	=> "Recv SCTP CHUNK_DATA (2nd fragment)",
+	sctp_chunk_heartbeat		=> "Recv SCTP CHUNK_HEARTBEAT (On Link1)",
+	sctp_chunk_heartbeat_ack	=> "Send SCTP CHUNK_HEARTBEAT_ACK (On Link1)",
+);
+
+if ($SCTP::CONF{ENABLE_IPV6} == 0) {
+	$pktdesc{"icmp_pkt_too_big"} = "Send ICMPv4 Fragmentation Needed message";
+} else {
+	$pktdesc{"icmp_pkt_too_big"} = "Send ICMPv6 Packet Too Big message";
+}
+
+$IF0 = Link0;
+$IF1 = Link1;
+
+vCapture($IF0);
+vCapture($IF1);
+
+sctpCheckEnv($IF0, $IF1);
+
+vRegisterExtNS("ns_on_link0_to_link1", "na_on_link1_to_link0");
+vRegisterExtNS("arp_request_link0_to_link1", "arp_reply_link1_to_link0");
+
+sctpStartClient($IF0, 1, ($SCTP::CONF{ENABLE_IPV6} == 0) ? 1452 : 1432);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_big);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_big) {	
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+$TSN = $ret{sctpGetFieldName("CHUNK_DATA.TSN")};
+$PROTO = $ret{sctpGetFieldName("CHUNK_DATA.Protocol")};
+vWarpCPP("-DSACK=$TSN -DPROTO=$PROTO");
+vSend($IF0, "icmp_pkt_too_big");
+
+# We have changed Remote System's PMTU, need reboot to restore it
+$SCTP::CONF{"NEEDREBOOT"} = 1;
+
+# do not send CHUNK_SACK to let Remote System retransmission DATA
+%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_big_link1, sctp_chunk_heartbeat);
+if($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_heartbeat') {
+	$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
+	vWarpCPP("-DHBINFO=\\\"$HBINFO\\\" -DSACK=$TSN -DPROTO=$PROTO");
+	vSend($IF1, sctp_chunk_heartbeat_ack);
+	
+	%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_big_link1);
+}
+
+if ($ret{status} != 0 && $ret{recvFrame} ne sctp_chunk_data_big_link1) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# still do not send CHUNK_SACK to let Remote System retransmission DATA
+vLogHTML('<B>== DATA chunk will be fragmented by IP layer ==</B>');
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_data_frag_1st, sctp_chunk_data_frag_2nd);
+if ($ret{status} != 0) {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+if ($ret{recvFrame} eq sctp_chunk_data_frag_1st) {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_frag_2nd);
+
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_frag_2nd) {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA (2nd fragment)<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+} elsif ($ret{recvFrame} eq sctp_chunk_data_frag_2nd) {
+	%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_frag_1st);
+
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_frag_1st) {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA (1st fragment)<BR>');
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  PMTU_MaintainSeparate.seq - PMTU estimates for each destination address of its peer MUST maintain separate
+
+=head1 PURPOSE
+
+  To check the endpoint MUST maintain separate MTU estimates for each destination
+  address of its peer.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./PMTU_MaintainSeparate.seq">./PMTU_MaintainSeparate.seq</A> [-tooloption ...] -pkt <A HREF="./PMTU_MaintainSeparate.def">./PMTU_MaintainSeparate.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association not established between endpoint A and B. Also arrange the
+  data in endpoint B such that upper layers send associate primitive to
+  startup an association with endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Send
+  
+                  <----------------       DATA
+                                          (IP=x)
+  ICMP            ----------------->
+  (Packet Too Big)
+                  <----------------       DATA (retransmission without fragment)
+                                          (IP=y)
+  Do Not Send SACK
+                  <----------------       DATA (Fragment 1)
+                                          (IP=x)  
+                  <----------------       DATA (Fragment 2)
+                                          (IP=x)  
+  SACK            ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Attempt to change PMTU of an association between endpoint A (IP=x) and
+     endpoint B by sending ICMP message.
+  2. ICMP message is sent with "Fragmentation Needed" or "Packet Too Big.
+  3. Check A: Data be retransmission be not fragmented on IP=y.
+  4. Check B: Data be retransmission be fragmented on IP=x.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  7.3.  Path MTU Discovery
+
+    [RFC4821], [RFC1981], and [RFC1191] specify "Packetization Layer Path
+    MTU Discovery", whereby an endpoint maintains an estimate of the
+    maximum transmission unit (MTU) along a given Internet path and
+    refrains from sending packets along that path that exceed the MTU,
+    other than occasional attempts to probe for a change in the Path MTU
+    (PMTU).  [RFC4821] is thorough in its discussion of the MTU discovery
+    mechanism and strategies for determining the current end-to-end MTU
+    setting as well as detecting changes in this value.
+
+    An endpoint SHOULD apply these techniques, and SHOULD do so on a
+    per-destination-address basis.
+
+    There are two important SCTP-specific points regarding Path MTU
+    discovery:
+
+=begin html
+<PRE>
+    <B>1)  SCTP associations can span multiple addresses.  An endpoint MUST
+        maintain separate MTU estimates for each destination address of
+        its peer.</B>
+</PRE>
+
+=end html
+
+    2)  The sender should track an association PMTU that will be the
+        smallest PMTU discovered for all of the peer's destination
+        addresses.  When fragmenting messages into multiple parts this
+        association PMTU should be used to calculate the size of each
+        fragment.  This will allow retransmissions to be seamlessly sent
+        to an alternate address without encountering IP fragmentation.
+

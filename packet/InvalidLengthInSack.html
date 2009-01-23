@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>InvalidLengthInSack.seq - SACK chunk is received with invalid chunk length</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  InvalidLengthInSack.seq - SACK chunk is received with invalid chunk length</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if SACK chunk is received with invalid chunk length, the
+  endpoint should send ABORT message with a Protocol Violation error cause.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./InvalidLengthInSack.seq">./InvalidLengthInSack.seq</A> [-tooloption ...] -pkt <A HREF="./InvalidLengthInSack.def">./InvalidLengthInSack.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data
+  in endpoint A such that SACK message is sent to endpoint B with
+  invalid length.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                &lt;-----------------      DATA</pre>
+<pre>
+  SACK          -----------------&gt;
+  (with Invalid Chunk Length)
+                &lt;-----------------      ABORT
+                                        (Protocol Violation)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to initiate an association from endpoint A to B. Send SACK 
+     message with invalid length after received DATA.
+     Record the message sequence using a signal emulator.
+  2. Check A: ABORT message will be sent and DATA is discarded.
+  3. Check B: Was the message sequence as above.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  3.3.10.13.  Protocol Violation (13)</pre>
+<pre>
+    Cause of error
+    --------------</pre>
+<pre>
+    This error cause MAY be included in ABORT chunks that are sent
+    because an SCTP endpoint detects a protocol violation of the peer
+    that is not covered by the error causes described in Section 3.3.10.1
+    to Section 3.3.10.12.  An implementation MAY provide additional
+    information specifying what kind of protocol violation has been
+    detected.</pre>
+<pre>
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |         Cause Code=13         |      Cause Length=Variable    |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       /                    Additional Information                     /
+       \                                                               \
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</pre>
+
+</body>
+
+</html>

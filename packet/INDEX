@@ -1,0 +1,115 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+# $Name: REL_1_0_0 $
+#
+# <seq>:<def>:[<opt>]:[<log>]:<desc>
+########################################################################
+&print:<B>Chunk Type Encoding</B>
+./ChunkTypeAction11.seq:./ChunkTypeAction11.def:::Unrecognized Chunk Type with higher two bytes are set to 11
+./ChunkTypeAction00.seq:./ChunkTypeAction00.def:::Unrecognized Chunk Type with higher two bytes are set to 00
+./ChunkTypeAction01.seq:./ChunkTypeAction01.def:::Unrecognized Chunk Type with higher two bytes are set to 01
+./ChunkTypeAction10.seq:./ChunkTypeAction10.def:::Unrecognized Chunk Type with higher two bytes are set to 10
+
+########################################################################
+&print:<B>Parameter Type Encoding</B>
+&print:INIT chunk
+./ParameterTypeActionA11.seq:./ParameterTypeActionA11.def:::Unrecognized Parameter Type with higher two bytes are set to 11
+./ParameterTypeActionA00.seq:./ParameterTypeActionA00.def:::Unrecognized Parameter Type with higher two bytes are set to 00
+./ParameterTypeActionA01.seq:./ParameterTypeActionA01.def:::Unrecognized Parameter Type with higher two bytes are set to 01
+./ParameterTypeActionA10.seq:./ParameterTypeActionA10.def:::Unrecognized Parameter Type with higher two bytes are set to 10
+&print:INIT-ACK chunk
+./ParameterTypeActionB11.seq:./ParameterTypeActionB11.def:::Unrecognized Parameter Type with higher two bytes are set to 11
+./ParameterTypeActionB00.seq:./ParameterTypeActionB00.def:::Unrecognized Parameter Type with higher two bytes are set to 00
+./ParameterTypeActionB01.seq:./ParameterTypeActionB01.def:::Unrecognized Parameter Type with higher two bytes are set to 01
+./ParameterTypeActionB10.seq:./ParameterTypeActionB10.def:::Unrecognized Parameter Type with higher two bytes are set to 10
+
+########################################################################
+&print:<B>CHUNK Length</B>
+./InvalidLengthInInit.seq:./InvalidLengthInInit.def:::INIT chunk is received with invalid chunk length
+./InvalidLengthInInitAck.seq:./InvalidLengthInInitAck.def:::INIT-ACK chunk is received with invalid chunk length
+./InvalidLengthInCookieEcho.seq:./InvalidLengthInCookieEcho.def:::COOKIE-ECHO chunk is received with invalid chunk length
+./InvalidLengthInData.seq:./InvalidLengthInData.def:::DATA chunk is received with invalid chunk length
+./InvalidLengthInSack.seq:./InvalidLengthInSack.def:::SACK chunk is received with invalid chunk length
+./InvalidLengthInShutdown.seq:./InvalidLengthInShutdown.def:::SHUTDOWN chunk is received with invalid chunk length
+./InvalidLengthInHeartbeat.seq:./InvalidLengthInHeartbeat.def:::HEARTBEAT chunk is received with invalid chunk length
+./InvalidLengthInHeartbeatAck.seq:./InvalidLengthInHeartbeatAck.def:::HEARTBEAT-ACK chunk is received with invalid chunk length
+
+########################################################################
+&print:<B>CHUNK Checksum</B>
+./InvalidChecksumInInit.seq:./InvalidChecksumInInit.def:::INIT chunk is received with invalid checksum
+./InvalidChecksumInInitAck.seq:./InvalidChecksumInInitAck.def:::INIT-ACK chunk is received with invalid checksum
+./InvalidChecksumInCookieEcho.seq:./InvalidChecksumInCookieEcho.def:::COOKIE-ECHO chunk is received with invalid checksum
+./InvalidChecksumInCookieAck.seq:./InvalidChecksumInCookieAck.def:::COOKIE-ACK chunk is received with invalid checksum
+./InvalidChecksumInData.seq:./InvalidChecksumInData.def:::DATA chunk is received with invalid checksum
+./InvalidChecksumInSack.seq:./InvalidChecksumInSack.def:::SACK chunk is received with invalid checksum
+./InvalidChecksumInShutdown.seq:./InvalidChecksumInShutdown.def:::SHUTDOWN chunk is received with invalid checksum
+./InvalidChecksumInShutAck.seq:./InvalidChecksumInShutAck.def:::SHUTDOWN-ACK chunk is received with invalid checksum
+./InvalidChecksumInShutComp.seq:./InvalidChecksumInShutComp.def:::SHUTDOWN-COMPLETE is received chunk with invalid checksum
+./InvalidChecksumInHeartbeat.seq:./InvalidChecksumInHeartbeat.def:::HEARTBEAT chunk is received with invalid checksum
+./InvalidChecksumInHeartbeatAck.seq:./InvalidChecksumInHeartbeatAck.def:::HEARTBEAT-ACK chunk is received with invalid checksum
+./InvalidChecksumInError.seq:./InvalidChecksumInError.def:::ERROR chunk is received with invalid checksum
+./InvalidChecksumInAbort.seq:./InvalidChecksumInAbort.def:::ABORT chunk is received with invalid checksum
+
+########################################################################
+&print:<B>Parameter Length</B>
+./InvalidParamInInit.seq:./InvalidParamInInit.def:::INIT chunk is received with invalid parameter length
+./InvalidParamInInitAck.seq:./InvalidParamInInitAck.def:::INIT-ACK chunk is received with invalid parameter length
+./InvalidParamInAbort.seq:./InvalidParamInAbort.def:::ABORT chunk is received with invalid parameter length
+./InvalidParamInError.seq:./InvalidParamInError.def:::ERROR chunk is received with invalid parameter length
+./InvalidParamInHeartbeat.seq:./InvalidParamInHeartbeat.def:::HEARTBEAT chunk is received with invalid parameter length
+./InvalidParamInHeartbeatAck.seq:./InvalidParamInHeartbeatAck.def:::HEARTBEAT-ACK chunk is received with invalid parameter length
+
+########################################################################
+&print:<B>Partial Chunk</B>
+./PartialChunkTooShort.seq:./PartialChunkTooShort.def:::Partial Chunk is received with chunk length less than 4-bytes
+./PartialChunkNotAlign.seq:./PartialChunkNotAlign.def:::Partial Chunk is received with chunk length not 4-bytes alignment
+
+########################################################################
+&print:<B>INIT chunk</B>
+./InitWithSmallArwnd.seq:./InitWithSmallArwnd.def:::INIT chunk is received with advertised receiver window credit less than 1500
+./InitWithZeroArwnd.seq:./InitWithZeroArwnd.def:::INIT chunk is received with advertised receiver window credit set to zero
+./InitWithZeroOS.seq:./InitWithZeroOS.def:::INIT chunk is received with number of outbound streams set to zero
+./InitWithZeroMIS.seq:./InitWithZeroMIS.def:::INIT chunk is received with number of inbound streams set to zero
+./InitWithZeroTag.seq:./InitWithZeroTag.def:::INIT chunk is received with initiate tag set to zero
+
+########################################################################
+&print:<B>INIT-ACK chunk</B>
+./InitAckWithSmallArwnd.seq:./InitAckWithSmallArwnd.def:::INIT-ACK chunk is received with advertised receiver window credit less than 1500
+./InitAckWithZeroArwnd.seq:./InitAckWithZeroArwnd.def:::INIT-ACK chunk is received with advertised receiver window credit set to zero
+./InitAckWithZeroOS.seq:./InitAckWithZeroOS.def:::INIT-ACK chunk is received with number of outbound streams set to zero
+./InitAckWithZeroMIS.seq:./InitAckWithZeroMIS.def:::INIT-ACK chunk is received with number of inbound streams set to zero
+./InitAckWithZeroTag.seq:./InitAckWithZeroTag.def:::INIT-ACK chunk is received with initiate tag set to zero
+

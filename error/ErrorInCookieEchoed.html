@@ -1,0 +1,132 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>ErrorInCookieEchoed.seq - ERROR chunk is received in with Stale Cookie Error COOKIE-ECHOED state</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  ErrorInCookieEchoed.seq - ERROR chunk is received in with Stale Cookie Error COOKIE-ECHOED state</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To chech that if ERROR chunk is received in with Stale Cookie Error
+  COOKIE-ECHOED state then the endpoint should resent INIT message and
+  adding a cookie preservative parameter requesting the extension on
+  lifetime of cookie.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./ErrorInCookieEchoed.seq">./ErrorInCookieEchoed.seq</A> [-tooloption ...] -pkt <A HREF="./ErrorInCookieEchoed.def">./ErrorInCookieEchoed.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is not established between endpoint A and B. Arrange 
+  data in endpoint A such that COOKIE-ECHO chunk with stale cookie
+  error is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)</pre>
+<pre>
+                                                   &lt;-----    Associate
+                &lt;-----------------      INIT</pre>
+<pre>
+  INIT-ACK      -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      COOKIE-ECHO</pre>
+<pre>
+  ERROR         -----------------&gt;
+  (with Cause Stale Cookie Error)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to make an association from endpoint A to B. Send OPEARTION
+     ERROR message with cause Stale Cookie Error after receiving COOKIE 
+     message.
+  2. CHECK A: The action taken by an endpoint on receiving OPERATION 
+     ERROR with cause Stale Cookie Error should be one of the following:</pre>
+<pre>
+  a. Send a new INIT message to the endpoint to generate a new cookie and 
+     reattempt the setup procedure.
+  b. Discard the TCB and report to the upper layers the inability of 
+     setting up the association.
+  c. Send a new INIT message to the endpoint adding a cookie preservative 
+     parameter requesting the extension on lifetime of cookie.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  3.3.10.3.  Stale Cookie Error (3)</pre>
+<pre>
+    Cause of error
+    --------------</pre>
+<pre>
+    Stale Cookie Error: Indicates the receipt of a valid State Cookie
+    that has expired.</pre>
+<pre>
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |     Cause Code=3              |       Cause Length=8          |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+       |                 Measure of Staleness (usec.)                  |
+       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</pre>
+<pre>
+    Measure of Staleness: 32 bits (unsigned integer)</pre>
+<pre>
+      This field contains the difference, in microseconds, between the
+      current time and the time the State Cookie expired.</pre>
+<pre>
+      The sender of this error cause MAY choose to report how long past
+      expiration the State Cookie is by including a non-zero value in
+      the Measure of Staleness field.  If the sender does not wish to
+      provide this information, it should set the Measure of Staleness
+      field to the value of zero.</pre>
+
+</body>
+
+</html>

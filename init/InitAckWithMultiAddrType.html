@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>InitAckWithMultiAddrType.seq - INIT-ACK is received chunk with Both IPv4 and IPv6 addresses</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  InitAckWithMultiAddrType.seq - INIT-ACK is received chunk with Both IPv4 and IPv6 addresses</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if there are more transport addresses are received in INIT-ACK
+  message then one of these IP address plus the IP address from where INIT-ACK
+  comes combined with the SCTP source port number is used as the destination
+  transport address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./InitAckWithMultiAddrType.seq">./InitAckWithMultiAddrType.seq</A> [-tooloption ...] -pkt <A HREF="./InitAckWithMultiAddrType.def">./InitAckWithMultiAddrType.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is not established between endpoint A and B. Arrange the
+  data in endpoint A such that INIT-ACK message with both IPv4 and IPv6
+  addresses is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)</pre>
+<pre>
+                                                   &lt;-----    Associate
+                &lt;-----------------      INIT</pre>
+<pre>
+  INIT-ACK      -----------------&gt;
+  (Transport Address = IPv4, IPv6)
+                &lt;-----------------      COOKIE-ECHO</pre>
+<pre>
+  COOKIE-ACK    -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Attempt to make an association from endpoint B to endpoint A. Send 
+     INIT-ACK message containing both IPv4 addresse and IPv6 addresse. 
+  2. Check A: INIT-ACK message is accepted.
+  3. Check B: COOKIE-ECHO is sent at the transport addresses from where
+     INIT-ACK message was received. 
+  4. Check C: Was the message sequence as above.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  5.1.2.  Handle Address Parameters</pre>
+<PRE>
+    <B>C) If there are only IPv4/IPv6 addresses present in the received INIT
+       or INIT ACK chunk, the receiver MUST derive and record all the
+       transport addresses from the received chunk AND the source IP
+       address that sent the INIT or INIT ACK.  The transport addresses
+       are derived by the combination of SCTP source port (from the
+       common header) and the IP Address parameter(s) carried in the INIT
+       or INIT ACK chunk and the source IP address of the IP datagram.
+       The receiver should use only these transport addresses as
+       destination transport addresses when sending subsequent packets to
+       its peer.</B>
+</PRE><pre>
+    D) An INIT or INIT ACK chunk MUST be treated as belonging to an
+       already established association (or one in the process of being
+       established) if the use of any of the valid address parameters
+       contained within the chunk would identify an existing TCB.</pre>
+
+</body>
+
+</html>

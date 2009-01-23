@@ -1,0 +1,235 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#include "../common/STD_PKT_COMMON.def"
+
+#if ENABLE_IPV6
+#define DATA_SIZE	1432
+#else
+#define DATA_SIZE	1452
+#endif
+
+#ifndef SACK 
+#define SACK 1
+#endif
+
+#define DATA_FRAGMENT_SEND(_pINDEX, _pBFLAG, _pEFLAG)	\
+PKG_SCTP_SHORT_SEND( \
+	sctp_chunk_data_snd_frag##_pINDEX, \
+	{ \
+		chunk = chunk_data_snd##_pINDEX; \
+	} \
+) \
+CHUNK_DATA chunk_data_snd##_pINDEX { \
+	UFlag = 1; \
+	BFlag = _pBFLAG; \
+	EFlag = _pEFLAG; \
+	TSN = INITTSN + _pINDEX; \
+	Identifier = 0; \
+	SequenceNumber = 0; \
+	Protocol = 0; \
+	payload = data_snd##_pINDEX; \
+} \
+Payload data_snd##_pINDEX { \
+	data = repeat(_pINDEX, DATA_SIZE); \
+} \
+PKG_SCTP_SHORT_RECV( \
+	sctp_chunk_sack_rcv_frag##_pINDEX, \
+	{ \
+		chunk = chunk_sack_rcv_frag##_pINDEX; \
+	} \
+) \
+\
+CHUNK_SACK chunk_sack_rcv_frag##_pINDEX { \
+	ACK = INITTSN + _pINDEX; \
+	AdvRecvWindow = any; \
+	NumOfGapAck = 0; \
+	NumOfDupTSN = 0; \
+}
+
+#define DATA_FRAGMENT_RECV(_pINDEX, _pBFLAG, _pEFLAG)	\
+PKG_SCTP_SHORT_RECV( \
+	sctp_chunk_data_rcv_frag##_pINDEX, \
+	{ \
+		chunk = chunk_data_rcv##_pINDEX; \
+	} \
+) \
+CHUNK_DATA chunk_data_rcv##_pINDEX { \
+	UFlag = any; \
+	BFlag = any; \
+	EFlag = any; \
+	TSN = SACK + _pINDEX + 1; \
+	Identifier = any; \
+	SequenceNumber = any; \
+	Protocol = any; \
+	payload = data_rcv##_pINDEX; \
+} \
+Payload data_rcv##_pINDEX { \
+	data = repeat(_pINDEX, DATA_SIZE); \
+} \
+PKG_SCTP_SHORT_SEND( \
+	sctp_chunk_sack_snd_frag##_pINDEX, \
+	{ \
+		chunk = chunk_sack_snd_frag##_pINDEX; \
+	} \
+) \
+\
+CHUNK_SACK chunk_sack_snd_frag##_pINDEX { \
+	ACK = SACK + _pINDEX + 1; \
+	AdvRecvWindow = ARWND; \
+	NumOfGapAck = 0; \
+	NumOfDupTSN = 0; \
+}
+
+DATA_FRAGMENT_SEND(0, 1, 0)
+DATA_FRAGMENT_SEND(1, 0, 0)
+DATA_FRAGMENT_SEND(2, 0, 0)
+DATA_FRAGMENT_SEND(3, 0, 0)
+
+DATA_FRAGMENT_SEND(4, 0, 0)
+DATA_FRAGMENT_SEND(5, 0, 0)
+DATA_FRAGMENT_SEND(6, 0, 0)
+DATA_FRAGMENT_SEND(7, 0, 0)
+
+DATA_FRAGMENT_SEND(8, 0, 0)
+DATA_FRAGMENT_SEND(9, 0, 0)
+DATA_FRAGMENT_SEND(10, 0, 0)
+DATA_FRAGMENT_SEND(11, 0, 0)
+
+DATA_FRAGMENT_SEND(12, 0, 0)
+DATA_FRAGMENT_SEND(13, 0, 0)
+DATA_FRAGMENT_SEND(14, 0, 0)
+DATA_FRAGMENT_SEND(15, 0, 0)
+
+DATA_FRAGMENT_SEND(16, 0, 0)
+DATA_FRAGMENT_SEND(17, 0, 0)
+DATA_FRAGMENT_SEND(18, 0, 0)
+DATA_FRAGMENT_SEND(19, 0, 0)
+
+DATA_FRAGMENT_SEND(20, 0, 0)
+DATA_FRAGMENT_SEND(21, 0, 0)
+DATA_FRAGMENT_SEND(22, 0, 0)
+DATA_FRAGMENT_SEND(23, 0, 0)
+
+DATA_FRAGMENT_SEND(24, 0, 0)
+DATA_FRAGMENT_SEND(25, 0, 0)
+DATA_FRAGMENT_SEND(26, 0, 0)
+DATA_FRAGMENT_SEND(27, 0, 0)
+
+DATA_FRAGMENT_SEND(28, 0, 0)
+DATA_FRAGMENT_SEND(29, 0, 0)
+DATA_FRAGMENT_SEND(30, 0, 0)
+DATA_FRAGMENT_SEND(31, 0, 0)
+
+DATA_FRAGMENT_SEND(32, 0, 0)
+DATA_FRAGMENT_SEND(33, 0, 0)
+DATA_FRAGMENT_SEND(34, 0, 0)
+DATA_FRAGMENT_SEND(35, 0, 0)
+
+DATA_FRAGMENT_SEND(36, 0, 0)
+DATA_FRAGMENT_SEND(37, 0, 0)
+DATA_FRAGMENT_SEND(38, 0, 0)
+DATA_FRAGMENT_SEND(39, 0, 0)
+
+DATA_FRAGMENT_SEND(40, 0, 0)
+DATA_FRAGMENT_SEND(41, 0, 0)
+DATA_FRAGMENT_SEND(42, 0, 0)
+DATA_FRAGMENT_SEND(43, 0, 0)
+
+DATA_FRAGMENT_SEND(44, 0, 0)
+DATA_FRAGMENT_SEND(45, 0, 0)
+DATA_FRAGMENT_SEND(46, 0, 0)
+DATA_FRAGMENT_SEND(47, 0, 1)
+
+DATA_FRAGMENT_RECV(0, 1, 0)
+DATA_FRAGMENT_RECV(1, 0, 0)
+DATA_FRAGMENT_RECV(2, 0, 0)
+DATA_FRAGMENT_RECV(3, 0, 0)
+
+DATA_FRAGMENT_RECV(4, 0, 0)
+DATA_FRAGMENT_RECV(5, 0, 0)
+DATA_FRAGMENT_RECV(6, 0, 0)
+DATA_FRAGMENT_RECV(7, 0, 0)
+
+DATA_FRAGMENT_RECV(8, 0, 0)
+DATA_FRAGMENT_RECV(9, 0, 0)
+DATA_FRAGMENT_RECV(10, 0, 0)
+DATA_FRAGMENT_RECV(11, 0, 0)
+
+DATA_FRAGMENT_RECV(12, 0, 0)
+DATA_FRAGMENT_RECV(13, 0, 0)
+DATA_FRAGMENT_RECV(14, 0, 0)
+DATA_FRAGMENT_RECV(15, 0, 0)
+
+DATA_FRAGMENT_RECV(16, 0, 0)
+DATA_FRAGMENT_RECV(17, 0, 0)
+DATA_FRAGMENT_RECV(18, 0, 0)
+DATA_FRAGMENT_RECV(19, 0, 0)
+
+DATA_FRAGMENT_RECV(20, 0, 0)
+DATA_FRAGMENT_RECV(21, 0, 0)
+DATA_FRAGMENT_RECV(22, 0, 0)
+DATA_FRAGMENT_RECV(23, 0, 0)
+
+DATA_FRAGMENT_RECV(24, 0, 0)
+DATA_FRAGMENT_RECV(25, 0, 0)
+DATA_FRAGMENT_RECV(26, 0, 0)
+DATA_FRAGMENT_RECV(27, 0, 0)
+
+DATA_FRAGMENT_RECV(28, 0, 0)
+DATA_FRAGMENT_RECV(29, 0, 0)
+DATA_FRAGMENT_RECV(30, 0, 0)
+DATA_FRAGMENT_RECV(31, 0, 0)
+
+DATA_FRAGMENT_RECV(32, 0, 0)
+DATA_FRAGMENT_RECV(33, 0, 0)
+DATA_FRAGMENT_RECV(34, 0, 0)
+DATA_FRAGMENT_RECV(35, 0, 0)
+
+DATA_FRAGMENT_RECV(36, 0, 0)
+DATA_FRAGMENT_RECV(37, 0, 0)
+DATA_FRAGMENT_RECV(38, 0, 0)
+DATA_FRAGMENT_RECV(39, 0, 0)
+
+DATA_FRAGMENT_RECV(40, 0, 0)
+DATA_FRAGMENT_RECV(41, 0, 0)
+DATA_FRAGMENT_RECV(42, 0, 0)
+DATA_FRAGMENT_RECV(43, 0, 0)
+
+DATA_FRAGMENT_RECV(44, 0, 0)
+DATA_FRAGMENT_RECV(45, 0, 0)
+DATA_FRAGMENT_RECV(46, 0, 0)
+DATA_FRAGMENT_RECV(47, 0, 1)
+

@@ -1,0 +1,270 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_1	=> "Recv SCTP CHUNK_DATA (1)",
+	sctp_chunk_data_2	=> "Recv SCTP CHUNK_DATA (2)",
+	sctp_chunk_data_3	=> "Recv SCTP CHUNK_DATA (3)",
+	sctp_chunk_data_4	=> "Recv SCTP CHUNK_DATA (4)",
+	sctp_chunk_data_5	=> "Recv SCTP CHUNK_DATA (5)",
+	sctp_chunk_data_6	=> "Recv SCTP CHUNK_DATA (6)",
+	sctp_chunk_sack_1	=> "Send SCTP CHUNK_SACK (1 and 2)",
+	sctp_chunk_sack_2	=> "Send SCTP CHUNK_SACK (1 and 3)",
+	sctp_chunk_sack_3	=> "Send SCTP CHUNK_SACK (1, 3 and 4)",
+	sctp_chunk_sack_4	=> "Send SCTP CHUNK_SACK (1, 3 to 5)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$SIZE = 1024;
+@cwnds = ();
+
+sctpStatusClient($IF0, 6, "-x 6 -c $SIZE");
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+# Now the cwnd is 4380
+$cwnds[@cwnds] = 4380;
+
+sctpUpdateRecvACK();
+
+for($i = 1; $i < 6; $i++) {
+	%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_$i");
+	if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_$i") {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+# SACK for first 2 messages shoule increase the cwnd by 1 MTU
+vSend($IF0, sctp_chunk_sack_1);
+$cwnds[@cwnds] = $cwnds[@cwnds - 1] + 1500;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1]</B>");
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_2);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_3);
+# SACK report the 2nd message is missing
+vSend($IF0, sctp_chunk_sack_4);
+
+# Do Fast Retransmit on Gap Reports 
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_2");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_2") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# Upon detection of packet losses from SACK, update cwnd to max(cwnd/2, 4*MTU)
+$cwnds[@cwnds] = 6000;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1]</B>");
+
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_2");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_2") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+# When the T3-rtx timer expires on an address, update cwnd to 1*MTU
+$cwnds[@cwnds] = 1500;
+vLogHTML("<B>Now the cwnd is $cwnds[@cwnds - 1]</B>");
+
+sctpUpdateRecvACK(4);
+vSend($IF0, sctp_chunk_sack_snd);
+sctpUpdateRecvACK(-4);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, "sctp_chunk_data_6");
+if($ret{status} != 0 || $ret{recvFrame} ne "sctp_chunk_data_6") {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+sctpUpdateRecvACK(5);
+vSend($IF0, sctp_chunk_sack_snd);
+
+vClose($IF0);
+
+$cwnds[@cwnds] = '-';
+@ret = sctpGetRemoteStatus(@cwnds);
+for($i = 0; $i < @cwnds; $i++) {
+	if((!defined($ret[$i]) && $cwnds[$i] != '-') || $cwnds[$i] != $ret[$i]) {
+		vLogHTML(sprintf("The initial cwnd is not update correctly, except %s, but get %s<BR>",
+					$cwnds[$i] == '-' ? "NO CHANGE" : $cwnds[$i],
+					defined($ret[$i]) ? $ret[$i]: "NO CHANGE"));
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  InitCwndUnderFastRetran2.seq - Verify that cwnd is update correctly when T3-rtx timer expires on an address
+
+=head1 PURPOSE
+
+  To check that cwnd is update correctly after a fast retransmit 
+  and T3-rtx timer expires on an address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./InitCwndUnderFastRetran2.seq">./InitCwndUnderFastRetran2.seq</A> [-tooloption ...] -pkt <A HREF="./InitCwndUnderFastRetran2.def">./InitCwndUnderFastRetran2.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                 <-----    Send
+                  <----------------       DATA 1
+  Don't Send SACK  
+                  <----------------       DATA 2
+  Don't Send SACK  
+                  <----------------       DATA 3
+  Don't Send SACK  
+                  <----------------       DATA 4
+  Don't Send SACK  
+                  <----------------       DATA 5
+
+  SACK            ----------------->
+  (For DATA 1 and DATA 2)
+  SACK            ----------------->
+  (For DATA 1 and DATA 3, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 and DATA 4, report DATA 2 is missing)
+  SACK            ----------------->
+  (For DATA 1, DATA 3 to DATA 5, report DATA 2 is missing)
+                  <----------------       DATA 2
+  Don't Send SACK  
+                  <----------------       DATA 2 (T3-rtx timer expires)
+
+  SACK            ----------------->
+  (For all DATAs)
+                  <----------------       DATA 6
+
+  SACK            ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Check A: the initial cwnd before DATA transmission is set to 4380.
+  2. From endpoint B, send valid DATA message 5 times to endpoint A,
+     when there is association between them.
+  3. From endpoint A, send SACK of the first 2 DATA messages to 
+     endpoint B.
+  4. Check B: Congestion control window is 5880 now.
+  5. From endpoint A, send SACK of the 1st, 3rd DATA messages to 
+     endpoint B, report the 2nd message is missing.
+  6. From endpoint A, send SACK of the 1st, 3rd and 4th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  7. From endpoint A, send SACK of the 1st, 3rd to 5th DATA messages
+     to endpoint B, report the 2nd message is missing.
+  8. Check C: The 2nd DATA messages is send again immediately.
+  9. Check D: Congestion control window is 6000 now.
+  10.Don't send SACK, let T3-rtx timer of DATA2 expires.
+  11.The 2nd DATA messages is send again, send SACK of all DATA to
+     endpoint B.
+  12.Check E: Congestion control window is 1500 now.
+  13.Received and SACK the rest DATA messages.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  7.2.3.  Congestion Control
+
+    Upon detection of packet losses from SACK (see Section 7.2.4), an
+    endpoint should do the following:
+
+      ssthresh = max(cwnd/2, 4*MTU)
+      cwnd = ssthresh
+      partial_bytes_acked = 0
+
+    Basically, a packet loss causes cwnd to be cut in half.
+
+    When the T3-rtx timer expires on an address, SCTP should perform slow
+    start by:
+
+=begin html
+<PRE>
+      <B>ssthresh = max(cwnd/2, 4*MTU)
+      cwnd = 1*MTU</B>
+</PRE>
+
+=end html
+
+    and ensure that no more than one SCTP packet will be in flight for
+    that address until the endpoint receives acknowledgement for
+    successful delivery of data to that address.
+

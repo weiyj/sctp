@@ -1,0 +1,160 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_shutdown_ack_ootb		=> "Send SCTP CHUNK_SHUTDOWN_ACK",
+	sctp_chunk_shutdown_complete_ootb	=> "Recv SCTP CHUNK_SHUTDOWN_COMPLETE",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0);
+
+vListen($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_cookie_echo_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_cookie_echo_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ECHO<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_shutdown_ack_ootb);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_complete_ootb);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_complete_ootb) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_COMPLETE<BR>');
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ShutAckInCookieEchoed.seq - SHUTDOWN-ACK chunk is received in COOKIE-ECHOED State
+
+=head1 PURPOSE
+
+  To check that if SHUTDOWN-ACK chunk is received in COOKIE-ECHOED
+  state, the endpoint should respond with SHUTDOWN-COMPLETE in an SCTP
+  packet with the Verification Tag field of its common header set to
+  the same tag that was received in the SHUTDOWN-ACK packet.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ShutAckInCookieEchoed.seq">./ShutAckInCookieEchoed.seq</A> [-tooloption ...] -pkt <A HREF="./ShutAckInCookieEchoed.def">./ShutAckInCookieEchoed.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange data 
+  in endpoint A such that SHUTDOWN-ACK chunk is sent to endpoint B when
+  endpoint B is in COOKIE-ECHOED state.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (COOKIE-ECHOED)
+
+  SHUTDOWN-ACK    ------------------>
+
+                  <------------------    SHUTDOWN-COMPLETE
+
+  TEST DESCRIPTION:
+
+  1. Send SHUTDOWN-ACK message from endpoint A to B when endpoint B is in
+     COOKIE-ECHOED state. 
+  2. Check A: SHUTDOWN-COMPLETE message will be sent to endpoint A.
+  3. Check B: Verification tag in the SHUTDOWN-COMPLETE message will be set
+     equal to the verification tag in the received SHUTDOWN-ACK message. 
+  4. Check C: T bit in the chunk flags is set to 1.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  9.2.  Shutdown of an Association
+
+=begin html
+<PRE>
+    <B>The sender of the INIT or COOKIE ECHO should respond to the receipt
+    of a SHUTDOWN ACK with a stand-alone SHUTDOWN COMPLETE in an SCTP
+    packet with the Verification Tag field of its common header set to
+    the same tag that was received in the SHUTDOWN ACK packet.  This is
+    considered an Out of the Blue packet as defined in Section 8.4.</B>  The
+    sender of the INIT lets T1-init continue running and remains in the
+    COOKIE-WAIT or COOKIE-ECHOED state.  Normal T1-init timer expiration
+    will cause the INIT or COOKIE chunk to be retransmitted and thus
+    start a new association.
+</PRE>
+
+=end html
+

@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_ecn_cwr_bad_len	=> "Send SCTP CHUNK_ECN_CWR (with bad chunk length)",
+	sctp_chunk_abort		=> "Recv SCTP CHUNK_ABORT",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_ecn_cwr_bad_len);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort) {
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  CwrWithBadChunkLength.seq - ECN-CWR chunk is received with invalid chunk length
+
+=head1 PURPOSE
+
+  To check that if ECN-CWR chunk is received with invalid chunk length, the
+  endpoint should response with ABORT message.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./CwrWithBadChunkLength.seq">./CwrWithBadChunkLength.seq</A> [-tooloption ...] -pkt <A HREF="./CwrWithBadChunkLength.def">./CwrWithBadChunkLength.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint A such that ECN-CWR chunk with invalid chunk length is 
+  sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ECN_CWR       ----------------->
+  (with invalid chunk length)
+                <----------------      ABORT
+
+  TEST DESCRIPTION:
+
+  1. Send ECN_CWR chunk with invalid chunk length from endpoint A to 
+     endpoint B.
+  2. Check A: ABORT message will be sent to response ECN_CWR chunk from
+     endpoint B.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  Appendix A.  Explicit Congestion Notification
+
+    ECN-Echo:
+
+    [RFC3168] details a specific bit for a receiver to send back in its
+    TCP acknowledgements to notify the sender of the Congestion
+    Experienced (CE) bit having arrived from the network.  For SCTP, this
+    same indication is made by including the ECNE chunk.  This chunk
+    contains one data element, i.e., the lowest TSN associated with the
+    IP datagram marked with the CE bit, and looks as follows:
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Chunk Type=12 | Flags=00000000|    Chunk Length = 8           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                      Lowest TSN Number                        |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+        Note: The ECNE is considered a Control chunk.
+

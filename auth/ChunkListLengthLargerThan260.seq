@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_init_chunk_list_gt_260	=> "Send SCTP CHUNK_INIT (with Length of Chunk List Parameter larger than 260)",
+	sctp_chunk_abort_bad_len		=> "Recv SCTP CHUNK_ABORT (Protocol Violation)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_chunk_list_gt_260);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort_bad_len);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_abort_bad_len') {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ChunkListLengthLargerThan260.seq - The maximum length of Chunk List Parameter is 260 bytes
+
+=head1 PURPOSE
+
+  To verify that if the the length of Chunk List Parameter larger than
+  260 bytes, the association MUST be aborted. The ABORT chunk SHOULD
+  contain the error cause 'Protocol Violation'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ChunkListLengthLargerThan260.seq">./ChunkListLengthLargerThan260.seq</A> [-tooloption ...] -pkt <A HREF="./ChunkListLengthLargerThan260.def">./ChunkListLengthLargerThan260.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Arrange the 
+  data in endpoint B such that INIT message with Chunk List Parameter is
+  sent from endpoint A to B. The length of Chunk List Parameter larger 
+  than 260 bytes.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                             Endpoint B               ULP
+  (CLOSED)                               (CLOSED)
+
+    INIT          ------------------>
+    (with Length of Chunk List Parameter larger than 260)
+                  <------------------  ABORT
+                                       (Protocol Violation Error Cause)
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. Send INIT
+     message with Chunk List Parameter. The length of Chunk List Parameter
+     larger than 260 bytes.
+  2. Check A: ABORT should be received at endpoint A. And Error cause in
+     ABORT is set to "Protocol Violation".
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4895
+
+  3.2.  Chunk List Parameter (CHUNKS)
+
+    This parameter is used to specify which chunk types are required to
+    be authenticated before being sent by the peer.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |     Parameter Type = 0x8003   |       Parameter Length        |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Chunk Type 1  | Chunk Type 2  | Chunk Type 3  | Chunk Type 4  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    /                                                               /
+    \                              ...                              \
+    /                                                               /
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Chunk Type n  |                   Padding                     |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                                  Figure 2
+
+    Parameter Type: 2 bytes (unsigned integer)
+      This value MUST be set to 0x8003.
+
+    Parameter Length: 2 bytes (unsigned integer)
+      This value is the number of listed Chunk Types plus 4.
+
+    Chunk Type n: 1 byte (unsigned integer)
+      Each Chunk Type listed is required to be authenticated when sent
+      by the peer.
+
+    Padding: 0, 1, 2, or 3 bytes (unsigned integer)
+      If the number of Chunk Types is not a multiple of 4, the sender
+      MUST pad the parameter with all zero bytes to make the parameter
+      32-bit aligned.  The Padding MUST NOT be longer than 3 bytes and
+      it MUST be ignored by the receiver.
+
+=begin html
+<PRE>
+    The CHUNKS parameter MUST be included once in the INIT or INIT-ACK
+    chunk if the sender wants to receive authenticated chunks.  <B>Its
+    maximum length is 260 bytes.</B>
+</PRE>
+
+=end html
+
+    The chunk types for INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH
+    chunks MUST NOT be listed in the CHUNKS parameter.  However, if a
+    CHUNKS parameter is received then the types for INIT, INIT-ACK,
+    SHUTDOWN-COMPLETE, and AUTH chunks MUST be ignored.
+
