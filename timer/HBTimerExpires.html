@@ -65,9 +65,12 @@
 <pre>
         No message is exchanged within current
                    Heartbeat period
+                                         |
+                                         |   HEARTBEAT timer expires
+                                         | 
                 &lt;-----------------   HEARTBEAT
                                          |
-                                         |   T1-Cookie timer expires
+                                         |   HEARTBEAT timer expires
                                          | 
                 &lt;-----------------   HEARTBEAT
                                          .
@@ -82,7 +85,7 @@
      a signal emulator.
   2. HEARTBEAT message is sent again after expiry of 
      HEARTBEAT timer.
-  3. Check A: Value of the T3-rxt is updated correctly.</pre>
+  3. Check A: Value of the HEARTBEAT timer is updated correctly.</pre>
 <p>
 </p>
 <hr />

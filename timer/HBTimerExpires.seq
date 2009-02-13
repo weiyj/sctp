@@ -58,16 +58,9 @@ $HB_INTERVAL = $SCTP::CONF{"HB_INTERVAL"};
 
 sctpStartServer($IF0);
 
-vConnect($IF0);
+%ret = vConnect($IF0);
 
 vLogHTML('<B>================ Main Test =================</B>');
-
-%ret = vWarpRecv($IF0, 60, 0, 0, sctp_chunk_heartbeat);
-if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_heartbeat') {
-	vLogHTML('Cannot receive SCTP CHUNK_HEARTBEAT<BR>');
-	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
-	exit $V6evalTool::exitFail;
-}
 
 $stime = $ret{"recvTime".$ret{"recvCount"}};
 $count = 0;
@@ -145,9 +138,12 @@ __END__
 
         No message is exchanged within current
                    Heartbeat period
+                                         |
+                                         |   HEARTBEAT timer expires
+                                         | 
                 <-----------------   HEARTBEAT
                                          |
-                                         |   T1-Cookie timer expires
+                                         |   HEARTBEAT timer expires
                                          | 
                 <-----------------   HEARTBEAT
                                          .
@@ -162,7 +158,7 @@ __END__
      a signal emulator.
   2. HEARTBEAT message is sent again after expiry of 
      HEARTBEAT timer.
-  3. Check A: Value of the T3-rxt is updated correctly. 
+  3. Check A: Value of the HEARTBEAT timer is updated correctly. 
 
 =head1 NOTE
 
