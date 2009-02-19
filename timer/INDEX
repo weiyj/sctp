@@ -74,5 +74,7 @@
 &print:<B>Handle HEARTBEAT timer Expiration</B>
 ./HBTimerRetrans.seq:./HBTimerRetrans.def:::HEARTBEAT message is transmitted again if HEARTBEAT timer expires
 ./HBTimerTimeout.seq:./HBTimerTimeout.def:::Failure to receive HEARTBEAT-ACK after retransmit times to 'Association.Max.Retrans'
+./HBUserTimerTimeout.seq:./HBUserTimerTimeout.def:::Failure to receive HEARTBEAT-ACK after retransmit times to 'Association.Max.Retrans' (User Initiated)
 ./HBTimerExpires.seq:./HBTimerExpires.def:::RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message
+./HBUserTimerExpires.seq:./HBUserTimerExpires.def:::RTO is updated correctly if HEARTBEAT timer expires for a HEARTBEAT message (User Initiated)
 
