@@ -1038,7 +1038,7 @@ sub sctpStartOptionServer(;$$$) {
 #======================================================================
 sub sctpStartInteractiveServer(;$@) {
 	my ($IF, @subcmds) = @_;
-	my ($cmd);
+	my ($cmd, $script);
 
 	$IF = "Link0" if !defined($IF);
 
@@ -1047,29 +1047,40 @@ sub sctpStartInteractiveServer(;$@) {
 	$cmd  = "sctp_darn ";
 	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
 	$cmd .= "-l -I ";
-	$cmd .= "<<EOF\n";
+	$cmd .= "< /tmp/.sctp_icmds &";
+	
+	$script = "";
 	foreach $subcmd (@subcmds) {
 		if ($subcmd =~ /add=(\S+)/) {
-			$cmd .= "bindx-add=$1\n";
+			$script .= "bindx-add=$1\n";
 		} elsif ($subcmd =~ /del=(\S+)/) {
-			$cmd .= "bindx-rem=$1\n";
+			$script .= "bindx-rem=$1\n";
 		} elsif ($subcmd =~ /prim=(\S+)/) {
-			$cmd .= "primary=$1\n";
+			$script .= "primary=$1\n";
 		} elsif ($subcmd =~ /send=(\S+)/) {
-			$cmd .= "snd=$1\n";
+			$script .= "snd=$1\n";
 		} elsif ($subcmd =~ /recv=(\S+)/) {
-			$cmd .= "rcv=$1\n";
+			$script .= "rcv=$1\n";
 		} elsif ($subcmd =~ /recv/) {
-			$cmd .= "rcv\n";
+			$script .= "rcv\n";
 		} elsif ($subcmd =~ /shutdown/) {
-			$cmd .= "shutdown\n";
+			$script .= "shutdown\n";
 		} elsif ($subcmd =~ /abort/) {
-			$cmd .= "abort\n";
+			$script .= "abort\n";
+		} elsif ($subcmd =~ /heartbeat=(\S+)/) {
+			$script .= "heartbeat=$1\n";
+		} elsif ($subcmd =~ /heartbeat/) {
+			$script .= "heartbeat\n";
 		} else {
 			vLog("Unknown parameter $subcmd");
 		}
 	}
-	$cmd .= "EOF\n";
+
+	open (FILE, ">.sctp_icmds") || die "Cannot open .sctp_icmds: $!\n";
+	print FILE $script;
+	close FILE;
+
+	sctpPutFile(".sctp_icmds", "/tmp/.sctp_icmds");
 
 	sctpRemoteCommandAsync($cmd);
 }
@@ -1346,11 +1357,13 @@ sub sctpRemoteCommand($) {
 sub sctpRemoteCommandAsync($) {
 	my ($cmd) = @_;
 
-	if ($cmd =~ /&$/ ) {
-		$cmd =~ s/&$//;
-		$cmd .= " > /tmp/tstcmd.log 2>&1 &";
-	} elsif (!($cmd =~ /<</ )) {
-		$cmd .= " > /tmp/tstcmd.log 2>&1";
+	if (!($cmd =~ /</)) {
+		if ($cmd =~ /&$/) {
+			$cmd =~ s/&$//;
+			$cmd .= " > /tmp/tstcmd.log 2>&1 &";
+		} elsif (!($cmd =~ /<</ )) {
+			$cmd .= " > /tmp/tstcmd.log 2>&1";
+		}
 	}
 
 	vRemote("rcommandasync.rmt", "cmd=\"$cmd\"") && return 1;
