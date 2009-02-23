@@ -129,7 +129,8 @@ BEGIN {
 	$CONF{"VERFTAG"} = 0xFFFFFFFF;
 	#$CONF{"INITTAG"} = 0;
 	$CONF{'SNDTSN'} = $CONF{"INITTSN"} - 1;
-	$CONF{"SERIAL"} = $CONF{"INITTSN"};
+	$CONF{"SSERIAL"} = $CONF{"INITTSN"};
+	$CONF{"SSRRSN"} = $CONF{"INITTSN"};
 	%EXTNS = ();
 
 	$CONF{"SCTP4_TN_NET0_ADDR"} =~ s/"//g;
@@ -379,7 +380,10 @@ sub vWarpCPP(;@) {
 	$constant .= "-DARWND=$CONF{'ARWND'} " if defined($CONF{'ARWND'});
 	$constant .= "-DSNDTSN=$CONF{'SNDTSN'} " if defined($CONF{'SNDTSN'});
 	$constant .= "-DSACK=$CONF{'SACK'} " if defined($CONF{'SACK'});	
-	$constant .= "-DSERIAL=$CONF{'SERIAL'} " if defined($CONF{'SERIAL'});
+	$constant .= "-DSSERIAL=$CONF{'SSERIAL'} " if defined($CONF{'SSERIAL'});
+	$constant .= "-DRSERIAL=$CONF{'RSERIAL'} " if defined($CONF{'RSERIAL'});
+	$constant .= "-DSSRRSN=$CONF{'SSRRSN'} " if defined($CONF{'SSRRSN'});
+	$constant .= "-DRSRRSN=$CONF{'RSRRSN'} " if defined($CONF{'RSRRSN'});
 	$constant .= "-DCOOKIE=hexstr\\\(\\\"$CONF{'COOKIE'}\\\"\\\) " if defined($CONF{'COOKIE'});
 	$constant .= "-DDATALEN=$CONF{'DATALEN'} " if defined($CONF{'DATALEN'});
 	$constant .= "-DSCTP_TN0_PORT=$CONF{'SRCPORT'} " if defined($CONF{'SRCPORT'});
@@ -538,12 +542,16 @@ sub sctpFetchInitField($) {
 		$CONF{'VERFTAG'} = $$ret{sctpGetFieldName("CHUNK_INIT.InitiateTag")};
 		$CONF{'ARWND'} = $$ret{sctpGetFieldName("CHUNK_INIT.AdvRecvWindow")};
 		$CONF{'SACK'} = $$ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
+		$CONF{'RSERIAL'} = $$ret{sctpGetFieldName("CHUNK_INIT.TSN")};
+		$CONF{'RSRRSN'} = $$ret{sctpGetFieldName("CHUNK_INIT.TSN")};
 	} elsif (defined($$ret{sctpGetFieldName("CHUNK_INIT_ACK")})) {
 		$CONF{'VERFTAG'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.InitiateTag")};
 		$CONF{'COOKIE'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.StaleCookie.Cookie")};
 		$CONF{'COOKIE'} =~ s/\n//;
 		$CONF{'ARWND'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.AdvRecvWindow")};
 		$CONF{'SACK'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")} - 1;
+		$CONF{'RSERIAL'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
+		$CONF{'RSRRSN'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
 	}
 
 	vWarpCPP();
@@ -570,6 +578,8 @@ sub vListen($;$$) {
 
 	$CONF{'VERFTAG'} = $ret{sctpGetFieldName("CHUNK_INIT.InitiateTag")};
 	$CONF{'SACK'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
+	$CONF{'RSERIAL'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
+	$CONF{'RSRRSN'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
 	$CONF{'ARWND'} = $ret{sctpGetFieldName("CHUNK_INIT.AdvRecvWindow")};
 	vWarpCPP();
 	%ret = vSend($IF, $init_ack);
@@ -629,6 +639,8 @@ sub vConnect($;$$$$) {
 	$CONF{'COOKIE'} =~ s/\n//;
 	$CONF{'ARWND'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.AdvRecvWindow")};
 	$CONF{'SACK'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")} - 1;
+	$CONF{'RSERIAL'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
+	$CONF{'RSRRSN'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
 	vWarpCPP();
 
 	vSend($IF, $cookie_echo);
@@ -659,7 +671,7 @@ sub vConnectAuth($;$$$$) {
 
 	%ret = vSend($IF, $init);
 	$CONF{'SNDTSN'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
-	$CONF{"SERIAL"} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
+	$CONF{"SSERIAL"} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
 	# FIX ME: get AUTH infortion
 
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init_ack);
@@ -674,8 +686,11 @@ sub vConnectAuth($;$$$$) {
 	$CONF{'COOKIE'} =~ s/\n//;
 	$CONF{'ARWND'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.AdvRecvWindow")};
 	$CONF{'SACK'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")} - 1;
-	vWarpCPP("-DCOOKIE=hexstr\\\(\\\"$CONF{'COOKIE'}\\\"\\\)");
+	$CONF{'RSERIAL'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
+	$CONF{'RSRRSN'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
+	#vWarpCPP("-DCOOKIE=hexstr\\\(\\\"$CONF{'COOKIE'}\\\"\\\)");
 	# FIX ME: get AUTH infortion
+	vWarpCPP();
 
 	vSend($IF, $cookie_echo);
 
