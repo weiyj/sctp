@@ -401,5 +401,6 @@ FEM_sctp6_exth( \
 #define TP_CHUNK_ASCONF 		0xC1
 #define TP_CHUNK_ASCONF_ACK 		0x80
 #define TP_CHUNK_AUTH 			0x0F
+#define TP_CHUNK_STREAM_RESET		0x82
 
 #endif /* #ifndef __SCTP_COMMON_DEF_ */

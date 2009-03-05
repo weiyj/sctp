@@ -389,7 +389,7 @@ sub vWarpCPP(;@) {
 	$constant .= "-DSCTP_TN0_PORT=$CONF{'SRCPORT'} " if defined($CONF{'SRCPORT'});
 	$constant .= "-DSCTP_NUT0_PORT=$CONF{'DSTPORT'} " if defined($CONF{'DSTPORT'});
 
-	vCPP($constant, @opts);
+	vCPP($constant, @opts, $V6evalTool::CppOption);
 }
 
 #======================================================================
