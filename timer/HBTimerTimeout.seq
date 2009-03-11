@@ -61,7 +61,14 @@ vConnect($IF0);
 
 vLogHTML('<B>================ Main Test =================</B>');
 
-# HEARTBEAT message is transmitted if HEARTBEAT timer expires
+%ret = vWarpRecv($IF0, 60, 0, 0, sctp_chunk_heartbeat);
+if($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_heartbeat') {
+	vLogHTML('Cannot receive SCTP CHUNK_HEARTBEAT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+# HEARTBEAT message is transmitted again if HEARTBEAT timer expires
 $retrans = 0;
 while($ret{status} == 0) {
 	%ret = vWarpRecv3($IF0, $TIMEOUT * 2 + $HB_INTERVAL, 0, 0, sctp_chunk_heartbeat);
