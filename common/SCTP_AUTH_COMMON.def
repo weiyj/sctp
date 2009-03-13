@@ -76,6 +76,10 @@
 
 #endif /* #if (AUTH_ENABLE == 0) */
 
+#ifndef AUTHSHAREKEY
+#define AUTHSHAREKEY	"0000000000000000000000000000000000000000"
+#endif
+
 #define PKG_SCTP_NORM_SEND4_AUTH(_pNAME, _oHDR_IPV4, _oUPP_SCTP) \
 FEM_sctp4_exth( \
 	_pNAME, \

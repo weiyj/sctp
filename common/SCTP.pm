@@ -66,6 +66,8 @@ use Exporter;
 	sctpStatusClient
 	sctpGetFieldName
 	sctpFetchInitField
+	sctpFetchAuthShareKey
+	sctpMakeAuthShareKey
 	sctpUpdateSendTSN
 	sctpUpdateRecvACK
 	sctpMakeBadMD5Cookie
@@ -388,6 +390,7 @@ sub vWarpCPP(;@) {
 	$constant .= "-DDATALEN=$CONF{'DATALEN'} " if defined($CONF{'DATALEN'});
 	$constant .= "-DSCTP_TN0_PORT=$CONF{'SRCPORT'} " if defined($CONF{'SRCPORT'});
 	$constant .= "-DSCTP_NUT0_PORT=$CONF{'DSTPORT'} " if defined($CONF{'DSTPORT'});
+	$constant .= "-DAUTHSHAREKEY=\\\"$CONF{'AUTHSHAREKEY'}\\\" " if defined($CONF{'AUTHSHAREKEY'});
 
 	vCPP($constant, @opts, $V6evalTool::CppOption);
 }
@@ -558,6 +561,88 @@ sub sctpFetchInitField($) {
 }
 
 #======================================================================
+# sctpFetchAuthShareKey - Fetch the Auth Share Key from init chunk
+#======================================================================
+sub sctpFetchAuthShareKey($) {
+	my ($ret) = @_;
+	my $key = "";
+	my $name, $type, $len, $value, $item;
+
+	# Random + chunks + hmac
+	if (defined($$ret{sctpGetFieldName("CHUNK_INIT")})) {
+		$name = sctpGetFieldName("CHUNK_INIT");
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_INIT_ACK")})) {
+		$name = sctpGetFieldName("CHUNK_INIT_ACK");
+	} else {
+		return;
+	}
+
+	return if (!defined($$ret{"$name.Random"}));
+
+	# encode Random paramter
+	$type = $$ret{"$name.Random.Type"};
+	$len = $$ret{"$name.Random.Length"};
+	$value = $$ret{"$name.Random.RandomNumber"};
+	$key = sprintf "%04x%04x%s", $type, $len, $value;
+
+	# encode ChunkList paramter withour padding
+	if (defined($$ret{"$name.ChunkList"})) {
+		$type = $$ret{"$name.ChunkList.Type"};
+		$len = $$ret{"$name.ChunkList.Length"};
+		$key .= sprintf "%04x%04x", $type, $len;
+		foreach $item (split(' ', $$ret{"$name.ChunkList"})) {
+			if ($item =~ /ChunkType/) {
+				$key .= sprintf "%02x", $$ret{"$name.ChunkList.$item"};
+			}
+		}
+	}
+
+	return if (!defined($$ret{"$name.RequestedHMACAlgorithm"}));
+
+	# encode RequestedHMACAlgorithm paramter withour padding
+	$type = $$ret{"$name.RequestedHMACAlgorithm.Type"};
+	$len = $$ret{"$name.RequestedHMACAlgorithm.Length"};
+	$key .= sprintf "%04x%04x", $type, $len;
+	foreach $item (split(' ', $$ret{"$name.RequestedHMACAlgorithm"})) {
+		if ($item =~ /HMACIdentifier/) {
+			$key .= sprintf "%04x", $$ret{"$name.RequestedHMACAlgorithm.$item"};
+		}
+	}
+
+	if (defined($$ret{sctpGetFieldName("CHUNK_INIT")})) {
+		$CONF{'LAUTHKEY'} = $key;
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_INIT_ACK")})) {
+		$CONF{'RAUTHKEY'} = $key;
+	}
+
+	return $key;
+}
+
+#======================================================================
+# sctpMakeAuthShareKey - Make the Auth share key
+#======================================================================
+sub sctpMakeAuthShareKey(;$$) {
+	my ($lkey, $rkey) = @_;
+
+	$lkey = $CONF{'LAUTHKEY'} if (!defined($lkey));
+	$rkey = $CONF{'RAUTHKEY'} if (!defined($rkey));
+
+	return if (!defined($lkey) || !defined($rkey));
+
+	if (length($lkey) > length($rkey)) {
+		$CONF{'AUTHSHAREKEY'} = $rkey . $lkey;
+	} elsif (length($lkey) < length($rkey)) {
+		$CONF{'AUTHSHAREKEY'} = $lkey . $rkey;
+	} elsif (($lkey cmp $rkey) < 0) {
+		$CONF{'AUTHSHAREKEY'} = $lkey . $rkey;
+	} else {
+		$CONF{'AUTHSHAREKEY'} = $rkey . $lkey;
+	}
+
+	return $CONF{'AUTHSHAREKEY'};
+}
+
+#======================================================================
 # vListen - do listen as sctp server
 #======================================================================
 sub vListen($;$$) {
@@ -569,12 +654,14 @@ sub vListen($;$$) {
 
 	vLogTitle('================= vListen ==================');
 
-	%ret = vWarpRecv($IF, 10, 0, 0, $init);
+	%ret = vWarpRecv3($IF, 10, 0, 0, $init);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init) {
 		vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
+
+	sctpFetchAuthShareKey(\%ret);
 
 	$CONF{'VERFTAG'} = $ret{sctpGetFieldName("CHUNK_INIT.InitiateTag")};
 	$CONF{'SACK'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
@@ -582,7 +669,10 @@ sub vListen($;$$) {
 	$CONF{'RSRRSN'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
 	$CONF{'ARWND'} = $ret{sctpGetFieldName("CHUNK_INIT.AdvRecvWindow")};
 	vWarpCPP();
-	%ret = vSend($IF, $init_ack);
+	%ret = vSend3($IF, $init_ack);
+
+	sctpFetchAuthShareKey(\%ret);
+	sctpMakeAuthShareKey();
 
 	return %ret;
 }
@@ -625,7 +715,8 @@ sub vConnect($;$$$$) {
 
 	vLogTitle('================= vConnect =================');
 
-	vSend($IF, $init);
+	%ret = vSend3($IF, $init);
+	sctpFetchAuthShareKey(\%ret);
 
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init_ack) {
@@ -633,6 +724,9 @@ sub vConnect($;$$$$) {
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
+
+	sctpFetchAuthShareKey(\%ret);
+	sctpMakeAuthShareKey();
 
 	$CONF{'VERFTAG'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.InitiateTag")};
 	$CONF{'COOKIE'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.StaleCookie.Cookie")};
@@ -669,10 +763,10 @@ sub vConnectAuth($;$$$$) {
 
 	vLogTitle('=============== vConnectAuth ===============');
 
-	%ret = vSend($IF, $init);
+	%ret = vSend3($IF, $init);
 	$CONF{'SNDTSN'} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")} - 1;
 	$CONF{"SSERIAL"} = $ret{sctpGetFieldName("CHUNK_INIT.TSN")};
-	# FIX ME: get AUTH infortion
+	sctpFetchAuthShareKey(\%ret);
 
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init_ack) {
@@ -681,6 +775,9 @@ sub vConnectAuth($;$$$$) {
 		exit $V6evalTool::exitFail;
 	}
 
+	sctpFetchAuthShareKey(\%ret);
+	sctpMakeAuthShareKey();
+
 	$CONF{'VERFTAG'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.InitiateTag")};
 	$CONF{'COOKIE'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.StaleCookie.Cookie")};
 	$CONF{'COOKIE'} =~ s/\n//;
@@ -688,8 +785,6 @@ sub vConnectAuth($;$$$$) {
 	$CONF{'SACK'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")} - 1;
 	$CONF{'RSERIAL'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
 	$CONF{'RSRRSN'} = $ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
-	#vWarpCPP("-DCOOKIE=hexstr\\\(\\\"$CONF{'COOKIE'}\\\"\\\)");
-	# FIX ME: get AUTH infortion
 	vWarpCPP();
 
 	vSend($IF, $cookie_echo);
