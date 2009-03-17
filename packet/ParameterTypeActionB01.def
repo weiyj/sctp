@@ -86,7 +86,7 @@ CHUNK_ERROR chunk_error {
 }
 
 UnrecognizedParameters err_unreg_param {
-	Parameters = right(param_type_01, 0);
+	Parameters = param_type_01;
 }
 
 HostNameAddress hostname_badname {

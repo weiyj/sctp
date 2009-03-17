@@ -84,6 +84,6 @@ CHUNK_ABORT chunk_abort {
 }
 
 UnresolvableAddress err_unres_addr {
-	Address = right(hostname_badname, 0);
+	Address = hostname_badname;
 }
 

@@ -93,6 +93,6 @@ CHUNK_ABORT chunk_abort_with_new_addr {
 }
 
 RestartWithNewAddresses err_with_new_addr {
-	NewAddress = right(addrs, 0);
+	NewAddress = addrs;
 }
 

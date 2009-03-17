@@ -96,6 +96,6 @@ CHUNK_INIT_ACK chunk_init_ack_11_2 {
 }
 
 PUnrecognizedParameters unrecognized_param {
-	Parameters = right(param_type_11, 0);
+	Parameters = param_type_11;
 }
 
