@@ -66,6 +66,7 @@ use Exporter;
 	sctpStatusClient
 	sctpGetFieldName
 	sctpFetchInitField
+	sctpFetchAsconfField
 	sctpFetchAuthShareKey
 	sctpMakeAuthShareKey
 	sctpUpdateSendTSN
@@ -387,6 +388,7 @@ sub vWarpCPP(;@) {
 	$constant .= "-DSSRRSN=$CONF{'SSRRSN'} " if defined($CONF{'SSRRSN'});
 	$constant .= "-DRSRRSN=$CONF{'RSRRSN'} " if defined($CONF{'RSRRSN'});
 	$constant .= "-DCOOKIE=hexstr\\\(\\\"$CONF{'COOKIE'}\\\"\\\) " if defined($CONF{'COOKIE'});
+	$constant .= "-DADDIPRID=$CONF{'ADDIPRID'} " if defined($CONF{'ADDIPRID'});
 	$constant .= "-DDATALEN=$CONF{'DATALEN'} " if defined($CONF{'DATALEN'});
 	$constant .= "-DSCTP_TN0_PORT=$CONF{'SRCPORT'} " if defined($CONF{'SRCPORT'});
 	$constant .= "-DSCTP_NUT0_PORT=$CONF{'DSTPORT'} " if defined($CONF{'DSTPORT'});
@@ -555,6 +557,27 @@ sub sctpFetchInitField($) {
 		$CONF{'SACK'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")} - 1;
 		$CONF{'RSERIAL'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
 		$CONF{'RSRRSN'} = $$ret{sctpGetFieldName("CHUNK_INIT_ACK.TSN")};
+	}
+
+	vWarpCPP();
+}
+
+#======================================================================
+# sctpFetchAsconfField - Fetch RequestID from ASCONF or ASCONF-ACK chunk
+#======================================================================
+sub sctpFetchAsconfField($) {
+	my ($ret) = @_;
+
+	if (defined($$ret{sctpGetFieldName("CHUNK_ASCONF.AddIPAddress")})) {
+		$CONF{'ADDIPRID'} = $$ret{sctpGetFieldName("CHUNK_ASCONF.AddIPAddress.RequestID")};
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_ASCONF.DeleteIPAddress")})) {
+		$CONF{'ADDIPRID'} = $$ret{sctpGetFieldName("CHUNK_ASCONF.DeleteIPAddress.RequestID")};
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_ASCONF.SetPrimaryAddress")})) {
+		$CONF{'ADDIPRID'} = $$ret{sctpGetFieldName("CHUNK_ASCONF.SetPrimaryAddress.RequestID")};
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_ASCONF_ACK.SuccessIndication")})) {
+		$CONF{'ADDIPRID'} = $$ret{sctpGetFieldName("CHUNK_ASCONF_ACK.SuccessIndication.RequestID")};
+	} elsif (defined($$ret{sctpGetFieldName("CHUNK_ASCONF_ACK.ErrorCauseIndication")})) {
+		$CONF{'ADDIPRID'} = $$ret{sctpGetFieldName("CHUNK_ASCONF_ACK.ErrorCauseIndication.RequestID")};
 	}
 
 	vWarpCPP();

@@ -81,6 +81,10 @@
 #define RSERIAL	0
 #endif
 
+#ifndef ADDIPRID
+#define ADDIPRID	0
+#endif
+
 #ifndef SSRRSN
 #define SSRRSN	INITTSN
 #endif
