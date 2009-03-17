@@ -680,6 +680,7 @@ sub vListen($;$$) {
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init) {
 		vLogHTML('Cannot receive SCTP CHUNK_INIT<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -715,6 +716,7 @@ sub vAccept($;$$) {
 	%ret = vWarpRecv($IF, 10, 0, 0, $cookie_echo);
 	if($ret{status} != 0 || $ret{recvFrame} ne $cookie_echo) {
 		vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ECHO<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -744,6 +746,7 @@ sub vConnect($;$$$$) {
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init_ack) {
 		vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -765,6 +768,7 @@ sub vConnect($;$$$$) {
 	%ret = vWarpRecv2($IF, 10, 0, 0, $cookie_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $cookie_ack) {
 		vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -794,6 +798,7 @@ sub vConnectAuth($;$$$$) {
 	%ret = vWarpRecv3($IF, 10, 0, 0, $init_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $init_ack) {
 		vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -815,6 +820,7 @@ sub vConnectAuth($;$$$$) {
 	%ret = vWarpRecv2($IF, 10, 0, 0, $cookie_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $cookie_ack) {
 		vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -839,6 +845,7 @@ sub vRecvMsg($;$$) {
 	%ret = vWarpRecv($IF, 10, 0, 0, $data);
 	if($ret{status} != 0 || $ret{recvFrame} ne $data) {
 		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -867,6 +874,7 @@ sub vSendMsg($;$$) {
 	%ret = vWarpRecv($IF, 10, 0, 0, $sack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $sack) {
 		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -898,6 +906,7 @@ sub vShutdown($;$$$$) {
 
 	if($ret{status} != 0 || $ret{recvFrame} ne $shutdown) {
 		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -906,6 +915,7 @@ sub vShutdown($;$$$$) {
 		%ret = vWarpRecv($IF, 10, 0, 0, $sack);
 		if($ret{status} != 0 || $ret{recvFrame} ne $sack) {
 			vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+			vSend($IF, sctp_chunk_abort_snd);
 			vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 			exit $V6evalTool::exitFail;
 		}
@@ -916,6 +926,7 @@ sub vShutdown($;$$$$) {
 	%ret = vWarpRecv($IF, 10, 0, 0, $shutdown_complete);
 	if($ret{status} != 0 || $ret{recvFrame} ne $shutdown_complete) {
 		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_COMPLETE<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
@@ -941,6 +952,7 @@ sub vClose($;$$$) {
 	%ret = vWarpRecv($IF, 10, 0, 0, $shutdown_ack);
 	if($ret{status} != 0 || $ret{recvFrame} ne $shutdown_ack) {
 		vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+		vSend($IF, sctp_chunk_abort_snd);
 		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
 		exit $V6evalTool::exitFail;
 	}
