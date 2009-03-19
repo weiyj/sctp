@@ -1196,25 +1196,27 @@ sub sctpStartInteractiveServer(;$@) {
 	
 	$script = "";
 	foreach $subcmd (@subcmds) {
-		if ($subcmd =~ /add=(\S+)/) {
+		if ($subcmd =~ /^add=(\S+)/) {
 			$script .= "bindx-add=$1\n";
-		} elsif ($subcmd =~ /del=(\S+)/) {
+		} elsif ($subcmd =~ /^del=(\S+)/) {
 			$script .= "bindx-rem=$1\n";
-		} elsif ($subcmd =~ /prim=(\S+)/) {
+		} elsif ($subcmd =~ /^prim=(\S+)/) {
 			$script .= "primary=$1\n";
-		} elsif ($subcmd =~ /send=(\S+)/) {
+		} elsif ($subcmd =~ /^pprim=(\S+)/) {
+			$script .= "peer_primary=$1\n";
+		} elsif ($subcmd =~ /^send=(\S+)/) {
 			$script .= "snd=$1\n";
-		} elsif ($subcmd =~ /recv=(\S+)/) {
+		} elsif ($subcmd =~ /^recv=(\S+)/) {
 			$script .= "rcv=$1\n";
-		} elsif ($subcmd =~ /recv/) {
+		} elsif ($subcmd =~ /^recv/) {
 			$script .= "rcv\n";
-		} elsif ($subcmd =~ /shutdown/) {
+		} elsif ($subcmd =~ /^shutdown/) {
 			$script .= "shutdown\n";
-		} elsif ($subcmd =~ /abort/) {
+		} elsif ($subcmd =~ /^abort/) {
 			$script .= "abort\n";
-		} elsif ($subcmd =~ /heartbeat=(\S+)/) {
+		} elsif ($subcmd =~ /^heartbeat=(\S+)/) {
 			$script .= "heartbeat=$1\n";
-		} elsif ($subcmd =~ /heartbeat/) {
+		} elsif ($subcmd =~ /^heartbeat/) {
 			$script .= "heartbeat\n";
 		} else {
 			vLog("Unknown parameter $subcmd");
