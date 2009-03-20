@@ -4,9 +4,6 @@
 /* whether test under IPv[4|6]: 0/IPv4, 1/IPv6 */
 #define ENABLE_IPV6		0
 
-/* whether remote system support AUTH */
-#define AUTH_ENABLE		0
-
 #define SCTP4_TN_NET0_ADDR	"192.168.0.100"
 #define SCTP4_TN_NET1_ADDR	"192.168.1.100"
 #define SCTP4_NUT_NET0_ADDR	"192.168.0.21"
