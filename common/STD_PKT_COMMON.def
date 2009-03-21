@@ -65,6 +65,10 @@
 #define ECN_ENABLE	0
 #endif
 
+#ifndef MULTI_ENABLE
+#define MULTI_ENABLE	0
+#endif
+
 #ifndef SNDTSN
 #define SNDTSN	INITTSN - 1
 #endif
@@ -129,6 +133,19 @@ CHUNK_INIT chunk_init_snd {
 	Param = auth_chunk_list_snd;
 	Param = auth_hmac_algo_snd;
 #endif
+#if (MULTI_ENABLE == 1)
+	Param = multi_addr_tn_net1;
+#endif
+}
+#endif
+
+#if (ENABLE_IPV6 == 0)
+IPv4Address multi_addr_tn_net1 {
+	Address = v4(SCTP4_TN_NET1_ADDR);
+}
+#else
+IPv6Address multi_addr_tn_net1 {
+	Address = SCTP6_TN_NET1_ADDR;
 }
 #endif
 
@@ -264,6 +281,9 @@ CHUNK_INIT_ACK chunk_init_ack_snd {
 	Param = auth_random_snd;
 	Param = auth_chunk_list_snd;
 	Param = auth_hmac_algo_snd;
+#endif
+#if (MULTI_ENABLE == 1)
+	Param = multi_addr_tn_net1;
 #endif
 }
 
