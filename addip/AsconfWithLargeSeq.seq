@@ -1,0 +1,148 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_bad_seq	=> "Send SCTP CHUNK_ASCONF (Add IP Address)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_bad_seq);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Received unexpected SCTP CHUNK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfWithLargeSeq.seq - ASCONF chunk is received with Sequence Number greater than next expected Sequence Number
+
+=head1 PURPOSE
+
+  To chech that if ASCONF chunk is received with Sequence Number greater
+  than next expected Sequence Number then the endpoint should discarded
+  the ASCONF Chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfWithLargeSeq.seq">./AsconfWithLargeSeq.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfWithLargeSeq.def">./AsconfWithLargeSeq.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange date
+  in endpoint A such that ASCONF chunk with Sequence Number greater
+  than next expected Sequence Number is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF        ----------------->       Discard
+  (duplicate Peer Sequence Number)
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF-ACK chunk from endpoint A to B with Sequence Number
+     greater than next expected Sequence Number.
+  2. Check A: ASCONF chunk should be discarded at endpoint B and no
+     ASCONF-ACK chunk can be received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.2.  Upon Reception of an ASCONF Chunk
+
+    After identification and verification of the association, the
+    following should be performed to properly process the ASCONF Chunk:
+
+=begin html
+<PRE>
+    E5)  <B>Otherwise, the ASCONF Chunk is discarded since it must be either
+         a stale packet or from an attacker.  A receiver of such a packet
+         MAY log the event for security purposes.</B>
+</PRE>
+
+=end html
+
+    E6)  When all ASCONF Chunks are processed for this SCTP packet, send
+         back the accumulated single response packet with all of the
+         ASCONF-ACK Chunks.  The destination address of the SCTP packet
+         containing the ASCONF-ACK Chunks MUST be the source address of
+         the SCTP packet that held the ASCONF Chunks.
+

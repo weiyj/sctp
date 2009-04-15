@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_ack_zero_plen	=> "Send SCTP CHUNK_ASCONF_ACK (with parameter length set to zero)",
+	sctp_chunk_abort_zero_plen	=> "Recv SCTP CHUNK_ABORT (Protocol Violation)"
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_ack_zero_plen);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort_zero_plen);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_zero_plen) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfAckWithZeroParamLen.seq - ASCONF-ACK chunk is received with parameter length set to zero
+
+=head1 PURPOSE
+
+  To check if ASCONF-ACK chunk is received with parameter length set to
+  zero, the receiver MUST send ABORT with the error cause set to the
+  error code 'Protocol Violation'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfAckWithZeroParamLen.seq">./AsconfAckWithZeroParamLen.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfAckWithZeroParamLen.def">./AsconfAckWithZeroParamLen.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A such that ASCONF-ACK chunk with parameter length set to
+  zero is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF-ACK      ----------------->
+  (with parameter length set to zero)
+                  <-----------------    ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF-ACK chunk from endpoint A to B with parameter length
+     set to zero.
+  2. Check A: ABORT with error code 'Protocol Violation' should be
+     received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  4.1.2.  Address Configuration Acknowledgment Chunk (ASCONF-ACK)
+
+    This chunk is used by the receiver of an ASCONF Chunk to acknowledge
+    the reception.  It carries zero or more results for any ASCONF
+    parameters that were processed by the receiver.  This chunk MUST be
+    sent in an authenticated way by using the mechanism defined in
+    [RFC4895].  If this chunk is received unauthenticated it MUST be
+    silently discarded as described in [RFC4895].
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Type = 0x80   |  Chunk Flags  |      Chunk Length             |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                     Sequence Number                           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                 ASCONF Parameter Response#1                   |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        \                                                               \
+        /                             ....                              /
+        \                                                               \
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                 ASCONF Parameter Response#N                   |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    Sequence Number: 32 bits (unsigned integer)
+
+    This value represents the Sequence Number for the received ASCONF
+    Chunk that is acknowledged by this chunk.  This value is copied from
+    the received ASCONF Chunk.
+
+    ASCONF Parameter Response: TLV format
+
+    The ASCONF Parameter Response is used in the ASCONF-ACK to report the
+    status of ASCONF processing.  By default, if a responding endpoint
+    does not include any Error Cause, a success is indicated.  Thus a
+    sender of an ASCONF-ACK MAY indicate complete success of all TLVs in
+    an ASCONF by returning only the Chunk Type, Chunk Flags, Chunk Length
+    (set to 8), and the Sequence Number.
+

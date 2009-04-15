@@ -1,0 +1,110 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AsconfAckWithDelSuccess.seq - ASCONF-ACK chunk is received with Success Indication parameter indicating Delete IP Address success</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  AsconfAckWithDelSuccess.seq - ASCONF-ACK chunk is received with Success Indication parameter indicating Delete IP Address success</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if ASCONF-ACK chunk is received with Success Indication
+  parameter indicating Delete IP Address success then the endpoint should
+  delete the address from the association.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./AsconfAckWithDelSuccess.seq">./AsconfAckWithDelSuccess.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfAckWithDelSuccess.def">./AsconfAckWithDelSuccess.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the date
+  in endpoint B such that ASCONF chunk with Delete IP Address Parameter
+  is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                &lt;-----------------      ASCONF
+                                        (Delete IP Address X)
+  ASCONF-ACK    -----------------&gt;
+  (Success Indication)
+  HEARTBEAT     -----------------&gt;
+  (IP Address X)
+                &lt;-----------------      ABORT</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Sending ASCONF message with Delete IP Address Parameter from
+     endpoint B to A.
+     Record the message sequence using a signal emulator.
+  2. Send ASCONF-ACK message with Success Indication parameter
+     indicating Delete IP Address success from endpoint A to B.
+  3. Check A: Endpoint B should delete the IP Address and consider
+     the address no longer part of the association.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  5.3.  General Rules for Address Manipulation</pre>
+<PRE>
+    F13) <B>When an endpoint receives a valid request to DELETE an IP
+         address, the endpoint MUST consider the address no longer part
+         of the association.  It MUST NOT send SCTP packets for the
+         association to that address and it MUST treat subsequent packets
+         received from that address as Out Of The Blue.</B>
+</PRE><pre>
+         During the time interval between sending out the ASCONF and
+         receiving the ASCONF-ACK, it MAY be possible to receive DATA
+         Chunks out of order.  The following examples illustrate these
+         problems:</pre>
+
+</body>
+
+</html>

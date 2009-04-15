@@ -1,0 +1,162 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Dynamic Address Reconfiguration</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Dynamic Address Reconfiguration</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_0</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2009/04/15 11:37:46</TD></TR>
+<TR><TD>End :</TD><TD>2009/04/15 11:37:47</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Initialize</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./Initialize.html">Initialization Test Environment</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./Initialize.seq">X</A></TD><TD ALIGN="CENTER">-</TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>ASCONF Chunk Procedures</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR><TD><BR></TD><TD>Sequence Number</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./AsconfDupCached.html">ASCONF chunk is received with duplicate Peer Sequence Number and cached ASCONF-ACK response exists</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfDupCached.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfDupCached.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./AsconfDupNoCached.html">ASCONF chunk is received with duplicate Peer Sequence Number but no cached ASCONF-ACK is outstanding</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfDupNoCached.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfDupNoCached.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./AsconfWithLargeSeq.html">ASCONF chunk is received with  Sequence Number greater than next expected Sequence Number</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithLargeSeq.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithLargeSeq.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Parameter Type</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./AsconfWithUnkownParam.html">ASCONF chunk is received with unrecognized parameter which does not understand</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithUnkownParam.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithUnkownParam.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Add IP Address</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./AsconfWithAddMulticast.html">ASCONF chunk is received with Add IP Address Parameter which contain a broadcast or multicast address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddMulticast.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddMulticast.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./AsconfWithAddUnspecified.html">ASCONF chunk is received with Add IP Address Parameter which contain a unspecified address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddUnspecified.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddUnspecified.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./AsconfWithAddOtherAddress.html">ASCONF chunk is received with Add IP Address Parameter which contain a different type address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddOtherAddress.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddOtherAddress.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./AsconfWithAddAddress.html">ASCONF chunk is received with Add IP Address Parameter which contain a valid address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddAddress.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithAddAddress.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Delete IP Address</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./AsconfWithDelMulticast.html">ASCONF chunk is received with Delete IP Address Parameter which contain a broadcast or multicast address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelMulticast.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelMulticast.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./AsconfWithDelUnspecified.html">ASCONF chunk is received with Delete IP Address Parameter which contain a unspecified address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelUnspecified.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelUnspecified.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>12</TD><TD><A HREF="./DeleteLastRemainAddress.html">ASCONF chunk is received with Delete IP Address to delete last remaining IP address from an association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DeleteLastRemainAddress.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DeleteLastRemainAddress.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>13</TD><TD><A HREF="./DeleteSourceAddress.html">ASCONF chunk is received with Delete IP Address to delete an IP address that is also the source address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./DeleteSourceAddress.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./DeleteSourceAddress.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>14</TD><TD><A HREF="./AsconfWithDelNoExists.html">ASCONF chunk is received with Delete IP Address Parameter which contain a address not part of the association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelNoExists.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelNoExists.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>15</TD><TD><A HREF="./AsconfWithDelExists.html">ASCONF chunk is received with Delete IP Address Parameter which contain a address part of the association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelExists.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithDelExists.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Set Primary Address</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>16</TD><TD><A HREF="./AsconfWithSetUnspecified.html">ASCONF chunk is received with Set Primary Address Parameter which contain a unspecified address</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetUnspecified.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetUnspecified.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>17</TD><TD><A HREF="./AsconfWithSetNoExists.html">ASCONF chunk is received with Set Primary Address Parameter which contain a address not part of the association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetNoExists.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetNoExists.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>18</TD><TD><A HREF="./AsconfWithSetExists.html">ASCONF chunk is received with Set Primary Address Parameter which contain a address part of the association</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetExists.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithSetExists.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>ASCONF-ACK Chunk Procedures</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR><TD><BR></TD><TD>Sequence Number</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>19</TD><TD><A HREF="./AsconfAckWithNextSeq.html">ASCONF-ACK chunk is received with the next Sequence Number but no ASCONF Chunk is outstanding</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="19.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithNextSeq.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithNextSeq.def">X</A></TD><TD ALIGN="CENTER"><A HREF="19.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>20</TD><TD><A HREF="./AsconfAckWithLargeSeq.html">ASCONF-ACK chunk is received with greater than next Sequence Number but no ASCONF Chunk is outstanding</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="20.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithLargeSeq.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithLargeSeq.def">X</A></TD><TD ALIGN="CENTER"><A HREF="20.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>21</TD><TD><A HREF="./AsconfAckWithSmallSeq.html">ASCONF-ACK chunk is received with less than next Sequence Number but no ASCONF Chunk is outstanding</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="21.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSmallSeq.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSmallSeq.def">X</A></TD><TD ALIGN="CENTER"><A HREF="21.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>22</TD><TD><A HREF="./AsconfAckDuplicate.html">ASCONF-ACK chunk is received with duplicate current Sequence Number while ASCONF Chunk is outstanding</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="22.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckDuplicate.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckDuplicate.def">X</A></TD><TD ALIGN="CENTER"><A HREF="22.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Chunk Type</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>23</TD><TD><A HREF="./ErrorWithChunkUnknown.html">ERROR chunk is received with Unrecognized Chunk Type to reporting ASCONF Chunk Type did not recognize</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="23.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ErrorWithChunkUnknown.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ErrorWithChunkUnknown.def">X</A></TD><TD ALIGN="CENTER"><A HREF="23.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Parameter Type</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>24</TD><TD><A HREF="./AsconfAckWithAddUnknown.html">ASCONF-ACK chunk is received with Error Cause indicating Add IP Address was not understood</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="24.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddUnknown.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddUnknown.def">X</A></TD><TD ALIGN="CENTER"><A HREF="24.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>25</TD><TD><A HREF="./AsconfAckWithDelUnknown.html">ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address was not understood</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="25.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelUnknown.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelUnknown.def">X</A></TD><TD ALIGN="CENTER"><A HREF="25.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>26</TD><TD><A HREF="./AsconfAckWithSetUnknown.html">ASCONF-ACK chunk is received with Error Cause indicating Set Primary IP Address was not understood</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="26.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetUnknown.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetUnknown.def">X</A></TD><TD ALIGN="CENTER"><A HREF="26.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Error Cause Indication</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>27</TD><TD><A HREF="./AsconfAckWithAddError.html">ASCONF-ACK chunk is received with Error Cause indicating Add IP Address operation failed</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="27.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="27.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>28</TD><TD><A HREF="./AsconfAckWithAddNoMem.html">ASCONF-ACK chunk is received with Out of Resource Error Cause indicating Add IP Address operation failed</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="28.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddNoMem.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddNoMem.def">X</A></TD><TD ALIGN="CENTER"><A HREF="28.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>29</TD><TD><A HREF="./AsconfAckWithDelError.html">ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address operation failed</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="29.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="29.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Success Indication</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>30</TD><TD><A HREF="./AsconfAckWithAddSuccess.html">ASCONF-ACK chunk is received with Success Indication parameter indicating Add IP Address success</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="30.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddSuccess.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddSuccess.def">X</A></TD><TD ALIGN="CENTER"><A HREF="30.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>31</TD><TD><A HREF="./AsconfAckWithDelSuccess.html">ASCONF-ACK chunk is received with Success Indication parameter indicating Delete IP Address success</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="31.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelSuccess.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelSuccess.def">X</A></TD><TD ALIGN="CENTER"><A HREF="31.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>32</TD><TD><A HREF="./AsconfAckWithSetSuccess.html">ASCONF-ACK chunk is received with Success Indication parameter indicating Set Primary Address success</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="32.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetSuccess.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetSuccess.def">X</A></TD><TD ALIGN="CENTER"><A HREF="32.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD>Response no Error Cause</TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>33</TD><TD><A HREF="./AsconfAckWithAddNoError.html">ASCONF-ACK chunk is received to indicating Add IP Address success without any Error Cause</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="33.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddNoError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithAddNoError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="33.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>34</TD><TD><A HREF="./AsconfAckWithDelNoError.html">ASCONF-ACK chunk is received to indicating Delete IP Address success without any Error Cause</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="34.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelNoError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithDelNoError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="34.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>35</TD><TD><A HREF="./AsconfAckWithSetNoError.html">ASCONF-ACK chunk is received to indicating Set Primary Address success without any Error Cause</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="35.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetNoError.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithSetNoError.def">X</A></TD><TD ALIGN="CENTER"><A HREF="35.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>ASCONF chunk Bundled with Other Chunks</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>36</TD><TD><A HREF="./BundledAsconfAndOther.html">ASCONF chunk is received bundled with other chunk as the first chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="36.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAndOther.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAndOther.def">X</A></TD><TD ALIGN="CENTER"><A HREF="36.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>37</TD><TD><A HREF="./BundledAsconfAckAndOther.html">ASCONF-ACK chunk is received bundled with other chunk as the first chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="37.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAckAndOther.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAckAndOther.def">X</A></TD><TD ALIGN="CENTER"><A HREF="37.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>38</TD><TD><A HREF="./BundledAsconfChunks.html">ASCONF chunk is received bundled with other ASCONF chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="38.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfChunks.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfChunks.def">X</A></TD><TD ALIGN="CENTER"><A HREF="38.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>39</TD><TD><A HREF="./BundledAsconfAckChunks.html">ASCONF-ACK chunk is received bundled with other ASCONF-ACK chunk</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="39.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAckChunks.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./BundledAsconfAckChunks.def">X</A></TD><TD ALIGN="CENTER"><A HREF="39.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Handle T4-RTO Expiration</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>40</TD><TD><A HREF="./T4RtoRetrans.html">ASCONF message is transmitted again if T4-RTO timer expires</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="40.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoRetrans.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoRetrans.def">X</A></TD><TD ALIGN="CENTER"><A HREF="40.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>41</TD><TD><A HREF="./T4RtoTimeout.html">Failure to receive ASCONF-ACK after retransmit times to 'Association.Max.Retrans'</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="41.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoTimeout.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoTimeout.def">X</A></TD><TD ALIGN="CENTER"><A HREF="41.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>42</TD><TD><A HREF="./T4RtoExpires.html">RTO is updated correctly if T4-RTO timer expires for a ASCONF message</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="42.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoExpires.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./T4RtoExpires.def">X</A></TD><TD ALIGN="CENTER"><A HREF="42.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>ASCONF Chunk Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>43</TD><TD><A HREF="./AsconfWithZeroChunkLen.html">ASCONF chunk is received with chunk length set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="43.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithZeroChunkLen.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithZeroChunkLen.def">X</A></TD><TD ALIGN="CENTER"><A HREF="43.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>44</TD><TD><A HREF="./AsconfAckWithZeroChunkLen.html">ASCONF-ACK chunk is received with chunk length set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="44.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithZeroChunkLen.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithZeroChunkLen.def">X</A></TD><TD ALIGN="CENTER"><A HREF="44.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>45</TD><TD><A HREF="./AsconfWithZeroParamLen.html">ASCONF chunk is received with parameter length set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="45.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithZeroParamLen.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfWithZeroParamLen.def">X</A></TD><TD ALIGN="CENTER"><A HREF="45.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>46</TD><TD><A HREF="./AsconfAckWithZeroParamLen.html">ASCONF-ACK chunk is received with parameter length set to zero</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="46.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithZeroParamLen.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AsconfAckWithZeroParamLen.def">X</A></TD><TD ALIGN="CENTER"><A HREF="46.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+  <LI>RFC5061: Dynamic Address Reconfiguration</LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 171aec00a8926c27435ddf4876c5482c -->

@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AsconfWithAddMulticast.seq - ASCONF chunk is received with Add IP Address Parameter which contain a broadcast or multicast address</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  AsconfWithAddMulticast.seq - ASCONF chunk is received with Add IP Address Parameter which contain a broadcast or multicast address</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if ASCONF chunk is received with Add IP Address Parameter which
+  contain a broadcast or multicast address, the endpoint should responded with
+  ASCONF-ACK chunk including cause of Unresolvable Address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./AsconfWithAddMulticast.seq">./AsconfWithAddMulticast.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfWithAddMulticast.def">./AsconfWithAddMulticast.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A such that ASCONF message with Add IP Address Parameter
+  which contain a broadcast or multicast address is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  ASCONF        -----------------&gt;
+  (with broadcast or multicast address)
+                &lt;-----------------      ASCONF-ACK
+                                        (Unresolvable Address)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send ASCONF chunk from endpoint A to B with Add IP Address Parameter
+     which contain a broadcast or multicast address.
+  2. Check A: ASCONF-ACK with Error Cause Indication Parameter which
+     including cause of Unresolvable Address should be received at
+     endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 5061</pre>
+<pre>
+  4.2.1.  Add IP Address</pre>
+<pre>
+          0                   1                   2                   3
+          0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |        Type = 0xC001          |    Length = Variable          |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |               ASCONF-Request Correlation ID                   |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+         |                       Address Parameter                       |
+         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</pre>
+<pre>
+     ASCONF-Request Correlation ID: 32 bits</pre>
+<pre>
+     This is an opaque integer assigned by the sender to identify each
+     request parameter.  The receiver of the ASCONF Chunk will copy this
+     2-bit value into the ASCONF Response Correlation ID field of the
+     ASCONF-ACK response parameter.  The sender of the ASCONF can use this
+     same value in the ASCONF-ACK to find which request the response is
+     for.  Note that the receiver MUST NOT change this 32-bit value.</pre>
+<pre>
+     Address Parameter: TLV</pre>
+<PRE>
+     This field contains an IPv4 or IPv6 address parameter as described in
+     Section 3.3.2.1 of [RFC4960].  The complete TLV is wrapped within
+     this parameter.  It informs the receiver that the address specified
+     is to be added to the existing association.  <B>This parameter MUST NOT
+     contain a broadcast or multicast address.</B>  If the address 0.0.0.0 or
+     ::0 is provided, the source address of the packet MUST be added.
+</PRE>
+</body>
+
+</html>

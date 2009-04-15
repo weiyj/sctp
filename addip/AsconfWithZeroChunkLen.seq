@@ -1,0 +1,197 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_zero_len	=> "Send SCTP CHUNK_ASCONF (with chunk length set to zero)",
+	sctp_chunk_abort_zero_len	=> "Recv SCTP CHUNK_ABORT (Protocol Violation)"
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_zero_len);
+
+%ret = vWarpRecv($IF0, 30, 0, 0, sctp_chunk_abort_zero_len);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_abort_zero_len) {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfWithZeroChunkLen.seq - ASCONF chunk is received with chunk length set to zero
+
+=head1 PURPOSE
+
+  To check if ASCONF chunk is received with chunk length set to zero
+  then the receiver MUST send ABORT with the error cause set to the
+  error code 'Protocol Violation'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfWithZeroChunkLen.seq">./AsconfWithZeroChunkLen.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfWithZeroChunkLen.def">./AsconfWithZeroChunkLen.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange ASCONF
+  in endpoint A such that ASCONF chunk with chunk length set to zero
+  is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF          ---------------->
+  (with chunk length set to zero)
+                  <-----------------    ABORT
+                                        (Protocol Violation)
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF chunk from endpoint A to B with chunk length set
+     to zero.
+  2. Check A: ABORT with error code 'Protocol Violation' should be
+     received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  4.1.1.  Address Configuration Change Chunk (ASCONF)
+
+    This chunk is used to communicate to the remote endpoint one of the
+    configuration change requests that MUST be acknowledged.  The
+    information carried in the ASCONF Chunk uses the form of a Type-
+    Length-Value (TLV), as described in "3.2.1 Optional/Variable-length
+    Parameter Format" in [I-D.ietf-tsvwg-2960bis] for all variable
+    parameters.  This chunk MUST be sent in an authenticated way by using
+    the mechanism defined in [I-D.ietf-tsvwg-sctp-auth].  If this chunk
+    is received unauthenticated it MUST be silently discarded as
+    described in [I-D.ietf-tsvwg-sctp-auth].
+
+	        0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Type = 0xC1   |  Chunk Flags  |      Chunk Length             |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                      Sequence Number                          |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                    Address Parameter                          |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                     ASCONF Parameter #1                       |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        \                                                               \
+        /                             ....                              /
+        \                                                               \
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                     ASCONF Parameter #N                       |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    Sequence Number : 32 bits (unsigned integer)
+
+    This value represents a Sequence Number for the ASCONF Chunk.  The
+    valid range of Sequence Number is from 0 to 4294967295 (2**32 - 1).
+    Sequence Numbers wrap back to 0 after reaching 4294967295.
+
+    Address Parameter : 8 or 20 bytes (depending on the address type)
+
+    This field contains an address parameter, either IPv6 or IPv4, from
+    [I-D.ietf-tsvwg-2960bis].  The address is an address of the sender of
+    the ASCONF Chunk, the address MUST be considered part of the
+    association by the peer endpoint (the receiver of the ASCONF Chunk).
+    This field may be used by the receiver of the ASCONF to help in
+    finding the association.  If the address 0.0.0.0 or ::0 is provided
+    the receiver MAY lookup the association by other information provided
+    in the packet.  This parameter MUST be present in every ASCONF
+    message, i.e. it is a mandatory TLV parameter.
+
+    Note: the host name address MUST NOT be sent and MUST be ignored if
+    received in any ASCONF message.
+
+    It should be noted that the ASCONF Chunk format requires the receiver
+    to report to the sender if it does not understand the ASCONF Chunk.
+    This is accomplished by setting the upper bits in the chunk type as
+    described in [I-D.ietf-tsvwg-2960bis]. section 3.2.  Note that the
+    upper two bits in the ASCONF Chunk are set to one.  As defined in
+    [I-D.ietf-tsvwg-2960bis] section 3.2, when setting these upper bits
+    in this manner the receiver that does not understand this chunk MUST
+    skip the chunk and continue processing, and report in an Operation
+    Error Chunk using the 'Unrecognized Chunk Type' cause of error.  This
+    will NOT abort the association but indicates to the sender that it
+    MUST not send any further ASCONF chunks.
+
+    ASCONF Parameter: TLV format
+
+    Each Address configuration change is represented by a TLV parameter
+    as defined in Section 4.2.  One or more requests may be present in an
+    ASCONF Chunk.
+

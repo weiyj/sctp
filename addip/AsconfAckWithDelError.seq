@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_del_addr	=> "Recv SCTP CHUNK_ASCONF (Delete IP Address)",
+	sctp_chunk_asconf_ack_err	=> "Send SCTP CHUNK_ASCONF_ACK (Unrecognized Parameters)",
+	sctp_chunk_heartbeat_link1	=> "Send SCTP CHUNK_HEARTBEAT",
+	sctp_chunk_heartbeat_ack_link1	=> "Recv SCTP CHUNK_HEARTBEAT_ACK",
+);
+
+$IF0 = Link0;
+$IF1 = Link1;
+
+vCapture($IF0);
+vCapture($IF1);
+
+sctpCheckEnv($IF0, $IF1);
+
+sctpStartInteractiveServer($IF0, "add=$SCTP::CONF{'SCTP_NUT_NET1_ADDR'}", "recv",
+			"del=$SCTP::CONF{'SCTP_NUT_NET1_ADDR'}", "recv");
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_del_addr);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_del_addr) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+sctpFetchAsconfField(\%ret);
+
+vSend($IF0, sctp_chunk_asconf_ack_err);
+
+vSendMsg($IF0);
+
+vLogHTML('===== Check Whether Address is deleted =====');
+
+vSend($IF1, sctp_chunk_heartbeat_link1);
+
+%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_heartbeat_ack_link1);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_heartbeat_ack_link1) {
+	vLogHTML('Cannot receive SCTP CHUNK_HEARTBEAT_ACK<BR>');
+	vSend($IF1, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfAckWithDelError.seq - ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address operation failed
+
+=head1 PURPOSE
+
+  To check that if ASCONF-ACK chunk is received with Error Cause indicating
+  Delete IP Address operation failed then the endpoint should not delete the
+  address from the association.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfAckWithDelError.seq">./AsconfAckWithDelError.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfAckWithDelError.def">./AsconfAckWithDelError.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the date
+  in endpoint B such that ASCONF chunk with Delete IP Address Parameter
+  is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Asconf
+                <-----------------      ASCONF
+                                        (Delete IP Address X)
+  ASCONF-ACK    ----------------->
+  (Error Cause Indication)
+  HEARTBEAT     ----------------->
+  (IP Address X)
+                <-----------------      HEARTBEAT-ACK
+                                        (IP Address X)
+
+  TEST DESCRIPTION:
+
+  1. Sending ASCONF message with Delete IP Address Parameter from
+     endpoint B to A.
+     Record the message sequence using a signal emulator.
+  2. Send ASCONF-ACK message with Error Cause indicating Delete IP
+     Address operation failed from endpoint A to B with Delete IP
+     Address.
+  3. Check A: Endpoint B should not delete the IP Address for Delete
+     IP Address Parameter.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  None
+

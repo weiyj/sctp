@@ -1,0 +1,225 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_add_addr	=> "Recv SCTP CHUNK_ASCONF (Add IP Address)",
+	sctp_chunk_asconf_ack_err	=> "Send SCTP CHUNK_ASCONF_ACK (Invalid Mandatory Parameter Error)"
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+$RTO = $SCTP::CONF{"RTO_INITIAL"};
+$RTO_MAX = $SCTP::CONF{"RTO_MAX"};
+$ASSOC_MAX_RETRANS = $SCTP::CONF{"ASSOCIATION_MAX_RETRANS"};
+
+sctpStartInteractiveServer($IF0, "recv", "add=$SCTP::CONF{'SCTP_NUT_NET1_ADDR'}", "recv");
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_add_addr);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_add_addr) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+$stime = $ret{"recvTime".$ret{"recvCount"}};
+$count = 0;
+
+# ASCONF message is transmitted again if T3-rtx timer expires
+while ($count < $ASSOC_MAX_RETRANS) {
+	%ret = vWarpRecv($IF0, $RTO + 5, 0, 0, sctp_chunk_asconf_add_addr);
+	if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_add_addr) {
+		vLogHTML('Cannot receive SCTP CHUNK_ASCONF<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+
+	$etime = $ret{"recvTime".$ret{"recvCount"}};
+	$gap = $etime - $stime;
+
+	if (!sctpTimeFuzzyEqual($gap, $RTO, $SCTP::CONF{"TIME_PREC"})) {
+		# We got a bad time
+		vLogHTML("ERROR: The retransmit T4-rto timer received:$gap, but expected: $RTO<BR>");
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+
+	vLogHTML("OK: The retransmit T4-rto timer received:$gap, expected: $RTO<BR>");
+
+	last if ($RTO == $RTO_MAX);
+
+	$stime = $etime;
+	$RTO = $RTO * 2; # back off the timer
+	$RTO = $RTO_MAX if ($RTO > $RTO_MAX);
+	$count++;
+}
+
+vSend($IF0, sctp_chunk_asconf_ack_err);
+
+vSendMsg($IF0);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T4RtoExpires.seq - RTO is updated correctly if T4-RTO timer expires for a ASCONF message
+
+=head1 PURPOSE
+
+  To check that if T4-RTO expires on a destination address then the
+  value of RTO is updated correctly for that address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T4RtoExpires.seq">./T4RtoExpires.seq</A> [-tooloption ...] -pkt <A HREF="./T4RtoExpires.def">./T4RtoExpires.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A such that ASCONF-ACK is not sent for the ASCONF received
+  from endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Asconf
+                <-----------------      ASCONF
+  Don't send                            (Start T4-RTO timer)
+  ASCONF-ACK message                      |
+                                          |   T4-RTO timer expires
+                                          |
+                <----------------       ASCONF
+                                          |
+                                          |   T4-RTO timer expires
+                                          |
+                <----------------       ASCONF
+                                          .
+                                          . Retransmit x
+                                          . times
+
+  TEST DESCRIPTION:
+
+  1. Attempt to send ASCONF from endpoint B to A. Don't send ASCONF-ACK
+     from A. Let the timer T4-rto expire. ASCONF will be retransmitted.
+     Note the timer. Don't send ASCONF-ACK for the retransmitted ASCONF.
+     T4-rto will be expired again and ASCONF will be retransmitted again.
+     Record the messages using a signal emulator.
+  2. Check A: Value of the T4-rto is updated correctly.
+
+=head1 NOTE
+
+  1. If configure of ASSOC_MAX_RETRANS is not lager enough, test will exit
+     even if RTO is not up to RTO_MAX.
+  2. If the retransmit time is 0.5s less or greater than RTO, do accept it
+     because we can not exactly calculate it.
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.1.  ASCONF Chunk Procedures
+
+    If the T-4 RTO timer expires the endpoint MUST do the following:
+
+    B1)  Increment the error counters and perform path failure detection
+         on the appropriate destination address as defined in [RFC4960],
+         Sections 8.1 and 8.2.
+
+    B2)  Increment the association error counters and perform endpoint
+         failure detection on the association as defined in [RFC4960],
+         Sections 8.1 and 8.2.
+
+=begin html
+<PRE>
+    B3)  <B>Backoff the destination address RTO value to which the ASCONF
+         chunk was sent by doubling the RTO timer value.</B>
+</PRE>
+
+=end html
+
+         Note: The RTO value is used in the setting of all timer types
+         for SCTP.  Each destination address has a single RTO estimate.
+
+    B4)  Re-transmit the ASCONF Chunk last sent and if possible choose an
+         alternate destination address (please refer to [RFC4960],
+         Section 6.4.1).  An endpoint MUST NOT add new parameters to this
+         chunk; it MUST be the same (including its Sequence Number) as
+         the last ASCONF sent.  An endpoint MAY, however, bundle an
+         additional ASCONF with new ASCONF parameters with the next
+         Sequence Number.  For details, see Section 5.5.
+
+    B5)  Restart the T-4 RTO timer.  Note that if a different destination
+         is selected, then the RTO used will be that of the new
+         destination address.
+
+    Note: The total number of retransmissions is limited by B2 above.  If
+    the maximum is reached, the association will fail and enter into the
+    CLOSED state (see [RFC4960], Section 6.4.1 for details).
+
+

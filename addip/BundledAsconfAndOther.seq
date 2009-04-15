@@ -1,0 +1,175 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_and_data	=> "Send SCTP CHUNK_ASCONF (Bunding with DATA)",
+	sctp_chunk_asconf_ack_and_sack	=> "Recv SCTP CHUNK_ASCONF_ACK (Bunding with SACK)",
+	sctp_chunk_asconf_ack_ok	=> "Recv SCTP CHUNK_ASCONF_ACK",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_asconf_and_data);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_and_sack, sctp_chunk_asconf_ack_ok, sctp_chunk_sack_rcv);
+if($ret{status} != 0 || ($ret{recvFrame} ne sctp_chunk_asconf_ack_and_sack &&
+   $ret{recvFrame} ne sctp_chunk_asconf_ack_ok && $ret{recvFrame} ne sctp_chunk_sack_rcv)) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_sack_rcv) {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_ok);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_ok) {
+		vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_asconf_ack_ok) {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_sack_rcv) {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#FF0000">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  BundledAsconfAndOther.seq - ASCONF chunk is received bundled with other chunk as the first chunk
+
+=head1 PURPOSE
+
+  To check that if ASCONF chunk is received bundled with other chunk as the first
+  chunk then the endpoint should accept both of the messages and response ASCONF
+  chunk with ASCONF-ACK chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./BundledAsconfAndOther.seq">./BundledAsconfAndOther.seq</A> [-tooloption ...] -pkt <A HREF="./BundledAsconfAndOther.def">./BundledAsconfAndOther.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the date
+  in endpoint A such that ASCONF chunk which is bundled with other chunk
+  as the first chunk is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF + DATA ----------------->
+
+                <-----------------      ASCONF-ACK + SACK
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF chunk bundled with other chunk as the first chunk
+     from endpoint A to B.
+  2. Check A: ASCONF-ACK chunk should be received to response the
+     ASCONF chunk at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.1.1.  Congestion Control of ASCONF Chunks
+
+    In defining the ASCONF Chunk transfer procedures, it is essential
+    that these transfers MUST NOT cause congestion within the network.
+    To achieve this, we place these restrictions on the transfer of
+    ASCONF Chunks:
+
+=begin html
+<PRE>
+    <B>C2)  An ASCONF Chunk may be bundled with any other chunk type
+         including other ASCONF Chunks.</B>  If bundled with other ASCONF
+         Chunks, the chunks MUST appear in sequential order with respect
+         to their Sequence Number.
+</PRE>
+
+=end html
+
+    C3)  An ASCONF-ACK Chunk may be bundled with any other chunk type
+         including other ASCONF-ACK Chunks.  If bundled with other
+         ASCONF-ACK Chunks, the chunks MUST appear in sequential order
+         with respect to their Sequence Number.
+

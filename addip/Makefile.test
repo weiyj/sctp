@@ -1,0 +1,79 @@
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+
+PERL	= /usr/bin/perl
+POD2HTML= -$(PERL) -e 'use Pod::Html; pod2html("--noindex", @ARGV);'
+
+IFILE = INDEX
+TITLE = "SCTP Conformance Test For Dynamic Address Reconfiguration"
+
+document:
+	$(AUTORUN) -g -title=$(TITLE) $(IFILE)
+	rm -f pod2html-dircache pod2html-itemcache pod2htmd.tmp  pod2htmi.tmp
+
+document2:
+	$(AUTORUN) -G $(IFILE)
+	rm -f pod2html-dircache pod2html-itemcache pod2htmd.tmp  pod2htmi.tmp
+
+clean:
+	-/bin/rm -f *.log *.dump [0-9]*.html index.html summary.html report.html
+
+cleandoc:
+	-/bin/rm -f *.html
+
+v4test: changever4 test
+
+v6test: changever6 test
+
+test:
+	$(AUTORUN) $(AROPT) -title=$(TITLE) $(IFILE)
+
+changever4:
+	../config/chgversion.pl IPv4
+
+changever6:
+	../config/chgversion.pl IPv6
+
+tahi:	document
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -dump2txt -title=$(TITLE) $(IFILE)
+
+tiny:	document
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -dump2txt -tiny -title=$(TITLE) $(IFILE)
+
+include ../Makefile.inc

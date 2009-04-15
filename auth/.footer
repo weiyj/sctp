@@ -13,6 +13,7 @@ Index
   <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
   <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
   <LI>RFC4895: Authentication Chunks</LI>
+  <LI><A HREF="../addip/index.html">RFC5061: Dynamic Address Reconfiguration</A></LI>
 </UL>
 <UL>
   <LI><A HREF="../index.html">Up</A>

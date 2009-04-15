@@ -1,0 +1,161 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_add_addr	=> "Recv SCTP CHUNK_ASCONF (Add IP Address)",
+	sctp_chunk_error_unreg_type	=> "Send SCTP CHUNK_ERROR (Unrecognized Chunk Type)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartInteractiveServer($IF0, "recv", "add=$SCTP::CONF{'SCTP_NUT_NET1_ADDR'}",
+			"pprim=$SCTP::CONF{'SCTP_NUT_NET0_ADDR'}", "recv");
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_add_addr);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_add_addr) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_error_unreg_type);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Received unexpected SCTP CHUNK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ErrorWithChunkUnknown.seq - ERROR chunk is received with Unrecognized Chunk Type to reporting ASCONF Chunk Type did not recognize
+
+=head1 PURPOSE
+
+  To check that if ERROR chunk is received to reporting ASCONF Chunk Type
+  did not recognize then the endpoint should not send any further ASCONF
+  Chunks and MUST stop its T-4 timer.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ErrorWithChunkUnknown.seq">./ErrorWithChunkUnknown.seq</A> [-tooloption ...] -pkt <A HREF="./ErrorWithChunkUnknown.def">./ErrorWithChunkUnknown.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data
+  in Endpoint B such that ASCONF message with Add IP Address is sent to
+  Endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Asconf
+                <-----------------      ASCONF
+                                        (Add IP Address)
+   ERROR        ----------------->
+   (Unrecognized Chunk Type)
+
+
+  TEST DESCRIPTION:
+
+  1. Sending ASCONF message with Add IP Address Parameter from endpoint
+     B to A.
+     Record the message sequence using a signal emulator.
+  2. Send ERROR message with Error Cause Unrecognized Chunk Type reporting
+     that it did not recognize the ASCONF Chunk Type from endpoint A to B.
+  3. Check A: Endpoint B should not send any further ASCONF Chunks and
+     MUST stop its T-4 timer.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.1.  ASCONF Chunk Procedures
+
+    A8)  If there is no response(s) to specific TLV parameter(s), and no
+         failures are indicated, then all request(s) are considered
+         successful.
+
+=begin html
+<PRE>
+    A9)  <B>If the peer responds to an ASCONF with an ERROR Chunk reporting
+         that it did not recognize the ASCONF Chunk Type, the sender of
+         the ASCONF MUST NOT send any further ASCONF Chunks and MUST stop
+         its T-4 timer.</B>
+</PRE>
+
+=end html
+

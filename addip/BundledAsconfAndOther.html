@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>BundledAsconfAndOther.seq - ASCONF chunk is received bundled with other chunk as the first chunk</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  BundledAsconfAndOther.seq - ASCONF chunk is received bundled with other chunk as the first chunk</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if ASCONF chunk is received bundled with other chunk as the first
+  chunk then the endpoint should accept both of the messages and response ASCONF
+  chunk with ASCONF-ACK chunk.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./BundledAsconfAndOther.seq">./BundledAsconfAndOther.seq</A> [-tooloption ...] -pkt <A HREF="./BundledAsconfAndOther.def">./BundledAsconfAndOther.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the date
+  in endpoint A such that ASCONF chunk which is bundled with other chunk
+  as the first chunk is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  ASCONF + DATA -----------------&gt;</pre>
+<pre>
+                &lt;-----------------      ASCONF-ACK + SACK</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send ASCONF chunk bundled with other chunk as the first chunk
+     from endpoint A to B.
+  2. Check A: ASCONF-ACK chunk should be received to response the
+     ASCONF chunk at endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 5061</pre>
+<pre>
+  5.1.1.  Congestion Control of ASCONF Chunks</pre>
+<pre>
+    In defining the ASCONF Chunk transfer procedures, it is essential
+    that these transfers MUST NOT cause congestion within the network.
+    To achieve this, we place these restrictions on the transfer of
+    ASCONF Chunks:</pre>
+<PRE>
+    <B>C2)  An ASCONF Chunk may be bundled with any other chunk type
+         including other ASCONF Chunks.</B>  If bundled with other ASCONF
+         Chunks, the chunks MUST appear in sequential order with respect
+         to their Sequence Number.
+</PRE><pre>
+    C3)  An ASCONF-ACK Chunk may be bundled with any other chunk type
+         including other ASCONF-ACK Chunks.  If bundled with other
+         ASCONF-ACK Chunks, the chunks MUST appear in sequential order
+         with respect to their Sequence Number.</pre>
+
+</body>
+
+</html>

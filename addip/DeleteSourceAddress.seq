@@ -1,0 +1,152 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_del_addr	=> "Send SCTP CHUNK_ASCONF (Delete IP Address)",
+	sctp_chunk_asconf_ack_err	=> "Recv SCTP CHUNK_ASCONF_ACK (Delete Source IP Address Error)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_del_addr);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_err);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_err) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  DeleteSourceAddress.seq - ASCONF chunk is received with Delete IP Address to delete an IP address that is also the source address
+
+=head1 PURPOSE
+
+  To check if ASCONF chunk is received to delete an IP address that is
+  also the source address of the ASCONF chunk, the receiver MUST send
+  an Error Cause TLV with the error cause set to the new error code
+  'Request to Delete Source IP Address'.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./DeleteSourceAddress.seq">./DeleteSourceAddress.seq</A> [-tooloption ...] -pkt <A HREF="./DeleteSourceAddress.def">./DeleteSourceAddress.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange ASCONF
+  in endpoint A such that ASCONF chunk with delete source address IP
+  address parameter is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF          ---------------->
+  (Delete Source IP Address)
+                  <-----------------     ASCONF-ACK
+                                         (Delete Source IP Address Error)
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF chunk from endpoint A to B with delete delete an IP
+     address that is also the source address.
+  2. Check A: ASCONF-ACK with delete source IP address error should be
+     received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.3.  General Rules for Address Manipulation
+
+    When building TLV parameters for the ASCONF Chunk that will add or
+    delete IP addresses, the following rules MUST be applied:
+
+=begin html
+<PRE>
+    <B>F8)  If a request is received to delete an IP address that is also
+         the source address of the IP packet that contained the ASCONF
+         chunk, the receiver MUST reject this request.  To reject the
+         request, the receiver MUST send an Error Cause TLV set to the
+         new error code 'Request to Delete Source IP Address' (unless
+         Rule F5 has also been violated, in which case the error code
+         'Request to Delete Last Remaining IP Address' is sent).</B>
+</PRE>
+
+=end html
+

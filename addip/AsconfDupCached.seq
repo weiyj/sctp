@@ -1,0 +1,171 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_0 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_add_addr	=> "Send SCTP CHUNK_ASCONF (Add IP Address)",
+	sctp_chunk_asconf_ack_ok	=> "Recv SCTP CHUNK_ASCONF_ACK (Complete Success)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_add_addr);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_ok);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_ok) {
+	vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+# Send ASCONF chunk with duplicate Peer Sequence Number
+for ($i = 0; $i < 3; $i++) {
+	vSend($IF0, sctp_chunk_asconf_add_addr);
+
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_ok);
+	if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_ok) {
+		vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfDupCached.seq - ASCONF chunk is received with duplicate Peer Sequence Number and cached ASCONF-ACK response exists
+
+=head1 PURPOSE
+
+  To chech that if ASCONF chunk is received with duplicate Peer Sequence
+  Number and cached ASCONF-ACK response exists then the endpoint should
+  response with previously cached ASCONF-ACK.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfDupCached.seq">./AsconfDupCached.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfDupCached.def">./AsconfDupCached.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange date
+  in endpoint A such that ASCONF chunk with duplicate Peer Sequence
+  Number is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF          ---------------->
+  (Add IP Address)
+                  <-----------------     ASCONF-ACK
+                                         (Complete Success)
+  ASCONF          ---------------->
+  (duplicate Peer Sequence Number)
+                  <-----------------     ASCONF-ACK
+                                         (Complete Success)
+
+  TEST DESCRIPTION:
+
+  1. Send ASCONF chunk from endpoint A to B with Add IP Address.
+  2. Check A: ASCONF-ACK with complete success should be received
+     at endpoint A.
+  3. Send ASCONF chunk with duplicate Peer Sequence Number from
+     endpoint A to B with Add IP Address.
+  4. Check B: The same ASCONF-ACK with complete success should be
+     received at endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  5.2.  Upon Reception of an ASCONF Chunk
+
+    After identification and verification of the association, the
+    following should be performed to properly process the ASCONF Chunk:
+
+=begin html
+<PRE>
+    E2)  <B>If the value found in the Sequence Number is less than the
+         ('Peer- Sequence-Number' + 1), simply skip to the next ASCONF,
+         and include in the outbound response packet any previously
+         cached ASCONF-ACK response that was sent and saved that matches
+         the Sequence Number of the ASCONF.</B>  Note: It is possible that no
+         cached ASCONF-ACK Chunk exists.  This will occur when an older
+         ASCONF arrives out of order.  In such a case, the receiver
+         should skip the ASCONF Chunk and not include ASCONF-ACK Chunk
+         for that chunk.
+</PRE>
+
+=end html
+

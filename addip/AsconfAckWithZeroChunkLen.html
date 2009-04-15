@@ -1,0 +1,133 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AsconfAckWithZeroChunkLen.seq - ASCONF-ACK chunk is received with chunk length set to zero</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  AsconfAckWithZeroChunkLen.seq - ASCONF-ACK chunk is received with chunk length set to zero</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check if ASCONF-ACK chunk is received with chunk length set to zero
+  then the receiver MUST send ABORT with the error cause set to the error
+  code 'Protocol Violation'.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./AsconfAckWithZeroChunkLen.seq">./AsconfAckWithZeroChunkLen.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfAckWithZeroChunkLen.def">./AsconfAckWithZeroChunkLen.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange ASCONF
+  in endpoint A such that ASCONF-ACK chunk with chunk length set to
+  zero is sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  ASCONF-ACK      -----------------&gt;
+  (with chunk length set to zero)
+                  &lt;-----------------    ABORT
+                                        (Protocol Violation)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send ASCONF-ACK chunk from endpoint A to B with chunk length
+     set to zero.
+  2. Check A: ABORT with error code 'Protocol Violation' should be
+     received at endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 5061</pre>
+<pre>
+  4.1.2.  Address Configuration Acknowledgment Chunk (ASCONF-ACK)</pre>
+<pre>
+    This chunk is used by the receiver of an ASCONF Chunk to acknowledge
+    the reception.  It carries zero or more results for any ASCONF
+    parameters that were processed by the receiver.  This chunk MUST be
+    sent in an authenticated way by using the mechanism defined in
+    [RFC4895].  If this chunk is received unauthenticated it MUST be
+    silently discarded as described in [RFC4895].</pre>
+<pre>
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        | Type = 0x80   |  Chunk Flags  |      Chunk Length             |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                     Sequence Number                           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                 ASCONF Parameter Response#1                   |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        \                                                               \
+        /                             ....                              /
+        \                                                               \
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                 ASCONF Parameter Response#N                   |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</pre>
+<pre>
+    Sequence Number: 32 bits (unsigned integer)</pre>
+<pre>
+    This value represents the Sequence Number for the received ASCONF
+    Chunk that is acknowledged by this chunk.  This value is copied from
+    the received ASCONF Chunk.</pre>
+<pre>
+    ASCONF Parameter Response: TLV format</pre>
+<pre>
+    The ASCONF Parameter Response is used in the ASCONF-ACK to report the
+    status of ASCONF processing.  By default, if a responding endpoint
+    does not include any Error Cause, a success is indicated.  Thus a
+    sender of an ASCONF-ACK MAY indicate complete success of all TLVs in
+    an ASCONF by returning only the Chunk Type, Chunk Flags, Chunk Length
+    (set to 8), and the Sequence Number.</pre>
+
+</body>
+
+</html>

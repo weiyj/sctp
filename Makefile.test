@@ -49,6 +49,7 @@ SUBDIRS=init \
 	ecn \
 	packet \
 	auth \
+	addip \
 	miss
 
 v4test v6test test tiny check document document2 clean cleandoc:
