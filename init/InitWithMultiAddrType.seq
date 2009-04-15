@@ -43,7 +43,6 @@ use SCTP;
 
 %pktdesc = (
 	sctp_chunk_init_addr		=> "Send SCTP CHUNK_INIT (with Both IPv4 and IPv6 address parameters)",
-	sctp_chunk_data_more_rcv	=> "Recv SCTP CHUNK_DATA",
 );
 
 $IF0 = Link0;
@@ -51,13 +50,6 @@ $IF0 = Link0;
 vCapture($IF0);
 
 sctpCheckEnv($IF0);
-
-if ($SCTP::CONF{"ENABLE_IPV6"} == 0) {
-	vRegisterExtNS("ns_on_link0", "na_on_link0");
-	vRegisterExtNS("ns_on_link0_gl", "na_on_link0_gl");
-} else {
-	vRegisterExtNS("arp_request_on_link0", "arp_reply_on_link0");
-}
 
 sctpStartEchoServer($IF0);
 
@@ -75,17 +67,7 @@ if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
 	exit $V6evalTool::exitFail;
 }
 
-%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_more_rcv, sctp_chunk_data_rcv);
-if ($SCTP::CONF{"ENABLE_IPV6"} == 1) {
-	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_more_rcv) {
-		vSend($IF0, sctp_chunk_abort_snd);
-		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
-		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
-		exit $V6evalTool::exitFail;
-	}
-	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
-}
-
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
 if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');

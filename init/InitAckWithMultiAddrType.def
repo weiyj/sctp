@@ -70,26 +70,4 @@ SupportAddress support_addr_both {
 	AddrType = 6;
 }
 
-//
-// SCTP CHUNK_DATA
-//
-#if (ENABLE_IPV6 == 0)
-
-PKG_SCTP_SHORT_RECV6(
-	sctp_chunk_data_more_rcv,
-	{
-		chunk = chunk_data_rcv;
-	}
-)
-
-#else
-
-PKG_SCTP_SHORT_RECV4(
-	sctp_chunk_data_more_rcv,
-	{
-		chunk = chunk_data_rcv;
-	}
-)
-
-#endif
 
