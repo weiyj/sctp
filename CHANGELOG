@@ -1,6 +1,12 @@
-2008/04/22 REL_2_0_0 release.
+2009/04/16 REL_1_0_1 release.
+  - Implement test cases for Dynamic Address Reconfiguration
+  - Add HEARTBEAT timer expires test case for User Initiated heartbeat
+  - Fix the init test cases of both IPv4 and IPv6 addresses in INIT/INIT-ACK
+  - Some changes to common files
+
+2008/04/22 REL_1_0_0 release.
   Rewrite Test Frame and all the test case to support for
   test on more system, such as FreeBSD.
 
-2007/10/10 REL_1_0_0 release.
+2007/10/10 REL_0_9_0 release.
   Support SCTP Conformance Test for RFC2960 and RFC4460.
