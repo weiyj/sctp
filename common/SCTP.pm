@@ -65,6 +65,7 @@ use Exporter;
 	sctpStatusServer
 	sctpStatusClient
 	sctpGetFieldName
+	sctpMakeIPv6Address
 	sctpFetchInitField
 	sctpFetchAsconfField
 	sctpFetchAuthShareKey
@@ -535,6 +536,24 @@ sub sctpGetFieldName($;$) {
 	} else {
 		return "Frame_Ether.Packet_IPv6.Upp_SCTP." . $field;
 	}
+}
+
+#======================================================================
+# sctpMakeIPv6Address - makes address from EUI-64
+#======================================================================
+sub sctpMakeIPv6Address($$) { 
+	my ($prefix, $mac) = @_;	 # Prefix, MAC Address
+	my (@str, @hex);
+
+	@str=split(/:/, $mac);
+	foreach(@str) {
+		push @hex,hex($_);
+	};
+
+	# invert universal/local bit
+	$hex[0] ^= 0x02;
+
+	sprintf "$prefix:%02x%02x:%02xff:fe%02x:%02x%02x", @hex;
 }
 
 #======================================================================
