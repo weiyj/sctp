@@ -117,6 +117,7 @@
 ########################################################################
 &print:<B>Handle T4-RTO Expiration</B>
 ./T4RtoRetrans.seq:./T4RtoRetrans.def:-cpp='-DADDIP_ENABLE=1'::ASCONF message is transmitted again if T4-RTO timer expires
+./T4RtoRetranPath.seq:./T4RtoRetranPath.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF message is transmitted again to alternate destination address if T4-RTO timer expires
 ./T4RtoTimeout.seq:./T4RtoTimeout.def:-cpp='-DADDIP_ENABLE=1'::Failure to receive ASCONF-ACK after retransmit times to 'Association.Max.Retrans'
 ./T4RtoExpires.seq:./T4RtoExpires.def:-cpp='-DADDIP_ENABLE=1'::RTO is updated correctly if T4-RTO timer expires for a ASCONF message
 
