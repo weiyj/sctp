@@ -91,7 +91,7 @@ CHUNK_ASCONF chunk_asconf_del_addr {
 }
 
 DeleteIPAddress asconf_del_addr {
-	Address = addr0;
+	Address = addr2;
 }
 
 #if (ENABLE_IPV6 == 0)
@@ -100,10 +100,18 @@ IPv4Address addr1 {
 	Address = v4(SCTP4_TN_NET1_ADDR);
 }
 
+IPv4Address addr2 {
+	Address = v4(SCTP4_TN_NET0_ADDR);
+}
+
 #else
 
 IPv6Address addr1 {
 	Address = SCTP6_TN_NET1_ADDR;
+}
+
+IPv6Address addr2 {
+	Address = SCTP6_TN_NET0_ADDR;
 }
 
 #endif /* #if (ENABLE_IPV6 == 0) */
@@ -129,7 +137,7 @@ CHUNK_ASCONF_ACK chunk_asconf_ack_ok {
 //
 // SCTP CHUNK_ASCONF
 //
-PKG_SCTP_SHORT_RECV_AUTH(
+PKG_SCTP_NORM_RECV_AUTH(
 	sctp_chunk_asconf_link1,
 	{
 		_SRC(SCTP_NUT_NET0_ADDR);
@@ -154,3 +162,44 @@ PKG_SCTP_NORM_SEND(
 	}
 )
 
+//
+// SCTP CHUNK_HEARTBEAT
+//
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_heartbeat_link1,
+	{
+		_SRC(SCTP_NUT_NET0_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = chunk_heartbeat_link1;
+	}
+)
+
+CHUNK_HEARTBEAT chunk_heartbeat_link1 {
+	Information = any;
+}
+
+//
+// SCTP CHUNK_HEARTBEAT_ACK
+//
+PKG_SCTP_NORM_SEND(
+	sctp_chunk_heartbeat_ack_link1,
+	{
+		_SRC(SCTP_TN_NET1_ADDR);
+		_DST(SCTP_NUT_NET0_ADDR);
+	},
+	{
+		chunk = chunk_heartbeat_ack_link1;
+	}
+)
+
+CHUNK_HEARTBEAT_ACK chunk_heartbeat_ack_link1 {
+	Information = heartbeat_info;
+}
+
+HeartbeatInfo heartbeat_info {
+#ifdef HBINFO
+	Data = hexstr(HBINFO);
+#endif
+}
