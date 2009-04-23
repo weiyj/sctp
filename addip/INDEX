@@ -65,6 +65,11 @@
 ./AsconfWithDelNoExists.seq:./AsconfWithDelNoExists.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address not part of the association
 ./AsconfWithDelExists.seq:./AsconfWithDelExists.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address part of the association
 
+&print:Delete IP Address while timer running
+./AsconfWithDelT3Timer.seq:./AsconfWithDelT3Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T3-rtx timer
+./AsconfWithDelT4Timer.seq:./AsconfWithDelT4Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T4-rto timer
+./AsconfWithDelT2Timer.seq:./AsconfWithDelT2Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T2-shutdown timer
+
 &print:Set Primary Address
 ./AsconfWithSetUnspecified.seq:./AsconfWithSetUnspecified.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a unspecified address
 ./AsconfWithSetNoExists.seq:./AsconfWithSetNoExists.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a address not part of the association
