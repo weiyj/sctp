@@ -44,87 +44,87 @@
 &print:<B>ASCONF Chunk Procedures</B>
 
 &print:Sequence Number
-./AsconfDupCached.seq:./AsconfDupCached.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with duplicate Peer Sequence Number and cached ASCONF-ACK response exists
-./AsconfDupNoCached.seq:./AsconfDupNoCached.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with duplicate Peer Sequence Number but no cached ASCONF-ACK is outstanding
-./AsconfWithLargeSeq.seq:./AsconfWithLargeSeq.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with  Sequence Number greater than next expected Sequence Number
+./AsconfDupCached.seq:./AsconfDupCached.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with duplicate Peer Sequence Number and cached ASCONF-ACK response exists
+./AsconfDupNoCached.seq:./AsconfDupNoCached.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with duplicate Peer Sequence Number but no cached ASCONF-ACK is outstanding
+./AsconfWithLargeSeq.seq:./AsconfWithLargeSeq.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with  Sequence Number greater than next expected Sequence Number
 
 &print:Parameter Type
-./AsconfWithUnkownParam.seq:./AsconfWithUnkownParam.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with unrecognized parameter which does not understand
+./AsconfWithUnkownParam.seq:./AsconfWithUnkownParam.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with unrecognized parameter which does not understand
 
 &print:Add IP Address
-./AsconfWithAddMulticast.seq:./AsconfWithAddMulticast.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a broadcast or multicast address
-./AsconfWithAddUnspecified.seq:./AsconfWithAddUnspecified.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a unspecified address
-./AsconfWithAddOtherAddress.seq:./AsconfWithAddOtherAddress.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a different type address
-./AsconfWithAddAddress.seq:./AsconfWithAddAddress.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a valid address
+./AsconfWithAddMulticast.seq:./AsconfWithAddMulticast.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a broadcast or multicast address
+./AsconfWithAddUnspecified.seq:./AsconfWithAddUnspecified.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a unspecified address
+./AsconfWithAddOtherAddress.seq:./AsconfWithAddOtherAddress.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a different type address
+./AsconfWithAddAddress.seq:./AsconfWithAddAddress.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Add IP Address Parameter which contain a valid address
 
 &print:Delete IP Address
-./AsconfWithDelMulticast.seq:./AsconfWithDelMulticast.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a broadcast or multicast address
-./AsconfWithDelUnspecified.seq:./AsconfWithDelUnspecified.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a unspecified address
-./DeleteLastRemainAddress.seq:./DeleteLastRemainAddress.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Delete IP Address to delete last remaining IP address from an association
-./DeleteSourceAddress.seq:./DeleteSourceAddress.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Delete IP Address to delete an IP address that is also the source address
-./AsconfWithDelNoExists.seq:./AsconfWithDelNoExists.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address not part of the association
-./AsconfWithDelExists.seq:./AsconfWithDelExists.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address part of the association
+./AsconfWithDelMulticast.seq:./AsconfWithDelMulticast.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a broadcast or multicast address
+./AsconfWithDelUnspecified.seq:./AsconfWithDelUnspecified.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a unspecified address
+./DeleteLastRemainAddress.seq:./DeleteLastRemainAddress.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Delete IP Address to delete last remaining IP address from an association
+./DeleteSourceAddress.seq:./DeleteSourceAddress.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Delete IP Address to delete an IP address that is also the source address
+./AsconfWithDelNoExists.seq:./AsconfWithDelNoExists.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address not part of the association
+./AsconfWithDelExists.seq:./AsconfWithDelExists.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address part of the association
 
 &print:Delete IP Address while timer running
-./AsconfWithDelT3Timer.seq:./AsconfWithDelT3Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T3-rtx timer
-./AsconfWithDelT4Timer.seq:./AsconfWithDelT4Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T4-rto timer
-./AsconfWithDelT2Timer.seq:./AsconfWithDelT2Timer.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T2-shutdown timer
+./AsconfWithDelT3Timer.seq:./AsconfWithDelT3Timer.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T3-rtx timer
+./AsconfWithDelT4Timer.seq:./AsconfWithDelT4Timer.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T4-rto timer
+./AsconfWithDelT2Timer.seq:./AsconfWithDelT2Timer.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Delete IP Address Parameter which contain a address is running T2-shutdown timer
 
 &print:Set Primary Address
-./AsconfWithSetUnspecified.seq:./AsconfWithSetUnspecified.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a unspecified address
-./AsconfWithSetNoExists.seq:./AsconfWithSetNoExists.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a address not part of the association
-./AsconfWithSetExists.seq:./AsconfWithSetExists.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a address part of the association
+./AsconfWithSetUnspecified.seq:./AsconfWithSetUnspecified.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a unspecified address
+./AsconfWithSetNoExists.seq:./AsconfWithSetNoExists.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a address not part of the association
+./AsconfWithSetExists.seq:./AsconfWithSetExists.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF chunk is received with Set Primary Address Parameter which contain a address part of the association
 
 ########################################################################
 &print:<B>ASCONF-ACK Chunk Procedures</B>
 
 &print:Sequence Number
-./AsconfAckWithNextSeq.seq:./AsconfAckWithNextSeq.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with the next Sequence Number but no ASCONF Chunk is outstanding
-./AsconfAckWithLargeSeq.seq:./AsconfAckWithLargeSeq.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with greater than next Sequence Number but no ASCONF Chunk is outstanding
-./AsconfAckWithSmallSeq.seq:./AsconfAckWithSmallSeq.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with less than next Sequence Number but no ASCONF Chunk is outstanding
-./AsconfAckDuplicate.seq:./AsconfAckDuplicate.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with duplicate current Sequence Number while ASCONF Chunk is outstanding
+./AsconfAckWithNextSeq.seq:./AsconfAckWithNextSeq.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with the next Sequence Number but no ASCONF Chunk is outstanding
+./AsconfAckWithLargeSeq.seq:./AsconfAckWithLargeSeq.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with greater than next Sequence Number but no ASCONF Chunk is outstanding
+./AsconfAckWithSmallSeq.seq:./AsconfAckWithSmallSeq.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with less than next Sequence Number but no ASCONF Chunk is outstanding
+./AsconfAckDuplicate.seq:./AsconfAckDuplicate.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with duplicate current Sequence Number while ASCONF Chunk is outstanding
 
 &print:Chunk Type
-./ErrorWithChunkUnknown.seq:./ErrorWithChunkUnknown.def:-cpp='-DADDIP_ENABLE=1'::ERROR chunk is received with Unrecognized Chunk Type to reporting ASCONF Chunk Type did not recognize
+./ErrorWithChunkUnknown.seq:./ErrorWithChunkUnknown.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ERROR chunk is received with Unrecognized Chunk Type to reporting ASCONF Chunk Type did not recognize
 
 &print:Parameter Type
-./AsconfAckWithAddUnknown.seq:./AsconfAckWithAddUnknown.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Add IP Address was not understood
-./AsconfAckWithDelUnknown.seq:./AsconfAckWithDelUnknown.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address was not understood
-./AsconfAckWithSetUnknown.seq:./AsconfAckWithSetUnknown.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Set Primary IP Address was not understood
+./AsconfAckWithAddUnknown.seq:./AsconfAckWithAddUnknown.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Add IP Address was not understood
+./AsconfAckWithDelUnknown.seq:./AsconfAckWithDelUnknown.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address was not understood
+./AsconfAckWithSetUnknown.seq:./AsconfAckWithSetUnknown.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Set Primary IP Address was not understood
 
 &print:Error Cause Indication
-./AsconfAckWithAddError.seq:./AsconfAckWithAddError.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Add IP Address operation failed
-./AsconfAckWithAddNoMem.seq:./AsconfAckWithAddNoMem.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received with Out of Resource Error Cause indicating Add IP Address operation failed
-./AsconfAckWithDelError.seq:./AsconfAckWithDelError.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address operation failed
+./AsconfAckWithAddError.seq:./AsconfAckWithAddError.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Add IP Address operation failed
+./AsconfAckWithAddNoMem.seq:./AsconfAckWithAddNoMem.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with Out of Resource Error Cause indicating Add IP Address operation failed
+./AsconfAckWithDelError.seq:./AsconfAckWithDelError.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Error Cause indicating Delete IP Address operation failed
 
 &print:Success Indication
-./AsconfAckWithAddSuccess.seq:./AsconfAckWithAddSuccess.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Add IP Address success
-./AsconfAckWithDelSuccess.seq:./AsconfAckWithDelSuccess.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Delete IP Address success
-./AsconfAckWithSetSuccess.seq:./AsconfAckWithSetSuccess.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Set Primary Address success
+./AsconfAckWithAddSuccess.seq:./AsconfAckWithAddSuccess.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Add IP Address success
+./AsconfAckWithDelSuccess.seq:./AsconfAckWithDelSuccess.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Delete IP Address success
+./AsconfAckWithSetSuccess.seq:./AsconfAckWithSetSuccess.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received with Success Indication parameter indicating Set Primary Address success
 
 &print:Response no Error Cause
-./AsconfAckWithAddNoError.seq:./AsconfAckWithAddNoError.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Add IP Address success without any Error Cause
-./AsconfAckWithDelNoError.seq:./AsconfAckWithDelNoError.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Delete IP Address success without any Error Cause
-./AsconfAckWithSetNoError.seq:./AsconfAckWithSetNoError.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Set Primary Address success without any Error Cause
+./AsconfAckWithAddNoError.seq:./AsconfAckWithAddNoError.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Add IP Address success without any Error Cause
+./AsconfAckWithDelNoError.seq:./AsconfAckWithDelNoError.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Delete IP Address success without any Error Cause
+./AsconfAckWithSetNoError.seq:./AsconfAckWithSetNoError.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF-ACK chunk is received to indicating Set Primary Address success without any Error Cause
 
 ########################################################################
 &print:<B>ASCONF chunk Bundled with Other Chunks</B>
-./BundledAsconfAndOther.seq:./BundledAsconfAndOther.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received bundled with other chunk as the first chunk
-./BundledAsconfAckAndOther.seq:./BundledAsconfAckAndOther.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received bundled with other chunk as the first chunk
-./BundledAsconfChunks.seq:./BundledAsconfChunks.def:-cpp='-DADDIP_ENABLE=1'::ASCONF chunk is received bundled with other ASCONF chunk
-./BundledAsconfAckChunks.seq:./BundledAsconfAckChunks.def:-cpp='-DADDIP_ENABLE=1'::ASCONF-ACK chunk is received bundled with other ASCONF-ACK chunk
+./BundledAsconfAndOther.seq:./BundledAsconfAndOther.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received bundled with other chunk as the first chunk
+./BundledAsconfAckAndOther.seq:./BundledAsconfAckAndOther.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received bundled with other chunk as the first chunk
+./BundledAsconfChunks.seq:./BundledAsconfChunks.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received bundled with other ASCONF chunk
+./BundledAsconfAckChunks.seq:./BundledAsconfAckChunks.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received bundled with other ASCONF-ACK chunk
 
 ########################################################################
 &print:<B>Handle T4-RTO Expiration</B>
-./T4RtoRetrans.seq:./T4RtoRetrans.def:-cpp='-DADDIP_ENABLE=1'::ASCONF message is transmitted again if T4-RTO timer expires
-./T4RtoRetranPath.seq:./T4RtoRetranPath.def:-cpp='-DADDIP_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF message is transmitted again to alternate destination address if T4-RTO timer expires
-./T4RtoTimeout.seq:./T4RtoTimeout.def:-cpp='-DADDIP_ENABLE=1'::Failure to receive ASCONF-ACK after retransmit times to 'Association.Max.Retrans'
-./T4RtoExpires.seq:./T4RtoExpires.def:-cpp='-DADDIP_ENABLE=1'::RTO is updated correctly if T4-RTO timer expires for a ASCONF message
+./T4RtoRetrans.seq:./T4RtoRetrans.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF message is transmitted again if T4-RTO timer expires
+./T4RtoRetranPath.seq:./T4RtoRetranPath.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF message is transmitted again to alternate destination address if T4-RTO timer expires
+./T4RtoTimeout.seq:./T4RtoTimeout.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::Failure to receive ASCONF-ACK after retransmit times to 'Association.Max.Retrans'
+./T4RtoExpires.seq:./T4RtoExpires.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::RTO is updated correctly if T4-RTO timer expires for a ASCONF message
 
 ########################################################################
 &print:<B>ASCONF Chunk Header</B>
-./AsconfWithZeroChunkLen.seq:./AsconfWithZeroChunkLen.def:::ASCONF chunk is received with chunk length set to zero
-./AsconfAckWithZeroChunkLen.seq:./AsconfAckWithZeroChunkLen.def:::ASCONF-ACK chunk is received with chunk length set to zero
-./AsconfWithZeroParamLen.seq:./AsconfWithZeroParamLen.def:::ASCONF chunk is received with parameter length set to zero
-./AsconfAckWithZeroParamLen.seq:./AsconfAckWithZeroParamLen.def:::ASCONF-ACK chunk is received with parameter length set to zero
+./AsconfWithZeroChunkLen.seq:./AsconfWithZeroChunkLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with chunk length set to zero
+./AsconfAckWithZeroChunkLen.seq:./AsconfAckWithZeroChunkLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with chunk length set to zero
+./AsconfWithZeroParamLen.seq:./AsconfWithZeroParamLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with parameter length set to zero
+./AsconfAckWithZeroParamLen.seq:./AsconfAckWithZeroParamLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with parameter length set to zero
 

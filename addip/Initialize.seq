@@ -47,8 +47,8 @@ if (sctpRemoteCommand("checksctp")) {
 	exit $V6evalTool::exitFail;
 }
 
-#vLogHTML("== Disabled Authentication Chunks Support ==");
-if (sctpSetRemoteSys("AUTH.ENABLE", 0)) {
+#vLogHTML("== Enabled Authentication Chunks Support ==");
+if (sctpSetRemoteSys("AUTH.ENABLE", 1)) {
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
 }
@@ -58,7 +58,7 @@ if (sctpSetRemoteSys("ADDIP.ENABLE", 1)) {
 	exit $V6evalTool::exitFail;
 }
 
-if (sctpSetRemoteSys("ADDIP.NOAUTH.ENABLE", 1)) {
+if (sctpSetRemoteSys("ADDIP.NOAUTH.ENABLE", 0)) {
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
 }
@@ -97,7 +97,7 @@ __END__
   TEST DESCRIPTION:
 
   1. Check For Whether SCTP is Supported
-  2. Disabled Authentication Chunks Support
+  2. Enabled Authentication Chunks Support
   3. Enabled Dynamic Address Reconfiguration Chunks Support.
 
 =head1 NOTE
