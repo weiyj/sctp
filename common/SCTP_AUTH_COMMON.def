@@ -343,7 +343,7 @@ FEM_sctp6_exth( \
 CHUNK_AUTH chunk_auth_std_snd {
 	SharedKeyIdentifier = 0;
 	HMACIdentifier = 1;
-	HMAC = repeat(0x00, 20);
+	HMAC = sctpauth("sha1", AUTHSHAREKEY);
 }
 
 CHUNK_AUTH chunk_auth_std_rcv {
