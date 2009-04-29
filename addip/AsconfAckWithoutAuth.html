@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>AsconfAckWithoutAuth.seq - ASCONF-ACK chunk is received unauthenticated when endpoint support AUTH extension</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  AsconfAckWithoutAuth.seq - ASCONF-ACK chunk is received unauthenticated when endpoint support AUTH extension</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if ASCONF-ACK chunk is received unauthenticated when
+  endpoint support AUTH extension then the endpoint should silently
+  discard the ASCONF-ACK chunk.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./AsconfAckWithoutAuth.seq">./AsconfAckWithoutAuth.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfAckWithoutAuth.def">./AsconfAckWithoutAuth.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the
+  data in endpoint A such that ASCONF-ACK chunk unauthenticated is
+  sent to endpoint B.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                                                   &lt;-----    Asconf
+                &lt;-----------------      ASCONF</pre>
+<pre>
+  ASCONF-ACK    -----------------&gt;      Silently Discard</pre>
+<pre>
+                &lt;-----------------      ASCONF
+                                        (retransmit)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send unauthenticated ASCONF-ACK chunk from endpoint A to B
+     after received ASCONF chunk.
+  2. Check A: ASCONF-ACK chunk should be silently discarded at
+     endpoint B. ASCONF chunk is sent to endpoint A again after
+     expiry of T4-RTO timer.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 5061</pre>
+<pre>
+  4.1.2.  Address Configuration Acknowledgment Chunk (ASCONF-ACK)</pre>
+<PRE>
+    This chunk is used by the receiver of an ASCONF Chunk to acknowledge
+    the reception.  It carries zero or more results for any ASCONF
+    parameters that were processed by the receiver.  This chunk MUST be
+    sent in an authenticated way by using the mechanism defined in
+    [RFC4895].  <B>If this chunk is received unauthenticated it MUST be
+    silently discarded as described in [RFC4895].</B>
+</PRE>
+</body>
+
+</html>

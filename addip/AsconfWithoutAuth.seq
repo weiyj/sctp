@@ -1,0 +1,143 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_asconf_noauth	=> "Send SCTP CHUNK_ASCONF (unauthenticated)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_asconf_noauth);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_any_rcv);
+if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_any_rcv) {
+	vLogHTML('Received unexpected SCTP CHUNK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  AsconfWithoutAuth.seq - ASCONF chunk is received unauthenticated when endpoint support AUTH extension
+
+=head1 PURPOSE
+
+  To check that if ASCONF chunk is received unauthenticated when endpoint
+  support AUTH extension then the endpoint should silently discard the
+  ASCONF chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./AsconfWithoutAuth.seq">./AsconfWithoutAuth.seq</A> [-tooloption ...] -pkt <A HREF="./AsconfWithoutAuth.def">./AsconfWithoutAuth.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the
+  data in endpoint A such that ASCONF chunk unauthenticated is sent
+  to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  ASCONF        ----------------->     Silently Discard
+  (unauthenticated chunk)
+
+  TEST DESCRIPTION:
+
+  1. Send unauthenticated ASCONF chunk from endpoint A to B.
+  2. Check A: ASCONF chunk should be silently discarded at
+     endpoint B.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 5061
+
+  4.1.1.  Address Configuration Change Chunk (ASCONF)
+
+=begin html
+<PRE>
+    This chunk is used to communicate to the remote endpoint one of the
+    configuration change requests that MUST be acknowledged.  The
+    information carried in the ASCONF Chunk uses the form of a Type-
+    Length-Value (TLV), as described in "3.2.1 Optional/Variable-length
+    Parameter Format" in [RFC4960] for all variable parameters.  This
+    chunk MUST be sent in an authenticated way by using the mechanism
+    defined in [RFC4895].  <B>If this chunk is received unauthenticated it
+    MUST be silently discarded as described in [RFC4895].</B>
+</PRE>
+
+=end html
+

@@ -125,6 +125,8 @@
 &print:<B>Security Considerations</B>
 ./InitWithNoAuth.seq:./InitWithNoAuth.def:-cpp='-DADDIP_ENABLE=1'::INIT chunk is received to indicate the peer does not support the AUTH extension
 ./InitAckWithNoAuth.seq:./InitAckWithNoAuth.def:-cpp='-DADDIP_ENABLE=1'::INIT-ACK chunk is received to indicate the peer does not support the AUTH extension
+./AsconfWithoutAuth.seq:./AsconfWithoutAuth.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received unauthenticated when endpoint support AUTH extension
+./AsconfAckWithoutAuth.seq:./AsconfAckWithoutAuth.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received unauthenticated when endpoint support AUTH extension
 
 ########################################################################
 &print:<B>ASCONF Chunk Header</B>
