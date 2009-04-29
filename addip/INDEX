@@ -122,6 +122,11 @@
 ./T4RtoExpires.seq:./T4RtoExpires.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::RTO is updated correctly if T4-RTO timer expires for a ASCONF message
 
 ########################################################################
+&print:<B>Security Considerations</B>
+./InitWithNoAuth.seq:./InitWithNoAuth.def:-cpp='-DADDIP_ENABLE=1'::INIT chunk is received to indicate the peer does not support the AUTH extension
+./InitAckWithNoAuth.seq:./InitAckWithNoAuth.def:-cpp='-DADDIP_ENABLE=1'::INIT-ACK chunk is received to indicate the peer does not support the AUTH extension
+
+########################################################################
 &print:<B>ASCONF Chunk Header</B>
 ./AsconfWithZeroChunkLen.seq:./AsconfWithZeroChunkLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk is received with chunk length set to zero
 ./AsconfAckWithZeroChunkLen.seq:./AsconfAckWithZeroChunkLen.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received with chunk length set to zero
