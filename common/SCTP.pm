@@ -1179,17 +1179,16 @@ sub sctpStartOptionClient(;$$$$) {
 #======================================================================
 # sctpStartOptionServer - start a sctp server with option at remote system
 #======================================================================
-sub sctpStartOptionServer(;$$$) {
-	my ($IF, $opts, $count) = @_;
+sub sctpStartOptionServer(;$$) {
+	my ($IF, $opts) = @_;
 	my ($cmd);
 
 	$IF = "Link0" if !defined($IF);
 
 	vLogTitle('=========== sctpStartOptionServer ==========');
 
-	$cmd  = "sctp_option ";
-	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
-	$cmd .= "-l -X 1 -x $count ";
+	$cmd  = "sctp_darn ";
+	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} -l ";
 	$cmd .= $opts if defined($opts);
 	$cmd .= " &";
 
