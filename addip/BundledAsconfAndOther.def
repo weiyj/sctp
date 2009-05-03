@@ -33,6 +33,7 @@
 // be incorporated into the next SCTP release.
 //
 
+#define DATALEN		800
 #include "../common/SCTP_AUTH_COMMON.def"
 #include "../common/STD_PKT_COMMON.def"
 
