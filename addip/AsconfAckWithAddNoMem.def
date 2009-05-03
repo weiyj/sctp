@@ -98,7 +98,8 @@ ErrorCauseIndication errindt {
 	Error = error_out_of_res;
 }
 
-OutOfResource error_out_of_res {
+RefusedResourceShortage error_out_of_res {
+	Information = asconf_add_addr;
 }
 
 
