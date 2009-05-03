@@ -71,6 +71,7 @@ CHUNK_ASCONF_ACK chunk_asconf_ack_err {
 }
 
 ErrorCauseIndication errindication {
+	RequestID = any;
 	Error = err_unknown_param;
 }
 
