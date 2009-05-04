@@ -1152,28 +1152,22 @@ sub sctpStartEchoServer(;$$) {
 #======================================================================
 # sctpStartOptionClient - start a sctp client with option at remote system
 #======================================================================
-sub sctpStartOptionClient(;$$$$) {
-	my ($IF, $opts, $count, $size) = @_;
+sub sctpStartOptionClient(;$$) {
+	my ($IF, $opts) = @_;
 	my ($cmd);
 
 	$IF = "Link0" if !defined($IF);
-	$count = 1 if !defined($count);
-	if (!defined($size)) {
-		$size = $CONF{"DEFAULT_DATA_LEN"};
-	} else {
-		$CONF{"DATALEN"} = $size;
-	}
 
 	vLogTitle('=========== sctpStartOptionClient ==========');
 
-	$cmd  = "sctp_option ";
+	$cmd  = "sctp_darn ";
 	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
-	$cmd .= "-h $CONF{SCTP_TN_NET0_ADDR} -p $CONF{SCTP_TN0_PORT} ";
-	$cmd .= "-s -c -$size -X 1 -x $count ";
-	$cmd .= "-o 1 -D ";
+	$cmd .= "-h $CONF{SCTP_TN_NET0_ADDR} " if (!defined($opts) || $opts =~ /'-c'/ || $opts =~ /'--connectx'/);
+	$cmd .= "-p $CONF{SCTP_TN0_PORT} -s ";
+	$cmd .= $opts if defined($opts);
 	$cmd .= " &";
 
-	sctpRemoteCommandAsyncDelay($cmd);
+	vRemote("rcommandasync.rmt", "cmd=\"sleep 5 && $cmd\"");
 }
 
 #======================================================================
