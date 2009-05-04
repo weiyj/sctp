@@ -1060,18 +1060,19 @@ sub sctpStartServer(;$$$) {
 #======================================================================
 # sctpStartMultiHomeServer - start a sctp multi-home server at remote system
 #======================================================================
-sub sctpStartMultiHomeServer(;$$) {
-	my ($IF, $opts) = @_;
+sub sctpStartMultiHomeServer(;$$$) {
+	my ($IF, $count, $opts) = @_;
 	my ($cmd);
 
 	$IF = "Link0" if !defined($IF);
+	$count = 1 if !defined($count);
 
 	vLogTitle('========= sctpStartMultiHomeServer =========');
 
-	$cmd  = "sctp_darn ";
-	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
-	$cmd .= "-B $CONF{SCTP_NUT_NET1_ADDR} ";
-	$cmd .= "-l -t ";
+	$cmd  = "sctp_test ";
+	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -B $CONF{SCTP_NUT_NET1_ADDR} ";
+	$cmd .= "-P $CONF{SCTP_NUT0_PORT} ";
+	$cmd .= "-T -l -x 1 -X $count ";
 	$cmd .= $opts if defined($opts);
 	$cmd .= " &";
 
