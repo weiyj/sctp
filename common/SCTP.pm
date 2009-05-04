@@ -1082,23 +1082,29 @@ sub sctpStartMultiHomeServer(;$$) {
 # sctpStartMultiHomeClient - start a sctp multi-home client at remote system
 #======================================================================
 sub sctpStartMultiHomeClient(;$$) {
-	my ($IF, $opts) = @_;
+	my ($IF, $count, $size, $opts) = @_;
 	my ($cmd);
 
 	$IF = "Link0" if !defined($IF);
+	$count = 1 if !defined($count);
+	if (!defined($size)) {
+		$size = $CONF{"DEFAULT_DATA_LEN"};
+	} else {
+		$CONF{"DATALEN"} = $size;
+	}
 
 	vLogTitle('========= sctpStartMultiHomeClient =========');
 
-	$cmd  = "sctp_darn ";
-	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
-	$cmd .= "-h $CONF{SCTP_TN_NET0_ADDR} -p $CONF{SCTP_TN0_PORT} ";
-	$cmd .= "-B $CONF{SCTP_NUT_NET1_ADDR} ";
-#	$cmd .= "-c $CONF{SCTP_TN_NET1_ADDR} ";
-	$cmd .= "-s -t ";
+	$cmd  = "sctp_test ";
+	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -B $CONF{SCTP_NUT_NET1_ADDR} ";
+	$cmd .= "-C $CONF{SCTP_TN_NET0_ADDR} -C $CONF{SCTP_TN_NET1_ADDR} ";
+	$cmd .= "-P $CONF{SCTP_NUT0_PORT} -p $CONF{SCTP_TN0_PORT} ";
+	$cmd .= "-T -s -c -$size -X 1 -x $count ";
+	$cmd .= "-o 1 ";
 	$cmd .= $opts if defined($opts);
 	$cmd .= " &";
 
-	sctpRemoteCommandAsync($cmd);
+	sctpRemoteCommandAsyncDelay($cmd);
 }
 
 #======================================================================
