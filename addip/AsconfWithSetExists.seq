@@ -56,7 +56,7 @@ $IF1 = Link1;
 vCapture($IF0);
 vCapture($IF1);
 
-sctpCheckEnv($IF0, IF0);
+sctpCheckEnv($IF0, $IF1);
 
 sctpStartEchoServer($IF0);
 
