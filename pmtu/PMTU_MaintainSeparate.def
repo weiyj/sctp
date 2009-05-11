@@ -188,7 +188,7 @@ CHUNK_INIT_ACK chunk_init_ack_snd {
 	AdvRecvWindow = ARWND;
 	NumOfOutbound = OS;
 	NumOfInbound = MIS;
-	TSN = 8;
+	TSN = INITTSN;
 	Param = cookie;
 	Param = addrs;
 	Param = addrs2;
