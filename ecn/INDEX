@@ -38,12 +38,12 @@
 # <seq>:<def>:[<opt>]:[<log>]:<desc>
 ########################################################################
 &print:<B>Explicit Congestion Notification</B>
-./PacketWithCEMark.seq:./PacketWithCEMark.def:::Data chunk is received with IP datagram marked with the CE bit while endpoint is ECN capable
+./PacketWithCEMark.seq:./PacketWithCEMark.def:-cpp='-DECN_ENABLE=1'::Data chunk is received with IP datagram marked with the CE bit while endpoint is ECN capable
 ./PacketWithCEMark2.seq:./PacketWithCEMark2.def:::Data chunk is received with IP datagram marked with the CE bit while endpoint is not ECN capable
-./RecvChunkECNEcho.seq:./RecvChunkECNEcho.def:::ECN-ECHO chunk is received to notify IP datagram marked with the CE bit
+./RecvChunkECNEcho.seq:./RecvChunkECNEcho.def:-cpp='-DECN_ENABLE=1'::ECN-ECHO chunk is received to notify IP datagram marked with the CE bit
 
 ########################################################################
 &print:<B>Chunk Header</B>
-./EchoWithBadChunkLength.seq:./EchoWithBadChunkLength.def:::ECN-ECHO chunk is received with invalid chunk length
-./CwrWithBadChunkLength.seq:./CwrWithBadChunkLength.def:::ECN-CWR chunk is received with invalid chunk length
+./EchoWithBadChunkLength.seq:./EchoWithBadChunkLength.def:-cpp='-DECN_ENABLE=1'::ECN-ECHO chunk is received with invalid chunk length
+./CwrWithBadChunkLength.seq:./CwrWithBadChunkLength.def:-cpp='-DECN_ENABLE=1'::ECN-CWR chunk is received with invalid chunk length
 
