@@ -47,7 +47,6 @@ use SCTP;
 	sctp_chunk_heartbeat_link1	=> "Send SCTP CHUNK_HEARTBEAT (Link1 to Link1)",
 	sctp_chunk_heartbeat_ack_link1	=> "Recv SCTP CHUNK_HEARTBEAT_ACK (Link1 to Link1)",
 	sctp_chunk_heartbeat_from1	=> "Recv SCTP CHUNK_HEARTBEAT (Link0 to Link1)",
-	sctp_chunk_heartbeat_ack_1to2	=> "Send SCTP CHUNK_HEARTBEAT_ACK (Link1 to Link0)",
 );
 
 $IF0 = Link0;
@@ -71,10 +70,6 @@ if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_heartbeat_from1) {
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
 }
-
-$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
-vWarpCPP("-DHBINFO=\\\"$HBINFO\\\"");
-vSend($IF0, sctp_chunk_heartbeat_ack_1to2);
 
 %ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_add_addr);
 if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_add_addr) {

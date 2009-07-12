@@ -155,26 +155,3 @@ CHUNK_HEARTBEAT chunk_heartbeat_from1 {
 	Information = any;
 }
 
-//
-// SCTP CHUNK_HEARTBEAT
-//
-PKG_SCTP_NORM_SEND(
-	sctp_chunk_heartbeat_ack_1to2,
-	{
-		_SRC(SCTP_TN_NET0_ADDR);
-		_DST(SCTP_NUT_NET0_ADDR);
-	},
-	{
-		chunk = chunk_heartbeat_ack_1to2;
-	}
-)
-
-CHUNK_HEARTBEAT_ACK chunk_heartbeat_ack_1to2 {
-	Information = heartbeat_info_rcv;
-}
-
-HeartbeatInfo heartbeat_info_rcv {
-#ifdef HBINFO
-	Data = hexstr(HBINFO);
-#endif
-}
