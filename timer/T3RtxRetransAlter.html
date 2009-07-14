@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>T3RtxRetransAlter.seq - DATA message is transmitted again to alternate destination address if T3-rtx timer expires</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  T3RtxRetransAlter.seq - DATA message is transmitted again to alternate destination address if T3-rtx timer expires</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if the T3-rtx timer expires then the endpoint retransmit
+  the DATA chunk last sent and if possible choose an alternate destination
+  address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./T3RtxRetransAlter.seq">./T3RtxRetransAlter.seq</A> [-tooloption ...] -pkt <A HREF="./T3RtxRetransAlter.def">./T3RtxRetransAlter.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the
+  data in Endpoint A such that SACK is not sent in response to DATA
+  message.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                                                   &lt;-----    Send
+                &lt;-----------------      DATA (DST=X)
+  Don't send SACK                         |
+                                          | T3-rtx timer Expires
+                                          |
+                &lt;-----------------      DATA (DST=Y)
+  Don't send SACK                         |
+                                          | T3-rtx timer Expires
+                                          |
+                &lt;-----------------      DATA (DST=X)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Sending DATA message from endpoint B to A. Do not send SACK to
+     response the DATA message.
+     Record the message sequence using a signal emulator.
+  2. Check A: DATA message is sent again to alternate destination
+     address after expiry of T3-rtx timer.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  6.4.1.  Failover from an Inactive Destination Address</pre>
+<pre>
+    Some of the transport addresses of a multi-homed SCTP endpoint may
+    become inactive due to either the occurrence of certain error
+    conditions (see Section 8.2) or adjustments from the SCTP user.</pre>
+<PRE>
+    <B>When there is outbound data to send and the primary path becomes
+    inactive (e.g., due to failures), or where the SCTP user explicitly
+    requests to send data to an inactive destination transport address,
+    before reporting an error to its ULP, the SCTP endpoint should try to
+    send the data to an alternate active destination transport address if
+    one exists.</B>
+</PRE><pre>
+    When retransmitting data that timed out, if the endpoint is multi-
+    homed, it should consider each source-destination address pair in its
+    retransmission selection policy.  When retransmitting timed-out data,
+    the endpoint should attempt to pick the most divergent source-
+    destination pair from the original source-destination pair to which
+    the packet was transmitted.</pre>
+<pre>
+    Note: Rules for picking the most divergent source-destination pair
+    are an implementation decision and are not specified within this
+    document.</pre>
+
+</body>
+
+</html>

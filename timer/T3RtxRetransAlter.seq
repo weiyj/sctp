@@ -1,0 +1,188 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_rcv		=> "Recv SCTP CHUNK_DATA (On Link0)",
+	sctp_chunk_data_rcv_link1	=> "Recv SCTP CHUNK_DATA (On Link1)",
+);
+
+$IF0 = Link0;
+$IF1 = Link1;
+
+vCapture($IF0);
+vCapture($IF1);
+
+sctpCheckEnv($IF0, $IF1);
+
+sctpStartMultiHomeClient($IF0);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_rcv_link1);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv_link1') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  T3RtxRetransAlter.seq - DATA message is transmitted again to alternate destination address if T3-rtx timer expires
+
+=head1 PURPOSE
+
+  To check that if the T3-rtx timer expires then the endpoint retransmit
+  the DATA chunk last sent and if possible choose an alternate destination
+  address.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./T3RtxRetransAlter.seq">./T3RtxRetransAlter.seq</A> [-tooloption ...] -pkt <A HREF="./T3RtxRetransAlter.def">./T3RtxRetransAlter.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the
+  data in Endpoint A such that SACK is not sent in response to DATA
+  message.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                                                   <-----    Send
+                <-----------------      DATA (DST=X)
+  Don't send SACK                         |
+                                          | T3-rtx timer Expires
+                                          |
+                <-----------------      DATA (DST=Y)
+  Don't send SACK                         |
+                                          | T3-rtx timer Expires
+                                          |
+                <-----------------      DATA (DST=X)
+
+  TEST DESCRIPTION:
+
+  1. Sending DATA message from endpoint B to A. Do not send SACK to
+     response the DATA message.
+     Record the message sequence using a signal emulator.
+  2. Check A: DATA message is sent again to alternate destination
+     address after expiry of T3-rtx timer.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.4.1.  Failover from an Inactive Destination Address
+
+    Some of the transport addresses of a multi-homed SCTP endpoint may
+    become inactive due to either the occurrence of certain error
+    conditions (see Section 8.2) or adjustments from the SCTP user.
+
+=begin html
+<PRE>
+    <B>When there is outbound data to send and the primary path becomes
+    inactive (e.g., due to failures), or where the SCTP user explicitly
+    requests to send data to an inactive destination transport address,
+    before reporting an error to its ULP, the SCTP endpoint should try to
+    send the data to an alternate active destination transport address if
+    one exists.</B>
+</PRE>
+
+=end html
+
+    When retransmitting data that timed out, if the endpoint is multi-
+    homed, it should consider each source-destination address pair in its
+    retransmission selection policy.  When retransmitting timed-out data,
+    the endpoint should attempt to pick the most divergent source-
+    destination pair from the original source-destination pair to which
+    the packet was transmitted.
+
+    Note: Rules for picking the most divergent source-destination pair
+    are an implementation decision and are not specified within this
+    document.
+

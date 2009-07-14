@@ -39,27 +39,38 @@
 ########################################################################
 &print:<B>Handle T1-init Expiration</B>
 ./T1InitRetrans.seq:./T1InitRetrans.def:::INIT message is transmitted again if T1-Init timer expires
+./T1InitRetransAlter.seq:./T1InitRetransAlter.def:::INIT message is transmitted again to alternate destination address if T1-Init timer expires
 ./T1InitTimeout.seq:./T1InitTimeout.def:::Failure to receive INIT-ACK after retransmit times to 'Max.Init.Retransmits'
+./T1InitMultiTimeout.seq:./T1InitMultiTimeout.def:::Failure to receive INIT-ACK after retransmit times to 'Max.Init.Retransmits' (multi-homed endpoint)
 ./T1InitExpires.seq:./T1InitExpires.def:::RTO is updated correctly if T1-init timer expires for a INIT message
+./T1InitMultiExpires.seq:./T1InitMultiExpires.def:::RTO is updated correctly if T1-init timer expires for a INIT message (multi-homed endpoint)
 
 ########################################################################
 &print:<B>Handle T1-cookie Expiration</B>
 ./T1CookieRetrans.seq:./T1CookieRetrans.def:::COOKIE-ECHO message is transmitted again if T1-cookie timer expires
+./T1CookieRetransAlter.seq:./T1CookieRetransAlter.def:-cpp='-DMULTI_ENABLE=1'::COOKIE-ECHO message is transmitted again to alternate destination address if T1-cookie timer expires
 ./T1CookieTimeout.seq:./T1CookieTimeout.def:::Failure to receive COOKIE-ACK after retransmit times to 'Max.Init.Retransmits'
+./T1CookieMultiTimeout.seq:./T1CookieMultiTimeout.def:-cpp='-DMULTI_ENABLE=1'::Failure to receive COOKIE-ACK after retransmit times to 'Max.Init.Retransmits' (multi-homed endpoint)
 ./T1CookieTimeout2.seq:./T1CookieTimeout2.def:::Retransmit times for failure to receive COOKIE-ACK (retransmitted INIT message)
-./T1CookieExpires.seq:./T1CookieExpires.def:::RTO is updated correctly if T1-Ccookie timer expires for a COOKIE-ECHO message
+./T1CookieExpires.seq:./T1CookieExpires.def:::RTO is updated correctly if T1-cookie timer expires for a COOKIE-ECHO message
+./T1CookieMultiExpires.seq:./T1CookieMultiExpires.def:-cpp='-DMULTI_ENABLE=1'::RTO is updated correctly if T1-cookie timer expires for a COOKIE-ECHO message (multi-homed endpoint)
 
 ########################################################################
 &print:<B>Handle T3-rtx Expiration</B>
 ./T3RtxRetrans.seq:./T3RtxRetrans.def:::DATA message is transmitted again if T3-rtx timer expires
+./T3RtxRetransAlter.seq:./T3RtxRetransAlter.def:-cpp='-DMULTI_ENABLE=1'::DATA message is transmitted again to alternate destination address if T3-rtx timer expires
 ./T3RtxTimeout.seq:./T3RtxTimeout.def:::Failure to receive SACK after retransmit times to 'Association.Max.Retrans'
+./T3RtxMultiTimeout.seq:./T3RtxMultiTimeout.def:-cpp='-DMULTI_ENABLE=1'::Failure to receive SACK after retransmit times to 'Association.Max.Retrans' (multi-homed endpoint)
 ./T3RtxTimeout2.seq:./T3RtxTimeout2.def:::The counter of retransmissions shall be reset if the DATA chunk is acknowledged
 ./T3ExpiresRTOInc.seq:./T3ExpiresRTOInc.def:::RTO is updated correctly if T3-rxt timer expires for a DATA message
+./T3ExpiresMultiRTOInc.seq:./T3ExpiresMultiRTOInc.def:-cpp='-DMULTI_ENABLE=1'::RTO is updated correctly if T3-rxt timer expires for a DATA message (multi-homed endpoint)
 
 ########################################################################
 &print:<B>Handle T2-shutdown Expiration</B>
 ./T2ShutdownRetrans1.seq:./T2ShutdownRetrans1.def:::SHUTDOWN message is transmitted again if T2-shutdown timer expires
 ./T2ShutdownRetrans2.seq:./T2ShutdownRetrans2.def:::SHUTDOWN-ACK message is transmitted again if T2-shutdown timer expires
+./T2ShutdownRetransAlter1.seq:./T2ShutdownRetransAlter1.def:-cpp='-DMULTI_ENABLE=1'::SHUTDOWN message is transmitted again to alternate destination address if T2-shutdown timer expires
+./T2ShutdownRetransAlter2.seq:./T2ShutdownRetransAlter2.def:-cpp='-DMULTI_ENABLE=1'::SHUTDOWN-ACK message is transmitted again to alternate destination address if T2-shutdown timer expires
 ./T2ShutdownTimeout1.seq:./T2ShutdownTimeout1.def:::Failure to receive SHUTDOWN-ACK after retransmit times to 'Association.Max.Retrans'
 ./T2ShutdownTimeout2.seq:./T2ShutdownTimeout2.def:::Failure to receive SHUTDOWN-COMPLETE after retransmit times to 'Association.Max.Retrans'
 ./T2ShutdownTimeReset.seq:./T2ShutdownTimeReset.def:::The counter of retransmissions shall be reset for a SHUTDOWN message if reception of DATA message
