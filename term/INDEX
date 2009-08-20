@@ -88,4 +88,5 @@
 &print:<B>Cumulative TSN Ack point</B>
 ./ShutWithNotSendTSN.seq:./ShutWithNotSendTSN.def:::SHUTDOWN is received with TSN greater than the Cumulative TSN Ack point
 ./ShutWithCTSN.seq:./ShutWithCTSN.def:::SHUTDOWN is received with TSN equal to the Cumulative TSN Ack point
+./ShutWithSmallTSN.seq:./ShutWithSmallTSN.def:::SHUTDOWN is received with TSN less than the Cumulative TSN Ack point
 
