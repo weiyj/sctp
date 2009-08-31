@@ -1082,7 +1082,7 @@ sub sctpStartMultiHomeServer(;$$$) {
 #======================================================================
 # sctpStartMultiHomeClient - start a sctp multi-home client at remote system
 #======================================================================
-sub sctpStartMultiHomeClient(;$$) {
+sub sctpStartMultiHomeClient(;$$$$) {
 	my ($IF, $count, $size, $opts) = @_;
 	my ($cmd);
 
