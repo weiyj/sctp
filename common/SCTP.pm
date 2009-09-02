@@ -1211,8 +1211,10 @@ sub sctpStartInteractiveServer(;$@) {
 	$cmd  = "sctp_darn ";
 	$cmd .= "-H $CONF{SCTP_NUT_NET0_ADDR} -P $CONF{SCTP_NUT0_PORT} ";
 	$cmd .= "-l -I ";
-	$cmd .= "< /tmp/.sctp_icmds &";
-	
+	goto out if !defined(@subcmds);
+
+	$cmd .= "< /tmp/.sctp_icmds ";
+
 	$script = "";
 	foreach $subcmd (@subcmds) {
 		if ($subcmd =~ /^add=(\S+)/) {
@@ -1248,7 +1250,8 @@ sub sctpStartInteractiveServer(;$@) {
 
 	sctpPutFile(".sctp_icmds", "/tmp/.sctp_icmds");
 
-	sctpRemoteCommandAsync($cmd);
+out:
+	sctpRemoteCommandAsync("$cmd &");
 }
 
 #======================================================================
