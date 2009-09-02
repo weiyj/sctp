@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>AuthSendWithChunkAuth.seq - Send all requested chunks that have been authenticated where this has been requested by the peer</title>
+<title>AuthWithDataAuth.seq - DATA chunks should be sent authenticated if this has been requested by the peer</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rev="made" href="mailto:root@localhost" />
 </head>
@@ -30,20 +30,20 @@
 </p>
 <h1><a name="name">NAME</a></h1>
 <pre>
-  AuthSendWithChunkAuth.seq - Send all requested chunks that have been authenticated where this has been requested by the peer</pre>
+  AuthWithDataAuth.seq - DATA chunks should be sent authenticated if this has been requested by the peer</pre>
 <p>
 </p>
 <hr />
 <h1><a name="purpose">PURPOSE</a></h1>
 <pre>
-  To verify that Endpoints will send all requested chunks that have
-  been authenticated where this has been requested by the peer.</pre>
+  To check that Endpoints will send DATA chunks that have been
+  authenticated while this has been requested by the peer.</pre>
 <p>
 </p>
 <hr />
 <h1><a name="synopsis">SYNOPSIS</a></h1>
 <PRE>
-  <A HREF="./AuthSendIgnoreChunkTypes.seq">./AuthSendIgnoreChunkTypes.seq</A> [-tooloption ...] -pkt <A HREF="./AuthSendIgnoreChunkTypes.def">./AuthSendIgnoreChunkTypes.def</A>
+  <A HREF="./AuthWithDataAuth.seq">./AuthWithDataAuth.seq</A> [-tooloption ...] -pkt <A HREF="./AuthWithDataAuth.def">./AuthWithDataAuth.def</A>
     -tooloption : v6eval tool option
   See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
             <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
@@ -53,46 +53,42 @@
 <h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
 <pre>
   Association is not established between endpoint A and B. Arrange
-  data in endpoint A such that INIT chunk with CHUNKS parameter.
-  The chunk types for DATA, SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, 
-  COOKIE-ECHO and COOKIE-ACK chunks be listed in CHUNKS parameter.</pre>
+  data in endpoint A such that INIT-ACK chunk with CHUNKS parameter.
+  The chunk types for DATA chunks be listed in CHUNKS parameter.</pre>
 <p>
 </p>
 <hr />
 <h1><a name="test_procedure">TEST PROCEDURE</a></h1>
 <pre>
-  Endpoint A                             Endpoint B               ULP
-  (CLOSED)                               (CLOSED)</pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
 <pre>
-    INIT          ------------------&gt;
-    (with CHUNKS parameter)
-                  &lt;------------------   INIT-ACK
-                                        (with AUTH capable)
-    COOKIE-ECHO   ------------------&gt;</pre>
+                &lt;-----------------      DATA1</pre>
 <pre>
-                  &lt;------------------   AUTH + COOKIE-ACK</pre>
+                &lt;-----------------      DATA2</pre>
 <pre>
-    DATA          ------------------&gt;</pre>
+                &lt;-----------------      DATA3</pre>
 <pre>
-                  &lt;------------------   AUTH + SACK</pre>
+                &lt;-----------------      DATA4</pre>
 <pre>
-                  &lt;------------------   AUTH + SHUTDOWN</pre>
+  SACK          -----------------&gt;</pre>
 <pre>
-    SHUTDOWN-ACK  ------------------&gt;</pre>
+                &lt;-----------------      DATA5</pre>
 <pre>
-                  &lt;------------------   SHUTDOWN-COMPLETE</pre>
+                &lt;-----------------      DATA6</pre>
+<pre>
+  SACK          -----------------&gt;</pre>
 <pre>
   TEST DESCRIPTION:</pre>
 <pre>
-  1. Attempt to make an association from endpoint A to B. Send INIT 
-     message containing CHUNKS Parameter. The chunk types for DATA, 
-     SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, COOKIE-ECHO and COOKIE-ACK
-     chunks be listed in CHUNKS parameter.
-  2. Check A: Association is established between endpoint A and B 
-     with AUTH capable.
-  3. Check B: DATA, SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, COOKIE-ECHO
-     and COOKIE-ACK chunks should be received at endpoint A in 
-     authenticated way.</pre>
+  1. From endpoint B, send valid DATA message 6 times to endpoint A,
+     when there is association between them.
+  2. From endpoint A, receive DATA message 4 times. Send SACK of the
+     4 DATA messages to endpoint B.
+  3. Check A: The DATA messages are received with AUTH chunks.
+  4. From endpoint A, receive DATA message 2 times. Send SACK of the
+     2 DATA messages to endpoint B.
+  5. Check B: The DATA messages are received with AUTH chunks.</pre>
 <p>
 </p>
 <hr />

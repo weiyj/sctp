@@ -13,8 +13,8 @@
 </TABLE>
 <HR>
 <TABLE BORDER=0>
-<TR><TD>Start:</TD><TD>2009/01/23 12:06:53</TD></TR>
-<TR><TD>End :</TD><TD>2009/01/23 12:06:53</TD></TR>
+<TR><TD>Start:</TD><TD>2009/09/02 12:51:53</TD></TR>
+<TR><TD>End :</TD><TD>2009/09/02 12:51:53</TD></TR>
 </TABLE>
 <HR>
 <TABLE BORDER=1>
@@ -36,34 +36,36 @@
 <TR>
 <TD>5</TD><TD><A HREF="./AuthWithChunkAuth.html">Send all requested chunks that have been authenticated where this has been requested by the peer</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithChunkAuth.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithChunkAuth.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>6</TD><TD><A HREF="./AuthIgnoreChunkTypes.html">INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks listed in the CHUNKS parameter MUST be ignored</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TD>6</TD><TD><A HREF="./AuthWithDataAuth.html">DATA chunks should be sent authenticated if this has been requested by the peer</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithDataAuth.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithDataAuth.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>7</TD><TD><A HREF="./AuthUsedFirstAlgo.html">The receiver of an HMAC-ALGO parameter SHOULD use the first listed algorithm it supports</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TD>7</TD><TD><A HREF="./AuthIgnoreChunkTypes.html">INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks listed in the CHUNKS parameter MUST be ignored</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthIgnoreChunkTypes.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./AuthUsedFirstAlgo.html">The receiver of an HMAC-ALGO parameter SHOULD use the first listed algorithm it supports</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthUsedFirstAlgo.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
 <TR><TD><BR></TD><TD><B>Receiving Authenticated Chunks</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
 <TR>
-<TD>8</TD><TD><A HREF="./AuthWithBadHMACIdentifier.html">Authentication Chunk is received with an unsupported HMAC Identifier</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TD>9</TD><TD><A HREF="./AuthWithBadHMACIdentifier.html">Authentication Chunk is received with an unsupported HMAC Identifier</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHMACIdentifier.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>9</TD><TD><A HREF="./AuthWithBadShareID.html">Authentication Chunk is received with no shared key match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TD>10</TD><TD><A HREF="./AuthWithBadShareID.html">Authentication Chunk is received with no shared key match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadShareID.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>10</TD><TD><A HREF="./AuthWithBadHmac.html">Authentication Chunk is received with Message Authentication Code not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TD>11</TD><TD><A HREF="./AuthWithBadHmac.html">Authentication Chunk is received with Message Authentication Code not match</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmac.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>11</TD><TD><A HREF="./AuthWithoutCapable.html">Authentication Chunk is received from endpoint which has no AUTH capable</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+<TD>12</TD><TD><A HREF="./AuthWithoutCapable.html">Authentication Chunk is received from endpoint which has no AUTH capable</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithoutCapable.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
 <TR><TD><BR></TD><TD><B>Authentication Chunk Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
 <TR>
-<TD>12</TD><TD><A HREF="./AuthWithBadChunkLength.html">Authentication Chunk is received with chunk length less than AUTH chunk header</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="12.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="12.html.Link0.dump">Link0</A> </TD></TR>
+<TD>13</TD><TD><A HREF="./AuthWithBadChunkLength.html">Authentication Chunk is received with chunk length less than AUTH chunk header</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadChunkLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>13</TD><TD><A HREF="./AuthWithBadHmacLength.html">Authentication Chunk is received with HMAC length not match HMAC Algorithm</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="13.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="13.html.Link0.dump">Link0</A> </TD></TR>
+<TD>14</TD><TD><A HREF="./AuthWithBadHmacLength.html">Authentication Chunk is received with HMAC length not match HMAC Algorithm</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./AuthWithBadHmacLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
 <TR><TD><BR></TD><TD><B>Random Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
 <TR>
-<TD>14</TD><TD><A HREF="./RandomNumberWithBadLength.html">The association MUST be aborted if the Random Number is not 32 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="14.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="14.html.Link0.dump">Link0</A> </TD></TR>
+<TD>15</TD><TD><A HREF="./RandomNumberWithBadLength.html">The association MUST be aborted if the Random Number is not 32 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./RandomNumberWithBadLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
 <TR><TD><BR></TD><TD><B>Chunk List Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
 <TR>
-<TD>15</TD><TD><A HREF="./ChunkListLengthLargerThan260.html">The maximum length of Chunk List Parameter is 260 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="15.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.def">X</A></TD><TD ALIGN="CENTER"><A HREF="15.html.Link0.dump">Link0</A> </TD></TR>
+<TD>16</TD><TD><A HREF="./ChunkListLengthLargerThan260.html">The maximum length of Chunk List Parameter is 260 bytes</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ChunkListLengthLargerThan260.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
 <TR><TD><BR></TD><TD><B>Requested HMAC Algorithm Parameter Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
 <TR>
-<TD>16</TD><TD><A HREF="./HMACAlgoWithNoAlgoList.html">The list of HMAC Identifiers in HMAC-ALGO parameter is empty</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="16.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.def">X</A></TD><TD ALIGN="CENTER"><A HREF="16.html.Link0.dump">Link0</A> </TD></TR>
+<TD>17</TD><TD><A HREF="./HMACAlgoWithNoAlgoList.html">The list of HMAC Identifiers in HMAC-ALGO parameter is empty</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithNoAlgoList.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
 <TR>
-<TD>17</TD><TD><A HREF="./HMACAlgoWithoutSha1.html">The HMAC algorithm based on SHA-1 MUST be supported and included in the HMAC-ALGO parameter</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="17.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="17.html.Link0.dump">Link0</A> </TD></TR>
+<TD>18</TD><TD><A HREF="./HMACAlgoWithoutSha1.html">The HMAC algorithm based on SHA-1 MUST be supported and included in the HMAC-ALGO parameter</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="18.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HMACAlgoWithoutSha1.def">X</A></TD><TD ALIGN="CENTER"><A HREF="18.html.Link0.dump">Link0</A> </TD></TR>
 </TABLE>
 </CENTER>
 <HR>
@@ -92,4 +94,4 @@ This Report was generated by
 <A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
 </BODY>
 </HTML>
-<!-- 63f3b4a2841b787867920cb3990e1223 -->
+<!-- 38d10c9577c1f9a7b249df8a1aa7ac90 -->

@@ -42,9 +42,8 @@ use V6evalTool;
 use SCTP;
 
 %pktdesc = (
-	sctp_chunk_cookie_ack_rcv	=> "Recv SCTP CHUNK_COOKIE_ACK (with AUTH chunk)",
-	sctp_chunk_sack_auth_rcv	=> "Recv SCTP CHUNK_SACK (with AUTH chunk)",
-	sctp_chunk_shutdown_ack_rcv	=> "Recv SCTP CHUNK_SHUTDOWN_ACK (with AUTH chunk)",
+	sctp_chunk_data_auth_rcv	=> "Recv SCTP CHUNK_DATA (with CHUNK_AUTH)",
+	sctp_chunk_auth_rcv		=> "Recv SCTP CHUNK_AUTH",
 );
 
 $IF0 = Link0;
@@ -53,13 +52,49 @@ vCapture($IF0);
 
 sctpCheckEnv($IF0);
 
-sctpStartServer($IF0);
+sctpStartClient($IF0, 6);
 
-vConnectAuth($IF0);
+vListen($IF0);
 
-vSendMsg($IF0, sctp_chunk_data_snd, sctp_chunk_sack_auth_rcv);
+vAccept($IF0);
 
-vClose($IF0);
+vLogHTML('<B>================ Main Test =================</B>');
+
+for ($i = 0; $i < 4; $i++) {
+	sctpUpdateRecvACK();
+
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_auth_rcv);
+	if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_auth_rcv') {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+for ($i = 0; $i < 2; $i++) {
+	sctpUpdateRecvACK();
+
+rdata:
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_auth_rcv, sctp_chunk_auth_rcv);
+	if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_auth_rcv') {
+		vLogHTML('WARNING: Received unexcepted SCTP CHUNK_AUTH<BR>');
+		goto rdata;
+	}
+
+	if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_auth_rcv') {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
 
 vLogHTML(OK);
 exit $V6evalTool::exitPass;
@@ -69,18 +104,18 @@ __END__
 
 =head1 NAME
 
-  AuthSendWithChunkAuth.seq - Send all requested chunks that have been authenticated where this has been requested by the peer
+  AuthWithDataAuth.seq - DATA chunks should be sent authenticated if this has been requested by the peer
 
 =head1 PURPOSE
 
-  To verify that Endpoints will send all requested chunks that have
-  been authenticated where this has been requested by the peer.
+  To check that Endpoints will send DATA chunks that have been
+  authenticated while this has been requested by the peer.
 
 =head1 SYNOPSIS
 
 =begin html
 <PRE>
-  <A HREF="./AuthSendIgnoreChunkTypes.seq">./AuthSendIgnoreChunkTypes.seq</A> [-tooloption ...] -pkt <A HREF="./AuthSendIgnoreChunkTypes.def">./AuthSendIgnoreChunkTypes.def</A>
+  <A HREF="./AuthWithDataAuth.seq">./AuthWithDataAuth.seq</A> [-tooloption ...] -pkt <A HREF="./AuthWithDataAuth.def">./AuthWithDataAuth.def</A>
     -tooloption : v6eval tool option
   See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
             <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
@@ -91,44 +126,40 @@ __END__
 =head1 PRE-TEST CONDITION
 
   Association is not established between endpoint A and B. Arrange
-  data in endpoint A such that INIT chunk with CHUNKS parameter.
-  The chunk types for DATA, SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, 
-  COOKIE-ECHO and COOKIE-ACK chunks be listed in CHUNKS parameter.
+  data in endpoint A such that INIT-ACK chunk with CHUNKS parameter.
+  The chunk types for DATA chunks be listed in CHUNKS parameter.
 
 =head1 TEST PROCEDURE
 
-  Endpoint A                             Endpoint B               ULP
-  (CLOSED)                               (CLOSED)
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
 
-    INIT          ------------------>
-    (with CHUNKS parameter)
-                  <------------------   INIT-ACK
-                                        (with AUTH capable)
-    COOKIE-ECHO   ------------------>
+                <-----------------      DATA1
 
-                  <------------------   AUTH + COOKIE-ACK
+                <-----------------      DATA2
 
-    DATA          ------------------>
+                <-----------------      DATA3
 
-                  <------------------   AUTH + SACK
+                <-----------------      DATA4
 
-                  <------------------   AUTH + SHUTDOWN
+  SACK          ----------------->
 
-    SHUTDOWN-ACK  ------------------>
+                <-----------------      DATA5
 
-                  <------------------   SHUTDOWN-COMPLETE
+                <-----------------      DATA6
+
+  SACK          ----------------->
 
   TEST DESCRIPTION:
 
-  1. Attempt to make an association from endpoint A to B. Send INIT 
-     message containing CHUNKS Parameter. The chunk types for DATA, 
-     SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, COOKIE-ECHO and COOKIE-ACK
-     chunks be listed in CHUNKS parameter.
-  2. Check A: Association is established between endpoint A and B 
-     with AUTH capable.
-  3. Check B: DATA, SACK, ABORT, SHUTDOWN, SHUTDOWN-ACK, COOKIE-ECHO
-     and COOKIE-ACK chunks should be received at endpoint A in 
-     authenticated way.
+  1. From endpoint B, send valid DATA message 6 times to endpoint A,
+     when there is association between them.
+  2. From endpoint A, receive DATA message 4 times. Send SACK of the
+     4 DATA messages to endpoint B.
+  3. Check A: The DATA messages are received with AUTH chunks.
+  4. From endpoint A, receive DATA message 2 times. Send SACK of the
+     2 DATA messages to endpoint B.
+  5. Check B: The DATA messages are received with AUTH chunks.
 
 =head1 NOTE
 

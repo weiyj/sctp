@@ -49,6 +49,7 @@
 ########################################################################
 &print:<B>Sending Authenticated Chunks</B>
 ./AuthWithChunkAuth.seq:./AuthWithChunkAuth.def:::Send all requested chunks that have been authenticated where this has been requested by the peer
+./AuthWithDataAuth.seq:./AuthWithDataAuth.def:-cpp='-DAUTH_ENABLE=1'::DATA chunks should be sent authenticated if this has been requested by the peer
 ./AuthIgnoreChunkTypes.seq:./AuthIgnoreChunkTypes.def:::INIT, INIT-ACK, SHUTDOWN-COMPLETE, and AUTH chunks listed in the CHUNKS parameter MUST be ignored
 ./AuthUsedFirstAlgo.seq:./AuthUsedFirstAlgo.def:::The receiver of an HMAC-ALGO parameter SHOULD use the first listed algorithm it supports
 
