@@ -250,6 +250,28 @@ sub vSetPktDesc() {
 	$main::pktdesc{"sctp_chunk_abort_snd"} = "Send SCTP CHUNK_ABORT" if !defined($main::pktdesc{"sctp_chunk_abort_snd"});
 	$main::pktdesc{"sctp_chunk_abort_rcv"} = "Recv SCTP CHUNK_ABORT" if !defined($main::pktdesc{"sctp_chunk_abort_rcv"});
 	$main::pktdesc{"sctp_chunk_any_rcv"} = "Recv SCTP CHUNK_ANY" if !defined($main::pktdesc{"sctp_chunk_any_rcv"});
+
+	$main::pktdesc{"sctp_chunk_init_snd_link1"} = "Send SCTP CHUNK_INIT (On Link1)" if !defined($main::pktdesc{"sctp_chunk_init_snd_link1"});
+	$main::pktdesc{"sctp_chunk_init_rcv_link1"} = "Recv SCTP CHUNK_INIT (On Link1)" if !defined($main::pktdesc{"sctp_chunk_init_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_init_ack_snd_link1"} = "Send SCTP CHUNK_INIT_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_init_ack_snd_link1"});
+	$main::pktdesc{"sctp_chunk_init_ack_rcv_link1"} = "Recv SCTP CHUNK_INIT_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_init_ack_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_cookie_echo_snd_link1"} = "Send SCTP CHUNK_COOKIE_ECHO (On Link1)" if !defined($main::pktdesc{"sctp_chunk_cookie_echo_snd_link1"});
+	$main::pktdesc{"sctp_chunk_cookie_echo_rcv_link1"} = "Recv SCTP CHUNK_COOKIE_ECHO (On Link1)" if !defined($main::pktdesc{"sctp_chunk_cookie_echo_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_cookie_ack_snd_link1"} = "Send SCTP CHUNK_COOKIE_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_cookie_ack_snd_link1"});
+	$main::pktdesc{"sctp_chunk_cookie_ack_rcv_link1"} = "Recv SCTP CHUNK_COOKIE_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_cookie_ack_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_data_snd_link1"} = "Send SCTP CHUNK_DATA (On Link1)" if !defined($main::pktdesc{"sctp_chunk_data_snd_link1"});
+	$main::pktdesc{"sctp_chunk_data_rcv_link1"} = "Recv SCTP CHUNK_DATA (On Link1)" if !defined($main::pktdesc{"sctp_chunk_data_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_sack_snd_link1"} = "Send SCTP CHUNK_SACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_sack_snd_link1"});
+	$main::pktdesc{"sctp_chunk_sack_rcv_link1"} = "Recv SCTP CHUNK_SACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_sack_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_snd_link1"} = "Send SCTP CHUNK_SHUTDOWN (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_snd_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_rcv_link1"} = "Recv SCTP CHUNK_SHUTDOWN (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_ack_snd_link1"} = "Send SCTP CHUNK_SHUTDOWN_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_ack_snd_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_ack_rcv_link1"} = "Recv SCTP CHUNK_SHUTDOWN_ACK (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_ack_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_complete_snd_link1"} = "Send SCTP CHUNK_SHUTDOWN_COMPLETE (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_complete_snd_link1"});
+	$main::pktdesc{"sctp_chunk_shutdown_complete_rcv_link1"} = "Recv SCTP CHUNK_SHUTDOWN_COMPLETE (On Link1)" if !defined($main::pktdesc{"sctp_chunk_shutdown_complete_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_abort_snd_link1"} = "Send SCTP CHUNK_ABORT (On Link1)" if !defined($main::pktdesc{"sctp_chunk_abort_snd_link1"});
+	$main::pktdesc{"sctp_chunk_abort_rcv_link1"} = "Recv SCTP CHUNK_ABORT (On Link1)" if !defined($main::pktdesc{"sctp_chunk_abort_rcv_link1"});
+	$main::pktdesc{"sctp_chunk_any_rcv_link1"} = "Recv SCTP CHUNK_ANY (On Link1)" if !defined($main::pktdesc{"sctp_chunk_any_rcv_link1"});
 }
 
 #======================================================================
@@ -1239,6 +1261,14 @@ sub sctpStartInteractiveServer(;$@) {
 			$script .= "heartbeat=$1\n";
 		} elsif ($subcmd =~ /^heartbeat/) {
 			$script .= "heartbeat\n";
+		} elsif ($subcmd =~ /^sleep=(\S+)/) {
+			$script .= "sleep=$1\n";
+		} elsif ($subcmd =~ /^sleep/) {
+			$script .= "sleep\n";
+		} elsif ($subcmd =~ /^rcvbuf=(\S+)/) {
+			$script .= "rcvbuf=$1\n";
+		} elsif ($subcmd =~ /^sndbuf=(\S+)/) {
+			$script .= "sndbuf=$1\n";
 		} else {
 			vLog("Unknown parameter $subcmd");
 		}

@@ -122,7 +122,7 @@ PKG_SCTP_NORM_SEND(
 		_DST(SCTP_NUT_NET1_ADDR);
 	},
 	{
-		chunk = cookie_echo_snd;
+		chunk = chunk_cookie_echo_snd;
 	}
 )
 #endif
@@ -138,7 +138,7 @@ PKG_SCTP_NORM_RECV(
 		_DST(SCTP_TN_NET1_ADDR);
 	},
 	{
-		chunk = cookie_echo_rcv;
+		chunk = chunk_cookie_echo_rcv;
 	}
 )
 #endif
