@@ -83,6 +83,7 @@
 ./AbortWithOwnTag1.seq:./AbortWithOwnTag1.def:::ABORT chunk is received with the own's Verification Tag and T bit is set
 ./AbortWithPeerTag0.seq:./AbortWithPeerTag0.def:::ABORT chunk is received with the peer's Tag and T bit is not set
 ./AbortWithBadTag.seq:./AbortWithBadTag.def:::ABORT chunk is received with invalid Verification Tag
+./AbortWithNoneTag.seq:./AbortWithNoneTag.def:::ABORT chunk is received with Zero Verification Tag in COOKIE-WAIT State
 
 &print:Rules for packet carrying SHUTDOWN-COMPLETE
 ./ShutCompWithOwnTag0.seq:./ShutCompWithOwnTag0.def:::SHUTDOWN-COMPLETE chunk is received with the own's Verification Tag and T bit is not set
