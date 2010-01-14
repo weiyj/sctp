@@ -1,0 +1,273 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_data_order_less	=> "Send SCTP CHUNK_DATA",
+	sctp_chunk_data_order_equal	=> "Send SCTP CHUNK_DATA",
+	sctp_chunk_data_order_large	=> "Send SCTP CHUNK_DATA",
+	sctp_chunk_sack_order		=> "Recv SCTP CHUNK_SACK",
+	sctp_chunk_ftsn_order_less	=> "CHUNK_FORWARD_TSN (ordered delivery)",
+	sctp_chunk_ftsn_order_equal	=> "CHUNK_FORWARD_TSN (ordered delivery)",
+	sctp_chunk_ftsn_order_large	=> "CHUNK_FORWARD_TSN (ordered delivery)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartEchoServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN(4);
+
+#--------------------------------------------
+vSend($IF0, sctp_chunk_data_order_less);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_order);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_order') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_ftsn_order_less);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vRecvMsg($IF0);
+
+#--------------------------------------------
+sctpUpdateSendTSN(4);
+
+vSend($IF0, sctp_chunk_data_order_equal);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_order);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_order') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_ftsn_order_equal);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vRecvMsg($IF0);
+
+#--------------------------------------------
+
+sctpUpdateSendTSN(4);
+
+vSend($IF0, sctp_chunk_data_order_large);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_order);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_order') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateSendTSN();
+
+vSend($IF0, sctp_chunk_ftsn_order_large);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vRecvMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FwdTSNWithDropOrder.seq - FORWARD-TSN Chunk is received to indicating ordered delivery is abandoned
+
+=head1 PURPOSE
+
+  To check that if FORWARD-TSN Chunk is received to indicating ordered
+  delivery is abandoned then the endpoint should process FORWARD-TSN
+  chunk correctly.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FwdTSNWithDropOrder.seq">./FwdTSNWithDropOrder.seq</A> [-tooloption ...] -pkt <A HREF="./FwdTSNWithDropOrder.def">./FwdTSNWithDropOrder.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data in
+  endpoint A such that ordered DATA messages are sent to endpoint B. And
+  then in endpoint A FORWARD-TSN Chunk is sent to indicating some ordered
+  DATA messages are abandoned.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA 1        ------(lost)----->
+  (TSN=X, SEQ=0)
+  DATA 2        ------(lost)----->
+  (TSN=X+1, SEQ=1)
+  DATA 3        ------(lost)----->
+  (TSN=X+2, SEQ=2)
+  DATA 3        ----------------->
+  (TSN=X+3, SEQ=3)
+                <-----------------      SACK
+
+  FORWARD-TSN   ----------------->
+  (NewTSN=X+2, SEQ=2)
+                <-----------------      SACK
+                                        DATA 4 Arrive     ----->
+  DATA 5        ------(lost)----->
+  (TSN=X+4, SEQ=4)
+  DATA 6        ------(lost)----->
+  (TSN=X+5, SEQ=5)
+  DATA 7        ------(lost)----->
+  (TSN=X+6, SEQ=6)
+  DATA 8        ----------------->
+  (TSN=X+7, SEQ=7)
+                <-----------------      SACK
+
+  FORWARD-TSN   ----------------->
+  (NewTSN=X+7, SEQ=7)
+                <-----------------      SACK
+                                        DATA 8 Arrive     ----->
+  DATA 9        ------(lost)----->
+  (TSN=X+8, SEQ=8)
+  DATA 10       ------(lost)----->
+  (TSN=X+9, SEQ=9)
+  DATA 11       ------(lost)----->
+  (TSN=X+10, SEQ=10)
+  DATA 12       ----------------->
+  (TSN=X+11, SEQ=11)
+                <-----------------      SACK
+
+  DATA 13       ------(lost)----->
+  (TSN=X+12, SEQ=12)
+  FORWARD-TSN   ----------------->
+  (NewTSN=X+12, SEQ=12)
+                <-----------------      SACK
+                                        DATA 12 Arrive     ----->
+
+  TEST DESCRIPTION:
+
+  1. Send DATA 4 from endpoint A to B with TSN=X+3, Strm=0 and Seq=3.
+  2. Send FORWARD-TSN from endpoint A to B with NewTSN=X+2 and Seq=2.
+  3. Check A: DATA 4 SHOULD be made immediately available to the upper
+     layer application and be send back to endpoint A.
+  4. Send DATA 8 from endpoint A to B with TSN=X+7, Strm=0 and Seq=7.
+  5. Send FORWARD-TSN from endpoint A to B with NewTSN=X+7 and Seq=7.
+  6. Check A: DATA 8 SHOULD be made immediately available to the upper
+     layer application and be send back to endpoint A.
+  7. Send DATA 12 from endpoint A to B with TSN=X+11, Strm=0 and Seq=11.
+  8. Send FORWARD-TSN from endpoint A to B with NewTSN=X+12 and Seq=12.
+  9. Check A: DATA 12 SHOULD be made immediately available to the upper
+     layer application and be send back to endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3758
+
+  3.6.  Receiver Side Implementation of PR-SCTP
+
+=begin html
+<PRE>
+    <B>Whenever a DATA chunk arrives with the 'U' bit set to '0' (indicating
+    ordered delivery) and is out of order, the receiver must hold the
+    chunk for reordering.  Since it is possible with PR-SCTP that a DATA
+    chunk being waited upon will not be retransmitted, special actions
+    will need to be taken upon the arrival of a FORWARD TSN.</B>
+</PRE>
+
+=end html
+
+    In particular, during processing of a FORWARD TSN, the receiver MUST
+    use the stream sequence information to examine all of the listed
+    stream reordering queues, and immediately make available for delivery
+    stream sequence numbers earlier than or equal to the stream sequence
+    number listed inside the FORWARD TSN.  Any such stranded data SHOULD
+    be made immediately available to the upper layer application.
+

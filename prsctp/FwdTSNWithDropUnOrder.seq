@@ -1,0 +1,211 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_ftsn_unorder	=> "Send CHUNK_FORWARD_TSN (unordered delivery)",
+	sctp_chunk_sack_gap1	=> "Recv SCTP CHUNK_SACK (Gap Block Report)",
+	sctp_chunk_sack_gap2	=> "Recv SCTP CHUNK_SACK (Gap Block Report)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateSendTSN(4);
+vSend($IF0, sctp_chunk_data_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_gap1);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_gap1') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateSendTSN(-2);
+vSend($IF0, sctp_chunk_ftsn_unorder);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_gap2);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_gap2') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_ftsn_unorder);
+
+sctpUpdateSendTSN();
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSendMsg($IF0);
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FwdTSNWithDropUnOrder.seq - FORWARD-TSN Chunk is received to indicating unordered delivery is abandoned
+
+=head1 PURPOSE
+
+  To check that if FORWARD-TSN Chunk is received to indicating unordered
+  delivery is abandoned then the endpoint should update its cumulative
+  TSN point to the value carried in the FORWARD-TSN chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FwdTSNWithDropUnOrder.seq">./FwdTSNWithDropUnOrder.seq</A> [-tooloption ...] -pkt <A HREF="./FwdTSNWithDropUnOrder.def">./FwdTSNWithDropUnOrder.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange the data in
+  endpoint A such that unordered DATA messages are sent to endpoint B. And
+  then in endpoint A FORWARD-TSN chunk is sent to indicating some unordered
+  DATA messages are abandoned.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  DATA 1        ------(lost)----->
+  (TSN=1)
+  DATA 2        ------(lost)----->
+  (TSN=2)
+  DATA 3        ------(lost)----->
+  (TSN=3)
+  DATA 4        ----------------->
+  (TSN=4)
+                <-----------------      SACK
+                                        (Gap Block Report)
+  FORWARD-TSN   ----------------->
+  (NewTSN=2)
+                <-----------------      SACK
+                                        (Gap Block Report)
+  FORWARD-TSN   ----------------->
+  (NewTSN=3)
+                <-----------------      SACK
+                                        (ACK=4)
+  TEST DESCRIPTION:
+
+  1. Send DATA 4 from endpoint A to B with earlier TSNs missing.
+  2. Check A: SACK with Gap Ack Block is send to acknowledge the
+     reception of DATA chunk from endpoint B.
+  3. Send FORWARD-TSN from endpoint A to B with NewTSN=2.
+  4. Check B: Endpoint B should  update its cumulative TSN point to
+     the value carried in the FORWARD-TSN chunk.
+  5. Send FORWARD-TSN from endpoint A to B with NewTSN=3.
+  6. Check C: Endpoint B should  update its cumulative TSN point to
+     the value carried in the FORWARD-TSN chunk and stop reporting
+     any missing TSNs earlier than or equal to the new cumulative TSN
+     point.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3758
+
+  3.6.  Receiver Side Implementation of PR-SCTP
+
+    When a FORWARD TSN chunk arrives, the data receiver MUST first update
+    its cumulative TSN point to the value carried in the FORWARD TSN
+    chunk, and then MUST further advance its cumulative TSN point locally
+    if possible, as shown by the following example:
+
+      Assuming that the new cumulative TSN carried in the arrived
+      FORWARD TSN is 103:
+
+       in-queue before processing      in-queue after processing
+            the FORWARD TSN      ==>   the FORWARD TSN and further
+                                                advancement
+       cum.TSN.Pt-> 102 received                   102 --
+                    103 missing                    103 --
+                    104 received                   104 --
+                    105 received      cum.TSN.Pt-> 105 received
+                    106 missing                    106 missing
+                    107 received                   107 received
+                    ...                            ...
+
+      In this example, the receiver's cumulative TSN point is first
+      updated to 103 and then further advanced to 105.
+
+=begin html
+<PRE>
+    <B>After the above processing, the data receiver MUST stop reporting any
+    missing TSNs earlier than or equal to the new cumulative TSN point.</B>
+</PRE>
+
+=end html
+

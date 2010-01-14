@@ -1,0 +1,176 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_ftsn_order	=> "Recv SCTP CHUNK_FORWARD_TSN (ordered delivery)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0, 2, ($SCTP::CONF{ENABLE_IPV6} == 0) ? 1452 : 1432, "-O 3000");
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+sctpUpdateRecvACK();
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+# wait for ordered delivery messages become abandoned
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ftsn_order);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_ftsn_order') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FwdTSNWhenDropOrder.seq - FORWARD-TSN Chunk is sent to indicating ordered delivery is abandoned
+
+=head1 PURPOSE
+
+  To check that if ordered delivery message is abandoned then the endpoint should
+  send FORWARD-TSN chunk to indicating ordered delivery is abandoned.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FwdTSNWhenDropOrder.seq">./FwdTSNWhenDropOrder.seq</A> [-tooloption ...] -pkt <A HREF="./FwdTSNWhenDropOrder.def">./FwdTSNWhenDropOrder.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data in
+  endpoint B such that ordered DATA messages are sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                <-----------------      DATA1
+                                        (TSN=x, SEQ=0)
+                <-----------------      DATA2
+                                        (TSN=x+1, SEQ=1)
+                <-----------------      FORWARD-TSN
+                                        (NewTSN=x+1, SEQ=1)
+  SACK          ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Send ordered DATA messages from endpoint B to A. Record the message
+     sequence using a signal emulator.
+  2. Check A: FORWARD-TSN message will be sent from endpoint B after
+     DATA messages are abandoned.
+  3. Check B: Was the message sequence as above.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3758
+
+  3.5.  Sender Side Implementation of PR-SCTP
+
+=begin html
+<PRE>
+    C4) For each "abandoned" TSN, the sender of the FORWARD TSN MUST
+        determine if the chunk has a valid stream and sequence number
+        (i.e., it was ordered).  <B>If the chunk has a valid stream and
+        sequence number, the sender MUST include the stream and
+        sequence number in the FORWARD TSN.</B>  This information will
+        enable the receiver to easily find any stranded TSN's waiting
+        on stream reorder queues.  Each stream SHOULD only be
+        reported once; this means that if multiple abandoned messages
+        occur in the same stream, then only the highest abandoned
+        stream sequence number is reported.  If the total size of the
+        FORWARD TSN does NOT fit in a single MTU, then the sender of
+        the FORWARD TSN SHOULD lower the Advanced.Peer.Ack.Point to
+        the last TSN that will fit in a single MTU.
+</PRE>
+
+=end html
+

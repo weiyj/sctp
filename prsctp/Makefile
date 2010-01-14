@@ -35,39 +35,16 @@
 #
 ##############################################################################
 
-CONFIGDIR=config
+INSTALL_DIR=$(TESTDIR)/prsctp
+XFILES = *.seq
+FILES = *.def INDEX* *.html .footer
 
-SUBDIRS=init \
-	term \
-	fault \
-	error \
-	bund \
-	data \
-	timer \
-	congest \
-	pmtu \
-	ecn \
-	packet \
-	auth \
-	addip \
-	prsctp \
-	miss
+all:
 
-v4test v6test test tiny check document document2 clean cleandoc:
-	@for subdir in ${SUBDIRS}; do \
-		echo "===> $$subdir"; \
-		(cd $$subdir; ${MAKE} $@); \
-	done
+install:
+	install -d -o bin -g bin -m 755 $(INSTALL_DIR)
+	install -c -o bin -g bin -m 555 $(XFILES) $(INSTALL_DIR)
+	install -c -o bin -g bin -m 444 $(FILES) $(INSTALL_DIR)
+	install -c -o bin -g bin -m 444 Makefile.test $(INSTALL_DIR)/Makefile
 
-.PHONY: config cleanconfig
-config:
-	@for subdir in ${CONFIGDIR}; do \
-		(cd $$subdir; ${MAKE} $@); \
-	done
-
-cleanconfig:
-	@for subdir in ${CONFIGDIR}; do \
-		(cd $$subdir; ${MAKE} $@); \
-	done
-
-	rm -rf etc/tn.def etc/nut.def
+include Makefile.test

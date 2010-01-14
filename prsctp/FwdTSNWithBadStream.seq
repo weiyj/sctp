@@ -1,0 +1,157 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_ftsn_bad_stream	=> "Send SCTP CHUNK_FORWARD_TSN (with invalid stream number)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartServer($IF0);
+
+vConnect($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_ftsn_bad_stream);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_rcv);
+if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_sack_rcv') {
+	vLogHTML('Received unexpected SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vClose($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  FwdTSNWithBadStream.seq - FORWARD-TSN Chunk is received with invalid stream number
+
+=head1 PURPOSE
+
+  To check that if FORWARD-TSN chunk is received with invalid stream number
+  and then the endpoint should silently discard the FORWARD-TSN chunk.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./FwdTSNWithBadStream.seq">./FwdTSNWithBadStream.seq</A> [-tooloption ...] -pkt <A HREF="./FwdTSNWithBadStream.def">./FwdTSNWithBadStream.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data
+  in endpoint A such that FORWARD-TSN message is sent to endpoint B
+  with invalid stream number.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+  FORWARD-TSN    ----------------->    Silently discard
+  (with Invalid Chunk Length)
+
+  TEST DESCRIPTION:
+
+  1. Send FORWARD-TSN message from endpoint A to B with invalid stream
+     number. Record the message sequence using a signal emulator.
+  2. Check A: FORWARD-TSN chunk is discarded by endpoint B.
+  3. Check B: Was the message sequence as above.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3758
+
+  3.2 Forward Cumulative TSN Chunk Definition (FORWARD TSN)
+
+    The following new chunk type is defined:
+
+    Chunk Type    Chunk Name
+    ------------------------------------------------------
+    192 (0xC0)    Forward Cumulative TSN (FORWARD TSN)
+
+    This chunk shall be used by the data sender to inform the data
+    receiver to adjust its cumulative received TSN point forward because
+    some missing TSNs are associated with data chunks that SHOULD NOT be
+    transmitted or retransmitted by the sender.
+
+    Forward Cumulative TSN chunk has the following format:
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |   Type = 192  |  Flags = 0x00 |        Length = Variable      |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                      New Cumulative TSN                       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         Stream-1              |       Stream Sequence-1       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    \                                                               /
+    /                                                               \
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         Stream-N              |       Stream Sequence-N       |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+

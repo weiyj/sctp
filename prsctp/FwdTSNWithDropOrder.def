@@ -1,0 +1,196 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#define NO_STD_RCV_CHUNK_DATA
+#include "../common/STD_PKT_COMMON.def"
+
+#if ENABLE_IPV6
+#define DATA_SIZE	1432
+#else
+#define DATA_SIZE	1452
+#endif
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_data_order_less,
+	{
+		chunk = chunk_data_order_less;
+	}
+)
+
+CHUNK_DATA chunk_data_order_less {
+	UFlag = 0;
+	BFlag = 1;
+	EFlag = 1;
+	TSN = SNDTSN;
+	Identifier = 0;
+	SequenceNumber = 2;
+	Protocol = 0;
+	payload = data_order;
+}
+
+Payload data_order {
+	data = repeat(0, DATA_SIZE);
+}
+
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_sack_order,
+	{
+		chunk = chunk_sack_order;
+	}
+)
+
+CHUNK_SACK chunk_sack_order {
+	ACK = SNDTSN - 4;
+	AdvRecvWindow = any;
+	NumOfGapAck = 1;
+	GapAckBlockStart = 4;
+	GapAckBlockEnd = 4;
+}
+
+//
+// SCTP CHUNK_FORWARD_TSN
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_ftsn_order_less,
+	{
+		chunk = chunk_ftsn_order_less;
+	}
+)
+
+CHUNK_FORWARD_TSN chunk_ftsn_order_less {
+	NewTSN = SNDTSN - 1;
+	Stream = 0;
+	StreamSequence = 2;
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_data_order_equal,
+	{
+		chunk = chunk_data_order_equal;
+	}
+)
+
+CHUNK_DATA chunk_data_order_equal {
+	UFlag = 0;
+	BFlag = 1;
+	EFlag = 1;
+	TSN = SNDTSN;
+	Identifier = 0;
+	SequenceNumber = 7;
+	Protocol = 0;
+	payload = data_order;
+}
+
+//
+// SCTP CHUNK_FORWARD_TSN
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_ftsn_order_equal,
+	{
+		chunk = chunk_ftsn_order_equal;
+	}
+)
+
+CHUNK_FORWARD_TSN chunk_ftsn_order_equal {
+	NewTSN = SNDTSN;
+	Stream = 0;
+	StreamSequence = 7;
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_data_order_large,
+	{
+		chunk = chunk_data_order_large;
+	}
+)
+
+CHUNK_DATA chunk_data_order_large {
+	UFlag = 0;
+	BFlag = 1;
+	EFlag = 1;
+	TSN = SNDTSN;
+	Identifier = 0;
+	SequenceNumber = 11;
+	Protocol = 0;
+	payload = data_order;
+}
+
+//
+// SCTP CHUNK_FORWARD_TSN
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_ftsn_order_large,
+	{
+		chunk = chunk_ftsn_order_large;
+	}
+)
+
+CHUNK_FORWARD_TSN chunk_ftsn_order_large {
+	NewTSN = SNDTSN;
+	Stream = 0;
+	StreamSequence = 12;
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_rcv,
+	{
+		chunk = chunk_data_rcv;
+	}
+)
+
+CHUNK_DATA chunk_data_rcv {
+	IFlag = any;
+	UFlag = any;
+	BFlag = 1;
+	EFlag = 1;
+	TSN = SACK;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_order;
+}
+

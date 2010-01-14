@@ -6,7 +6,7 @@ Index
   <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
   <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
   <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
-  <LI>RFC4960: Retransmission Timer</LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
   <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
   <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
   <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
@@ -14,7 +14,7 @@ Index
   <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
   <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
   <LI><A HREF="../addip/index.html">RFC5061: Dynamic Address Reconfiguration</A></LI>
-  <LI><A HREF="../prsctp/index.html">RFC3758: Partial Reliability Extension</A></LI>
+  <LI>RFC3758: Partial Reliability Extension</LI>
 </UL>
 <UL>
   <LI><A HREF="../index.html">Up</A>

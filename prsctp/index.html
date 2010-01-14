@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Partial Reliability Extension</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Partial Reliability Extension</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_1_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_1</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2010/01/14 01:00:32</TD></TR>
+<TR><TD>End :</TD><TD>2010/01/14 01:00:32</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>FORWARD-TSN Chunk Header</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./FwdTSNWithBadStream.html">FORWARD-TSN Chunk is received with invalid stream number</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithBadStream.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithBadStream.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./FwdTSNWithDupTSN.html">FORWARD-TSN Chunk is received with invalid new cumulative TSN</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDupTSN.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDupTSN.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./FwdTSNWithBadLength.html">FORWARD-TSN Chunk is received with invalid chunk length</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithBadLength.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithBadLength.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Sender Side Implementation</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./FwdTSNWhenDropUnOrder.html">FORWARD-TSN Chunk is sent to indicating unordered delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropUnOrder.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropUnOrder.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./FwdTSNWhenDropOrder.html">FORWARD-TSN Chunk is sent to indicating ordered delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropOrder.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropOrder.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./FwdTSNWhenDropFrag.html">FORWARD-TSN Chunk is sent to indicating fragmented delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropFrag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropFrag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./FwdTSNWhenDropUnorderStream.html">FORWARD-TSN Chunk is sent to indicating unordered multi-stream delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropUnorderStream.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropUnorderStream.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>8</TD><TD><A HREF="./FwdTSNWhenDropOrderStream.html">FORWARD-TSN Chunk is sent to indicating ordered multi-stream delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="8.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropOrderStream.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWhenDropOrderStream.def">X</A></TD><TD ALIGN="CENTER"><A HREF="8.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Receiver Side Implementation</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>9</TD><TD><A HREF="./FwdTSNWithDropUnOrder.html">FORWARD-TSN Chunk is received to indicating unordered delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="9.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropUnOrder.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropUnOrder.def">X</A></TD><TD ALIGN="CENTER"><A HREF="9.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>10</TD><TD><A HREF="./FwdTSNWithDropFrag.html">FORWARD-TSN Chunk is received to indicating fragmented delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="10.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropFrag.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropFrag.def">X</A></TD><TD ALIGN="CENTER"><A HREF="10.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>11</TD><TD><A HREF="./FwdTSNWithDropOrder.html">FORWARD-TSN Chunk is received to indicating ordered delivery is abandoned</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="11.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropOrder.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./FwdTSNWithDropOrder.def">X</A></TD><TD ALIGN="CENTER"><A HREF="11.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+  <LI><A HREF="../addip/index.html">RFC5061: Dynamic Address Reconfiguration</A></LI>
+  <LI>RFC3758: Partial Reliability Extension</LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- b5192328e08a297041e881b071d7be80 -->

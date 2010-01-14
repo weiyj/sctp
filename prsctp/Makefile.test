@@ -35,39 +35,45 @@
 #
 ##############################################################################
 
-CONFIGDIR=config
+PERL	= /usr/bin/perl
+POD2HTML= -$(PERL) -e 'use Pod::Html; pod2html("--noindex", @ARGV);'
 
-SUBDIRS=init \
-	term \
-	fault \
-	error \
-	bund \
-	data \
-	timer \
-	congest \
-	pmtu \
-	ecn \
-	packet \
-	auth \
-	addip \
-	prsctp \
-	miss
+IFILE = INDEX
+TITLE = "SCTP Conformance Test For Partial Reliability Extension"
 
-v4test v6test test tiny check document document2 clean cleandoc:
-	@for subdir in ${SUBDIRS}; do \
-		echo "===> $$subdir"; \
-		(cd $$subdir; ${MAKE} $@); \
-	done
+document:
+	$(AUTORUN) -g -title=$(TITLE) $(IFILE)
+	rm -f pod2html-dircache pod2html-itemcache pod2htmd.tmp  pod2htmi.tmp
 
-.PHONY: config cleanconfig
-config:
-	@for subdir in ${CONFIGDIR}; do \
-		(cd $$subdir; ${MAKE} $@); \
-	done
+document2:
+	$(AUTORUN) -G $(IFILE)
+	rm -f pod2html-dircache pod2html-itemcache pod2htmd.tmp  pod2htmi.tmp
 
-cleanconfig:
-	@for subdir in ${CONFIGDIR}; do \
-		(cd $$subdir; ${MAKE} $@); \
-	done
+clean:
+	-/bin/rm -f *.log *.dump [0-9]*.html index.html summary.html report.html
 
-	rm -rf etc/tn.def etc/nut.def
+cleandoc:
+	-/bin/rm -f *.html
+
+v4test: changever4 test
+
+v6test: changever6 test
+
+test:
+	$(AUTORUN) $(AROPT) -title=$(TITLE) $(IFILE)
+
+changever4:
+	../config/chgversion.pl IPv4
+
+changever6:
+	../config/chgversion.pl IPv6
+
+tahi:	document
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -dump2txt -title=$(TITLE) $(IFILE)
+
+tiny:	document
+	/bin/rm -f index.html summary.html report.html
+	$(AUTORUN) $(AROPT) -dump2txt -tiny -title=$(TITLE) $(IFILE)
+
+include ../Makefile.inc

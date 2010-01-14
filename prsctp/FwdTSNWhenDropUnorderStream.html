@@ -1,0 +1,113 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>FwdTSNWhenDropUnorderStream.seq - FORWARD-TSN Chunk is sent to indicating unordered multi-stream delivery is abandoned</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  FwdTSNWhenDropUnorderStream.seq - FORWARD-TSN Chunk is sent to indicating unordered multi-stream delivery is abandoned</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that if unordered multi-stream delivery is abandoned then the endpoint
+  should send FORWARD-TSN chunk to indicating ordered multi-stream delivery is
+  abandoned.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./FwdTSNWhenDropUnorderStream.seq">./FwdTSNWhenDropUnorderStream.seq</A> [-tooloption ...] -pkt <A HREF="./FwdTSNWhenDropUnorderStream.def">./FwdTSNWhenDropUnorderStream.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data in
+  endpoint B such that unordered multi-stream DATA messages are sent to
+  endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                &lt;-----------------      DATA A1
+                                        [TSN=1, STR=0, SEQ=0]
+                &lt;-----------------      DATA A2
+                                        [TSN=2, STR=1, SEQ=0]
+                &lt;-----------------      DATA A2
+                                        [TSN=3, STR=0, SEQ=0]
+                &lt;-----------------      DATA A3
+                                        [TSN=4, STR=1, SEQ=0]
+                &lt;-----------------      FORWARD-TSN
+                                        [TSN=4]
+  SACK          -----------------&gt;</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send unordered multi-stream DATA messages from endpoint B to A.
+     Record the message sequence using a signal emulator.
+  2. Check A: FORWARD-TSN message will be sent from endpoint B after
+     the unordered multi-stream DATA messages are abandoned.
+  3. Check B: Was the message sequence as above.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 3758</pre>
+<pre>
+  3.5.  Sender Side Implementation of PR-SCTP</pre>
+<pre>
+    The sender side implementation of PR-SCTP is identical to that of the
+    base SCTP protocol, except for:</pre>
+<pre>
+    o  actions a sending side PR-SCTP implementation must take when a TSN
+       is &quot;abandoned&quot; (as per the rules of whatever PR-SCTP service
+       definition is in effect)
+    o  special actions that a PR-SCTP implementation must take upon
+       receipt of SACK
+    o  rules governing the generation of FORWARD TSN chunks.</pre>
+
+</body>
+
+</html>
