@@ -82,7 +82,7 @@ if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
 # wait for unordered delivery messages become abandoned
 %ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ftsn_unorder);
 if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_ftsn_unorder') {
-	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('Cannot receive SCTP CHUNK_FORWARD_TSN<BR>');
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
