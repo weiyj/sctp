@@ -39,6 +39,22 @@
 // SCTP CHUNK_FORWARD_TSN
 //
 PKG_SCTP_SHORT_RECV(
+	sctp_chunk_ftsn_porder,
+	{
+		chunk = chunk_forward_tsn_porder;
+	}
+)
+
+CHUNK_FORWARD_TSN chunk_forward_tsn_porder {
+	NewTSN = SACK - 1;
+	Stream = 0;
+	StreamSequence = 0;
+}
+
+//
+// SCTP CHUNK_FORWARD_TSN
+//
+PKG_SCTP_SHORT_RECV(
 	sctp_chunk_ftsn_order,
 	{
 		chunk = chunk_forward_tsn_order;

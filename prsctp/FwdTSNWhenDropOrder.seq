@@ -43,6 +43,7 @@ use SCTP;
 
 %pktdesc = (
 	sctp_chunk_ftsn_order	=> "Recv SCTP CHUNK_FORWARD_TSN (ordered delivery)",
+	sctp_chunk_ftsn_porder	=> "Recv SCTP CHUNK_FORWARD_TSN (ordered delivery)",
 );
 
 $IF0 = Link0;
@@ -80,9 +81,21 @@ if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
 }
 
 # wait for ordered delivery messages become abandoned
-%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ftsn_order);
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ftsn_order, sctp_chunk_ftsn_porder);
+if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_ftsn_porder') {
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+	if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+		vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+	
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_ftsn_order);
+}
+
 if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_ftsn_order') {
-	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vLogHTML('Cannot receive SCTP CHUNK_FORWARD_TSN<BR>');
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
