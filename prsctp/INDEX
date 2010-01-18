@@ -49,6 +49,7 @@
 ./FwdTSNWhenDropFrag.seq:./FwdTSNWhenDropFrag.def:-cpp='-DPRSCTP_ENABLE=1'::FORWARD-TSN Chunk is sent to indicating fragmented delivery is abandoned
 ./FwdTSNWhenDropUnorderStream.seq:./FwdTSNWhenDropUnorderStream.def:-cpp='-DPRSCTP_ENABLE=1'::FORWARD-TSN Chunk is sent to indicating unordered multi-stream delivery is abandoned
 ./FwdTSNWhenDropOrderStream.seq:./FwdTSNWhenDropOrderStream.def:-cpp='-DPRSCTP_ENABLE=1'::FORWARD-TSN Chunk is sent to indicating ordered multi-stream delivery is abandoned
+./FwdTSNWhenTimeout.seq:./FwdTSNWhenTimeout.def:-cpp='-DPRSCTP_ENABLE=1'::FORWARD-TSN Chunk is sent again after T3-rtx timer expires and no SACK is received
 
 ########################################################################
 &print:<B>Receiver Side Implementation</B>
