@@ -75,7 +75,7 @@ if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
 	exit $V6evalTool::exitFail;
 }
 
-%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_rcv_link1, sctp_chunk_heartbeat_link1);
+%ret = vWarpRecv3($IF1, 10, 0, 0, sctp_chunk_data_rcv_link1, sctp_chunk_heartbeat_link1);
 if ($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_heartbeat_link1) {
 	$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
 	vWarpCPP("-DHBINFO=\\\"$HBINFO\\\"");
