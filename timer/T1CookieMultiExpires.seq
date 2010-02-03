@@ -75,7 +75,7 @@ if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_cookie_echo_rcv) {
 $stime = $ret{"recvTime".$ret{"recvCount"}};
 $count = 0;
 
-while ($count < $MAX_INIT_RETRANS) {
+while ($count * 2 < $MAX_INIT_RETRANS) {
 	# Don't send INIT-ACK, INIT will be retransmitted after RTO
 	%ret = vWarpRecv($IF1, $RTO + 5, 0, 0, sctp_chunk_cookie_echo_rcv_link1);
 	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_cookie_echo_rcv_link1) {

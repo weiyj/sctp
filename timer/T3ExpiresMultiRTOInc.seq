@@ -80,7 +80,7 @@ if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv) {
 $stime = $ret{"recvTime".$ret{"recvCount"}};
 $count = 0;
 
-while ($count < $ASSOC_MAX_RETRANS) {
+while ($count * 2 < $ASSOC_MAX_RETRANS) {
 	# Don't send SACK, Data will be retransmitted after RTO
 	%ret = vWarpRecv($IF1, $RTO + 5, 0, 0, sctp_chunk_data_rcv_link1);
 	if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_rcv_link1) {
