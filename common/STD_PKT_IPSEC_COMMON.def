@@ -1,0 +1,325 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#ifndef __PKT_IPSEC_COMMON_DEF_
+#define __PKT_IPSEC_COMMON_DEF_	1
+
+#include "../common/STD_PKT_COMMON.def"
+#include "../common/SCTP_IPSEC_COMMON.def"
+
+#ifndef IPSEC_EXTHHDR_SND
+#define IPSEC_EXTHHDR_SND	ah_to_host
+#endif
+
+#ifndef IPSEC_EXTHHDR_RCV
+#define IPSEC_EXTHHDR_RCV	ah_from_host
+#endif
+
+AHAlgorithm aalgo_hmacmd5_012 {
+	auth = hmacmd5("TAHITEST89ABCDEF");
+}
+
+Hdr_AH ah_from_host {
+	SPI = 0x1000;
+	SequenceNumber = any;
+	algorithm = aalgo_hmacmd5_012;
+}
+
+Hdr_AH ah_to_host {
+	SPI = 0x1000;
+	SequenceNumber = 1;
+	algorithm = aalgo_hmacmd5_012;
+}
+
+ESPAlgorithm ealgo_descbc_012_hmacmd5_012 {
+	crypt = descbc("TAHITEST");
+	auth = hmacmd5("TAHITEST89ABCDEF");
+}
+
+Hdr_ESP esp_to_host {
+	SPI = 0x1000;
+	SequenceNumber = 1;
+	algorithm = ealgo_descbc_012_hmacmd5_012;
+}
+
+Hdr_ESP esp_from_host {
+	SPI = 0x1000;
+	SequenceNumber = any;
+	algorithm = ealgo_descbc_012_hmacmd5_012;
+}
+
+//
+// SCTP CHUNK_INIT
+//
+PKG_SCTP_IPSEC_EXTH_SEND(
+	sctp_chunk_init_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		SourcePort = SCTP_TN0_PORT;
+		DestinationPort = SCTP_NUT0_PORT;
+	},
+	{
+		chunk = chunk_init_snd;
+	}
+)
+
+//
+// SCTP CHUNK_INIT
+//
+PKG_SCTP_IPSEC_EXTH_RECV(
+	sctp_chunk_init_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		SourcePort = SCTP_NUT0_PORT;
+		DestinationPort = SCTP_TN0_PORT;
+	},
+	{
+		chunk = chunk_init_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_INIT_ACK
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_init_ack_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_init_ack_snd;
+	}
+)
+
+//
+// SCTP CHUNK_INIT_ACK
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_init_ack_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_init_ack_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_COOKIE_ECHO
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_cookie_echo_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_cookie_echo_snd;
+	}
+)
+
+//
+// SCTP CHUNK_COOKIE_ECHO
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_cookie_echo_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_cookie_echo_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_COOKIE_ACK
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_cookie_ack_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_cookie_ack_snd;
+	}
+)
+
+//
+// SCTP CHUNK_COOKIE_ACK
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_cookie_ack_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_cookie_ack_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_data_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_data_snd;
+	}
+)
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_data_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_data_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_SACK
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_sack_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_sack_snd;
+	}
+)
+
+//
+// SCTP CHUNK_SACK
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_sack_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_sack_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_shutdown_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_shutdown_snd;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_shutdown_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_shutdown_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN_ACK
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_shutdown_ack_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_shutdown_ack_snd;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN_ACK
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_shutdown_ack_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_shutdown_ack_rcv;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN_COMPLETE
+//
+PKG_SCTP_IPSEC_SHORT_SEND(
+	sctp_chunk_shutdown_complete_ipsec_snd,
+	{
+		exthdr = IPSEC_EXTHHDR_SND;
+	},
+	{
+		chunk = chunk_shutdown_complete_snd;
+	}
+)
+
+//
+// SCTP CHUNK_SHUTDOWN_COMPLETE
+//
+PKG_SCTP_IPSEC_SHORT_RECV(
+	sctp_chunk_shutdown_complete_ipsec_rcv,
+	{
+		exthdr = IPSEC_EXTHHDR_RCV;
+	},
+	{
+		chunk = chunk_shutdown_complete_rcv;
+	}
+)
+
+#endif /* #ifndef __PKT_IPSEC_COMMON_DEF_ */

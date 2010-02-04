@@ -1,0 +1,144 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+use IPSEC;
+
+%pktdesc = (
+	sctp_chunk_abort_ootb	=> "Recv SCTP CHUNK_ABORT",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+ipsecSetDiscardSPD("direction=out");
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_abort_ootb);
+if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_sack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_ABORT<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  OutboundProtocolDiscard.seq - SCTP packet is received while SCTP Protocol is set to IPsec Outbound Discard
+
+=head1 PURPOSE
+
+  To check that if SCTP packet is received while Outbound SCTP protocol is set to be
+  discarded the the endpoint must silently discard the SCTP response packet.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./OutboundProtocolDiscard.seq">./OutboundProtocolDiscard.seq</A> [-tooloption ...] -pkt <A HREF="./OutboundProtocolDiscard.def">./OutboundProtocolDiscard.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Outbound SCTP protocol
+  is set to be discarded. Arrange the data in endpoint A such that INIT is sent
+  to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  INIT        ----------------->
+
+              <-----------------       ABORT
+                                       (Discard the ABORT)
+
+  TEST DESCRIPTION:
+
+  1. From endpoint A, send valid INIT message to endpoint B, when there
+     is no association between them. 
+     Record the message sequence using a signal emulator.
+  2. Check A: ABORT message send from endpoint B will be silently discarded
+     by endpoint B, and will not be sent to endpoint A.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3554
+
+  2.  SCTP over IPsec
+
+=begin html
+<PRE>
+    IPsec implementations should already be able to use the SCTP
+    transport protocol number as assigned by IANA as a selector in their
+    Security Policy Database (SPD).  <B>It should be straightforward to
+    extend existing implementations to use the SCTP source and
+    destination port numbers as selectors in the SPD.</B>  Since the concept
+    of a port, and its location in the transport header is
+    protocol-specific, the IPsec code responsible for identifying the
+    transport protocol ports has to be suitably modified.  This, however
+    is not enough to fully support the use of SCTP in conjunction with
+    IPsec.
+</PRE>
+
+=end html
+

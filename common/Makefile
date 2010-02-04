@@ -36,9 +36,10 @@
 ##############################################################################
 
 INSTALL_DIR=$(TESTDIR)/common
-XFILES = SCTP.pm
+XFILES = SCTP.pm IPSEC.pm
 FILES = IP_COMMON.def SCTP_COMMON.def SCTP_AUTH_COMMON.def STD_PKT_COMMON.def \
-	STD_PKT_MULTI_COMMON.def sctpconf.def
+	SCTP_IPSEC_COMMON.def STD_PKT_MULTI_COMMON.def STD_PKT_IPSEC_COMMON.def \
+	sctpconf.def
 
 all:
 

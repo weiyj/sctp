@@ -1,0 +1,224 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+use IPSEC;
+
+%pktdesc = (
+	sctp_chunk_init_ack_ipsec_rcv		=> "Recv SCTP CHUNK_INIT_ACK (with Encapsulating Security Payload)",
+	sctp_chunk_cookie_ack_ipsec_rcv		=> "Recv SCTP CHUNK_COOKIE_ACK (with Encapsulating Security Payload)",
+	sctp_chunk_sack_ipsec_rcv		=> "Recv SCTP CHUNK_SACK (with Encapsulating Security Payload)",
+	sctp_chunk_shutdown_ack_ipsec_rcv	=> "Recv SCTP CHUNK_SHUTDOWN_ACK (with Encapsulating Security Payload)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+ipsecSetOutSAD("spi=0x1000", "protocol=esp", "ealgo=des-cbc", "ealgokey=TAHITEST",
+	      "eauth=hmac-md5", "eauthkey=TAHITEST89ABCDEF");
+
+ipsecSetOutSPD("protocol=esp");
+
+sctpStartServer($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+vSend($IF0, sctp_chunk_init_snd);
+
+%ret = vWarpRecv3($IF0, 10, 0, 0, sctp_chunk_init_ack_ipsec_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_init_ack_ipsec_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+if ($SCTP::CONF{ENABLE_IPV6} == 0 ) {
+	$PREFIX = "Frame_Ether.Packet_IPv4.Hdr_ESP.Decrypted.ESPPayload.Upp_SCTP.";
+} else {
+	$PREFIX = "Frame_Ether.Packet_IPv6.Hdr_ESP.Decrypted.ESPPayload.Upp_SCTP.";
+}
+
+$SCTP::CONF{'VERFTAG'} = $ret{$PREFIX . "CHUNK_INIT_ACK.InitiateTag"};
+$SCTP::CONF{'COOKIE'} = $ret{$PREFIX . "CHUNK_INIT_ACK.StaleCookie.Cookie"};
+$SCTP::CONF{'COOKIE'} =~ s/\n//;
+$SCTP::CONF{'ARWND'} = $ret{$PREFIX . "CHUNK_INIT_ACK.AdvRecvWindow"};
+$SCTP::CONF{'SACK'} = $ret{$PREFIX . "CHUNK_INIT_ACK.TSN"} - 1;
+vWarpCPP();
+
+vSend($IF0, sctp_chunk_cookie_echo_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_cookie_ack_ipsec_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_cookie_ack_ipsec_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML('================= vSendMsg =================');
+
+sctpUpdateSendTSN();
+vSend($IF0, sctp_chunk_data_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_sack_ipsec_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_sack_ipsec_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vLogHTML('================== vClose ==================');
+
+vSend($IF0, sctp_chunk_shutdown_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_shutdown_ack_ipsec_rcv);
+if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_shutdown_ack_ipsec_rcv) {
+	vLogHTML('Cannot receive SCTP CHUNK_SHUTDOWN_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#FF0000">NG</FONT>'); 
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_shutdown_complete_snd);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  ESP_Outbound_MD5.seq - SCTP packet is sent with Encapsulating Security Payload using HMAC-MD5 Algorithm
+
+=head1 PURPOSE
+
+  To check if Outbound packet is set to be sent with Encapsulating Security Payload
+  then the endpoint should sent the SCTP packet with Authentication Header using
+  HMAC-MD5 Algorithm.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./ESP_Outbound_MD5.seq">./ESP_Outbound_MD5.seq</A> [-tooloption ...] -pkt <A HREF="./ESP_Outbound_MD5.def">./ESP_Outbound_MD5.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is not established between endpoint A and B. Outbound packet is set
+  to be sent with Encapsulating Security Payload. Arrange the data in endpoint A
+  such that INIT is sent to endpoint B.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (CLOSED)                             (CLOSED)
+
+  INIT          ----------------->
+
+                <-----------------      INIT-ACK
+                                        (with Encapsulating Security Payload)
+  COOKIE-ECHO   ----------------->
+
+                <-----------------      COOKIE-ACK
+                                        (with Encapsulating Security Payload)
+  DATA          ----------------->
+
+                <-----------------      SACK
+                                        (with Encapsulating Security Payload)
+  SHUTDOWN      ----------------->
+
+                <----------------       SHUTDOWN-ACK
+                                        (with Encapsulating Security Payload)
+  SHUTDOWN-     ----------------->
+
+  TEST DESCRIPTION:
+
+  1. Attempt to initiate an association from endpoint A to B. Send INIT 
+     message to endpoint B. 
+     Record the message sequence using a signal emulator.
+  2. Check A: INIT-ACK message should be received at endpoint A with
+     Encapsulating Security Payload using HMAC-MD5 Algorithm.
+  3. Check B: Was the message sequence as above.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 3554
+
+  2.  SCTP over IPsec
+
+    Since SCTP can negotiate sets of source and destination addresses
+    (not necessarily in the same subnet or address range) that may be
+    used in the context of a single association, the SPD should be able
+    to accommodate this.  The straightforward, and expensive, way is to
+    create one SPD entry for each pair of source/destination addresses
+    negotiated.  A better approach is to associate sets of addresses with
+    the source and destination selectors in each SPD entry (in the case
+    of non-SCTP traffic, these sets would contain only one element).
+    While this is an implementation decision, implementors are encouraged
+    to follow this or a similar approach when designing or modifying the
+    SPD to accommodate SCTP-specific selectors.
+
+=begin html
+<PRE>
+    Similarly, SAs may have multiple associated source and destination
+    addresses.  Thus an SA is identified by the extended triplet ({set of
+    destination addresses}, SPI, Security Protocol).  <B>A lookup in the
+    Security Association Database (SADB) using the triplet (Destination
+    Address, SPI, Security Protocol), where Destination Address is any of
+    the negotiated peer addresses, MUST return the same SA.</B>
+</PRE>
+
+=end html
+
