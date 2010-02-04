@@ -1,3 +1,8 @@
+2010/02/04 REL_1_0_2 release.
+  - Implement test cases for Partial Reliability Extension
+  - Implement test cases for Internet Protocol Security
+  - Some bugs fix
+
 2009/04/16 REL_1_0_1 release.
   - Implement test cases for Dynamic Address Reconfiguration
   - Add HEARTBEAT timer expires test case for User Initiated heartbeat

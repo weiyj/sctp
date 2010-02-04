@@ -35,7 +35,7 @@
 # be incorporated into the next SCTP release.
 #
 ##############################################################################
-BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_1 $'; }
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_2 $'; }
 
 use lib "../common";
 use V6evalTool;
