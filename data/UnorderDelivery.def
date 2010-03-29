@@ -33,5 +33,11 @@
 // be incorporated into the next SCTP release.
 //
 
+#if (ENABLE_IPV6 == 0)
+#define DATALEN		1452
+#else 
+#define DATALEN		1432
+#endif
+
 #include "../common/STD_PKT_COMMON.def"
 
