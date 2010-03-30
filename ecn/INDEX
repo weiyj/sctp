@@ -41,7 +41,8 @@
 ./PacketWithCEMark.seq:./PacketWithCEMark.def:-cpp='-DECN_ENABLE=1'::Data chunk is received with IP datagram marked with the CE bit while endpoint is ECN capable
 ./PacketWithCEMark2.seq:./PacketWithCEMark2.def:::Data chunk is received with IP datagram marked with the CE bit while endpoint is not ECN capable
 ./RecvChunkECNEcho.seq:./RecvChunkECNEcho.def:-cpp='-DECN_ENABLE=1'::ECN-ECHO chunk is received to notify IP datagram marked with the CE bit
-
+#./ECNEchoWithValidTSN.seq:./ECNEchoWithValidTSN.def:-cpp='-DECN_ENABLE=1 -DSTRRST_ENABLE=1'::ECN-ECHO chunk is received with Valid TSN Number and marked with the CE bit
+./ECNEchoWithInvalidTSN.seq:./ECNEchoWithInvalidTSN.def:-cpp='-DECN_ENABLE=1'::ECN-ECHO chunk is received with Invalid TSN Number and marked with the CE bit
 ########################################################################
 &print:<B>Chunk Header</B>
 ./EchoWithBadChunkLength.seq:./EchoWithBadChunkLength.def:-cpp='-DECN_ENABLE=1'::ECN-ECHO chunk is received with invalid chunk length
