@@ -1,6 +1,6 @@
 #
 # SCTP Conformance Test Suite Implementation
-# (C) Copyright Fujitsu Ltd. 2008, 2009
+# (C) Copyright Fujitsu Ltd. 2008, 2009, 2010
 #
 # This file is part of the SCTP Conformance Test Suite implementation.
 #
