@@ -60,7 +60,7 @@ CHUNK_DATA chunk_data_##_pNAME { \
 	payload = data##_pNAME; \
 } \
 Payload data##_pNAME { \
-	data = repeat(0, 1432); \
+	data = repeat(0, 1416); \
 } \
 PKG_SCTP_SHORT_RECV( \
 	sctp_chunk_sack_##_pNAME, \
@@ -182,7 +182,7 @@ Payload data_seg_1st {
 PKG_SCTP_SHORT_RECV(
 	sctp_chunk_data_seg_2nd,
 	{
-		chunk = chunk_data_seg_2nd;
+		chunk = oneof(chunk_data_seg_2nd, chunk_data_seg_2nd_with_sack);
 	}
 )
 
@@ -199,9 +199,55 @@ CHUNK_DATA chunk_data_seg_2nd {
 
 Payload data_seg_2nd {
 #if ENABLE_IPV6
-	data = repeat(0, 1432);
+	data = repeat(0, 1400);
 #else
-	data = repeat(0, 1420);
+	data = repeat(0, 1388);
+#endif
+}
+
+CHUNK_DATA chunk_data_seg_2nd_with_sack {
+	UFlag = 0;
+	BFlag = 0;
+	EFlag = 1;
+	TSN = any;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_seg_2nd_with_sack;
+}
+
+Payload data_seg_2nd_with_sack {
+#if ENABLE_IPV6
+	data = repeat(0, 1416);
+#else
+	data = repeat(0, 1404);
+#endif
+}
+
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_seg_1st_with_sack,
+	{
+		chunk = chunk_sack_rcv;
+		chunk = chunk_data_seg_1st_with_sack;
+	}
+)
+
+CHUNK_DATA chunk_data_seg_1st_with_sack {
+	UFlag = 0;
+	BFlag = 1;
+	EFlag = 0;
+	TSN = any;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_seg_1st_with_sack;
+}
+
+Payload data_seg_1st_with_sack {
+#if ENABLE_IPV6
+	data = repeat(0, 1416);
+#else
+	data = repeat(0, 1428);
 #endif
 }
 

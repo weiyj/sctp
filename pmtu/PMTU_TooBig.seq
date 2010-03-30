@@ -47,6 +47,7 @@ use SCTP;
 	sctp_chunk_sack_1st	=> "Recv SCTP CHUNK_SACK (1st segment)",
 	sctp_chunk_data_seg_1st	=> "Recv SCTP CHUNK_DATA (1st segment)",
 	sctp_chunk_data_seg_2nd	=> "Recv SCTP CHUNK_DATA (2nd segment)",
+	sctp_chunk_data_seg_1st_with_sack,=>"Recv SCTP CHUNK_DATA (1st segment)",
 );
 
 if ($SCTP::CONF{ENABLE_IPV6} == 0) {
@@ -70,7 +71,7 @@ vLogHTML('<B>================ Main Test =================</B>');
 vSend($IF0, icmp_pkt_too_big);
 
 # We have changed Remote System's PMTU, need reboot to restore it
-$SCTP::CONF{"NEEDREBOOT"} = 1;
+$SCTP::CONF{"NEEDREBOOT"} = 1 if ($SCTP::CONF{ENABLE_IPV6} == 0);
 
 vSendMsg($IF0, sctp_chunk_data_1st, sctp_chunk_sack_1st);
 
@@ -78,8 +79,9 @@ sctpUpdateSendTSN();
 vSend($IF0, sctp_chunk_data_2nd);
 
 sctpUpdateRecvACK();
-%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_seg_1st);
-if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_seg_1st) {
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_seg_1st, sctp_chunk_data_seg_1st_with_sack);
+if ($ret{status} != 0 || ($ret{recvFrame} ne sctp_chunk_data_seg_1st &&
+			  $ret{recvFrame} ne sctp_chunk_data_seg_1st_with_sack)) {
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
@@ -90,7 +92,7 @@ vSend($IF0, sctp_chunk_sack_snd);
 
 sctpUpdateRecvACK();
 %ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_seg_2nd);
-if($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_seg_2nd) {
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_data_seg_2nd) {
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
