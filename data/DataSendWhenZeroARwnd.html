@@ -1,0 +1,164 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>DataSendWhenZeroARwnd.seq - Zero window probe is sent when the receiver's advertised window is zero</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  DataSendWhenZeroARwnd.seq - Zero window probe is sent when the receiver's advertised window is zero</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that a zero window probe SHOULD only be sent when all outstanding
+  DATA chunks have been cumulatively acknowledged and no DATA chunks are in
+  flight.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./DataSendWhenZeroARwnd.seq">./DataSendWhenZeroARwnd.seq</A> [-tooloption ...] -pkt <A HREF="./DataSendWhenZeroARwnd.def">./DataSendWhenZeroARwnd.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+                &lt;-----------------      DATA 1</pre>
+<pre>
+                &lt;-----------------      DATA 2</pre>
+<pre>
+                &lt;-----------------      DATA 3</pre>
+<pre>
+                &lt;-----------------      DATA 4</pre>
+<pre>
+  SACK          -----------------&gt;
+  (With zero advertised window for DATA 1 to 3)
+                &lt;-----------------      DATA 4</pre>
+<pre>
+  SACK          -----------------&gt;
+  (With zero advertised window for DATA 4)
+                &lt;-----------------      DATA 5</pre>
+<pre>
+  SACK          -----------------&gt;
+  (With zero advertised window for DATA 5)</pre>
+<pre>
+                &lt;-----------------      DATA 6</pre>
+<pre>
+  SACK          -----------------&gt;
+  (With zero advertised window for DATA 6)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. From endpoint B, send valid DATA message 6 times to endpoint A when
+     there is association between them. Only the first 4 DATA messages
+     will be sent to endpoint A due to the Congestion control window.
+  2. From endpoint A, receive DATA message 4 times. Send SACK of the first
+     3 DATA message to endpoint B with zero advertised window.
+  3. Check A: DATA 5 will not be sent to endpoint A and DATA 4 will be
+     sent again after expiry of T3-rtx timer.
+  4. From endpoint A, send SACK of the DATA 4 to endpoint B with zero
+     advertised window.
+  5. Check B: DATA 5 will be sent to endpoint A as a zero window probe.
+  6. From endpoint A, send SACK of the DATA 5 to endpoint B with zero
+     advertised window.
+  7. Check B: DATA 6 will be sent to endpoint A as a zero window probe.
+  8. From endpoint A, send SACK of the DATA 6 to endpoint B with zero
+     advertised window.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  6.1.  Transmission of DATA Chunks</pre>
+<pre>
+    A) At any given time, the data sender MUST NOT transmit new data to
+       any destination transport address if its peer's rwnd indicates
+       that the peer has no buffer space (i.e., rwnd is 0; see Section
+       6.2.1).  However, regardless of the value of rwnd (including if it
+       is 0), the data sender can always have one DATA chunk in flight to
+       the receiver if allowed by cwnd (see rule B, below).  This rule
+       allows the sender to probe for a change in rwnd that the sender
+       missed due to the SACK's having been lost in transit from the data
+       receiver to the data sender.</pre>
+<PRE>
+       <B>When the receiver's advertised window is zero, this probe is
+       called a zero window probe.  Note that a zero window probe SHOULD
+       only be sent when all outstanding DATA chunks have been
+       cumulatively acknowledged and no DATA chunks are in flight.  Zero
+       window probing MUST be supported.</B>
+</PRE><pre>
+       If the sender continues to receive new packets from the receiver
+       while doing zero window probing, the unacknowledged window probes
+       should not increment the error counter for the association or any
+       destination transport address.  This is because the receiver MAY
+       keep its window closed for an indefinite time.  Refer to Section
+       6.2 on the receiver behavior when it advertises a zero window.
+       The sender SHOULD send the first zero window probe after 1 RTO
+       when it detects that the receiver has closed its window and SHOULD
+       increase the probe interval exponentially afterwards.  Also note
+       that the cwnd SHOULD be adjusted according to Section 7.2.1.  Zero
+       window probing does not affect the calculation of cwnd.</pre>
+<pre>
+       The sender MUST also have an algorithm for sending new DATA chunks
+       to avoid silly window syndrome (SWS) as described in [RFC0813].
+       The algorithm can be similar to the one described in Section
+       4.2.3.4 of [RFC1122].</pre>
+<pre>
+       However, regardless of the value of rwnd (including if it is 0),
+       the data sender can always have one DATA chunk in flight to the
+       receiver if allowed by cwnd (see rule B below).  This rule allows
+       the sender to probe for a change in rwnd that the sender missed
+       due to the SACK having been lost in transit from the data receiver
+       to the data sender.</pre>
+
+</body>
+
+</html>

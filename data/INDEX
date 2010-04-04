@@ -45,6 +45,7 @@
 ./SO_MixA1A2A3A4.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A1->A2->A3->A4)
 ./SO_MixA4A3A2A1.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A4->A3->A2->A1)
 ./SO_MixA2A1A4A3.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A2->A1->A4->A3)
+./SO_MixA4A1A2A3.seq:./SO_Segment.def:::Ordered Data chunks are received for Re-order (A4->A1->A2->A3)
 
 ########################################################################
 &print:<B>Ordered Delivery (Multi-Stream)<B>
@@ -65,6 +66,11 @@
 ./FM_MixA2A3A1.seq:./FM_MixA2A3A1.def:::Fragmented DATA chunks are received for reassembly (A2->A3->A1)
 ./FM_MixA3A2A1.seq:./FM_MixA3A2A1.def:::Fragmented DATA chunks are received for reassembly (A3->A2->A1)
 ./FM_PartialDelivery.seq:./FM_PartialDelivery.def:::Fragmented DATA chunks are received for reassembly (Partial Delivery)
+
+########################################################################
+&print:<B>Advertised Receiver Window Credit</B>
+./DataRecvWhenNoRecvBuffer.seq:./DataRecvWhenNoRecvBuffer.def:::DATA chunk is received when exhaust the receiver buffer without fully closing receive window
+./DataSendWhenZeroARwnd.seq:./DataSendWhenZeroARwnd.def:::Zero window probe is sent when the receiver's advertised window is zero
 
 ########################################################################
 &print:<B>Acknowledgement on Reception of DATA Chunks</B>

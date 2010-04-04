@@ -1,0 +1,201 @@
+// SCTP Conformance Test Suite Implementation
+// (C) Copyright Fujitsu Ltd. 2008, 2009, 2010
+//
+// This file is part of the SCTP Conformance Test Suite implementation.
+//
+// The SCTP Conformance Test Suite implementation is free software;
+// you can redistribute it and/or modify it under the terms of
+// the GNU General Public License version 2 as published by
+// the Free Software Foundation.
+//
+// The SCTP Conformance Test Suite implementation is distributed in the
+// hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+// the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+// PURPOSE. See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with GNU CC; see the file COPYING.  If not, write to
+// the Free Software Foundation, 59 Temple Place - Suite 330,
+// Boston, MA 02111-1307, USA.
+//
+// Please send any bug reports or fixes you make to the
+// email address(es):
+//    networktest sctp <networktest-sctp@lists.sourceforge.net>
+//
+// Or submit a bug report through the following website:
+//    http://networktest.sourceforge.net/
+//
+// Written or modified by:
+//    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+//    Wei Yongjun <yjwei@cn.fujitsu.com>
+//
+// Any bugs reported given to us we will try to fix... any fixes shared will
+// be incorporated into the next SCTP release.
+//
+
+#include "../common/STD_PKT_COMMON.def"
+
+#define DATA_SIZE	80
+#define RECVBUF		1500
+
+#ifndef SACK 
+#define SACK 1
+#endif
+
+#define DATA_FRAGMENT_SEND(_pINDEX, _pBFLAG, _pEFLAG, _pARWND)	\
+PKG_SCTP_SHORT_SEND( \
+	sctp_chunk_data_snd_frag##_pINDEX, \
+	{ \
+		chunk = chunk_data_snd##_pINDEX; \
+	} \
+) \
+CHUNK_DATA chunk_data_snd##_pINDEX { \
+	UFlag = 1; \
+	BFlag = _pBFLAG; \
+	EFlag = _pEFLAG; \
+	TSN = INITTSN + _pINDEX; \
+	Identifier = 0; \
+	SequenceNumber = 0; \
+	Protocol = 0; \
+	payload = data_snd##_pINDEX; \
+} \
+Payload data_snd##_pINDEX { \
+	data = repeat(_pINDEX, DATA_SIZE); \
+} \
+PKG_SCTP_SHORT_RECV( \
+	sctp_chunk_sack_rcv_frag##_pINDEX, \
+	{ \
+		chunk = chunk_sack_rcv_frag##_pINDEX; \
+	} \
+) \
+\
+CHUNK_SACK chunk_sack_rcv_frag##_pINDEX { \
+	ACK = INITTSN + _pINDEX; \
+	AdvRecvWindow = _pARWND; \
+	NumOfGapAck = 0; \
+	NumOfDupTSN = 0; \
+}
+
+DATA_FRAGMENT_SEND(0, 1, 0, RECVBUF - DATA_SIZE * 1)
+DATA_FRAGMENT_SEND(1, 0, 0, RECVBUF - DATA_SIZE * 2)
+DATA_FRAGMENT_SEND(2, 0, 0, RECVBUF - DATA_SIZE * 3)
+DATA_FRAGMENT_SEND(3, 0, 0, RECVBUF - DATA_SIZE * 4)
+
+DATA_FRAGMENT_SEND(4, 0, 0, RECVBUF - DATA_SIZE * 5)
+DATA_FRAGMENT_SEND(5, 0, 0, RECVBUF - DATA_SIZE * 6)
+DATA_FRAGMENT_SEND(6, 0, 0, RECVBUF - DATA_SIZE * 7)
+DATA_FRAGMENT_SEND(7, 0, 0, RECVBUF - DATA_SIZE * 8)
+
+DATA_FRAGMENT_SEND(8, 0, 0, RECVBUF - DATA_SIZE * 9)
+DATA_FRAGMENT_SEND(9, 0, 0, RECVBUF - DATA_SIZE * 10)
+DATA_FRAGMENT_SEND(10, 0, 0, RECVBUF - DATA_SIZE * 11)
+DATA_FRAGMENT_SEND(11, 0, 0, 0)
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_rcv_frag_all,
+	{
+		chunk = chunk_data_rcv_all;
+	}
+)
+
+CHUNK_DATA chunk_data_rcv_all {
+	UFlag = any;
+	BFlag = any;
+	EFlag = any;
+	TSN = SACK + 1;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_rcv_all;
+}
+
+Payload data_rcv_all {
+	data = repeat(0, DATA_SIZE);
+	data = repeat(1, DATA_SIZE);
+	data = repeat(2, DATA_SIZE);
+	data = repeat(3, DATA_SIZE);
+	data = repeat(4, DATA_SIZE);
+	data = repeat(5, DATA_SIZE);
+	data = repeat(6, DATA_SIZE);
+	data = repeat(7, DATA_SIZE);
+	data = repeat(8, DATA_SIZE);
+	data = repeat(9, DATA_SIZE);
+	data = repeat(10, DATA_SIZE);
+	data = repeat(11, DATA_SIZE);
+}
+
+//
+// SCTP CHUNK_SACK
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_sack_snd_frag_all,
+	{
+		chunk = chunk_sack_snd_frag_all;
+	}
+)
+
+CHUNK_SACK chunk_sack_snd_frag_all {
+	ACK = SACK + 1;
+	AdvRecvWindow = ARWND;
+	NumOfGapAck = 0;
+	NumOfDupTSN = 0;
+}
+
+
+DATA_FRAGMENT_SEND(12, 0, 1, RECVBUF)
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_rcv_frag12,
+	{
+		chunk = chunk_data_rcv_frag12;
+	}
+)
+CHUNK_DATA chunk_data_rcv_frag12 {
+	UFlag = any;
+	BFlag = any;
+	EFlag = any;
+	TSN = SACK + 2;
+	Identifier = any;
+	SequenceNumber = any;
+	Protocol = any;
+	payload = data_rcv_frag12;
+}
+
+Payload data_rcv_frag12 {
+	data = repeat(12, DATA_SIZE);
+}
+
+//
+// SCTP CHUNK_SACK
+//
+PKG_SCTP_SHORT_SEND(
+	sctp_chunk_sack_snd_frag12,
+	{
+		chunk = chunk_sack_snd_frag12;
+	}
+)
+
+CHUNK_SACK chunk_sack_snd_frag12 {
+	ACK = SACK + 2;
+	AdvRecvWindow = ARWND;
+	NumOfGapAck = 0;
+	NumOfDupTSN = 0;
+}
+
+//
+// SCTP CHUNK_DATA
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_data_and_sack_12,
+	{
+		chunk = chunk_sack_rcv_frag12;
+		chunk = chunk_data_rcv_frag12;
+	}
+)
+

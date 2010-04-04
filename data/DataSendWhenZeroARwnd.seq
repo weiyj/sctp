@@ -1,0 +1,245 @@
+#!/usr/bin/perl
+#
+# SCTP Conformance Test Suite Implementation
+# (C) Copyright Fujitsu Ltd. 2008, 2009, 2010
+#
+# This file is part of the SCTP Conformance Test Suite implementation.
+#
+# The SCTP Conformance Test Suite implementation is free software;
+# you can redistribute it and/or modify it under the terms of
+# the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# The SCTP Conformance Test Suite implementation is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU CC; see the file COPYING.  If not, write to
+# the Free Software Foundation, 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+#
+# Please send any bug reports or fixes you make to the
+# email address(es):
+#    networktest sctp <networktest-sctp@lists.sourceforge.net>
+#
+# Or submit a bug report through the following website:
+#    http://networktest.sourceforge.net/
+#
+# Written or modified by:
+#    Hiroaki Kago <linuxsctp-kg@ml.css.fujitsu.com>
+#    Wei Yongjun <yjwei@cn.fujitsu.com>
+#
+# Any bugs reported given to us we will try to fix... any fixes shared will
+# be incorporated into the next SCTP release.
+#
+##############################################################################
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_2 $'; }
+
+use lib "../common";
+use V6evalTool;
+use SCTP;
+
+%pktdesc = (
+	sctp_chunk_sack_zero_arwnd	=> "Send SCTP CHUNK_SACK (with zero advertised window)",
+);
+
+$IF0 = Link0;
+
+vCapture($IF0);
+
+sctpCheckEnv($IF0);
+
+sctpStartClient($IF0, 6);
+
+vListen($IF0);
+
+vAccept($IF0);
+
+vLogHTML('<B>================ Main Test =================</B>');
+
+for($i = 1; $i < 5; $i++) {
+	sctpUpdateRecvACK();
+	%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+	if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+		vLogHTML('Cannot receive SCTP CHUNK_SACK<BR>');
+		vSend($IF0, sctp_chunk_abort_snd);
+		vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+		exit $V6evalTool::exitFail;
+	}
+}
+
+sctpUpdateRecvACK(-1);
+vSend($IF0, sctp_chunk_sack_zero_arwnd);
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_zero_arwnd);
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 10, 0, 1, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_zero_arwnd);
+
+sctpUpdateRecvACK();
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_data_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_data_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_DATA<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
+vSend($IF0, sctp_chunk_sack_snd);
+
+vShutdown($IF0);
+
+vLogHTML(OK);
+exit $V6evalTool::exitPass;
+
+######################################################################
+__END__
+
+=head1 NAME
+
+  DataSendWhenZeroARwnd.seq - Zero window probe is sent when the receiver's advertised window is zero
+
+=head1 PURPOSE
+
+  To check that a zero window probe SHOULD only be sent when all outstanding
+  DATA chunks have been cumulatively acknowledged and no DATA chunks are in
+  flight.
+
+=head1 SYNOPSIS
+
+=begin html
+<PRE>
+  <A HREF="./DataSendWhenZeroARwnd.seq">./DataSendWhenZeroARwnd.seq</A> [-tooloption ...] -pkt <A HREF="./DataSendWhenZeroARwnd.def">./DataSendWhenZeroARwnd.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE>
+
+=end html
+
+=head1 PRE-TEST CONDITION
+
+  Association is established between endpoint A and B. Arrange data 
+  in endpoint B such that messages is sent to endpoint A.
+
+=head1 TEST PROCEDURE
+
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)
+
+                <-----------------      DATA 1
+
+                <-----------------      DATA 2
+
+                <-----------------      DATA 3
+
+                <-----------------      DATA 4
+
+  SACK          ----------------->
+  (With zero advertised window for DATA 1 to 3)
+                <-----------------      DATA 4
+
+  SACK          ----------------->
+  (With zero advertised window for DATA 4)
+                <-----------------      DATA 5
+
+  SACK          ----------------->
+  (With zero advertised window for DATA 5)
+
+                <-----------------      DATA 6
+
+  SACK          ----------------->
+  (With zero advertised window for DATA 6)
+
+  TEST DESCRIPTION:
+
+  1. From endpoint B, send valid DATA message 6 times to endpoint A when
+     there is association between them. Only the first 4 DATA messages
+     will be sent to endpoint A due to the Congestion control window.
+  2. From endpoint A, receive DATA message 4 times. Send SACK of the first
+     3 DATA message to endpoint B with zero advertised window.
+  3. Check A: DATA 5 will not be sent to endpoint A and DATA 4 will be
+     sent again after expiry of T3-rtx timer.
+  4. From endpoint A, send SACK of the DATA 4 to endpoint B with zero
+     advertised window.
+  5. Check B: DATA 5 will be sent to endpoint A as a zero window probe.
+  6. From endpoint A, send SACK of the DATA 5 to endpoint B with zero
+     advertised window.
+  7. Check B: DATA 6 will be sent to endpoint A as a zero window probe.
+  8. From endpoint A, send SACK of the DATA 6 to endpoint B with zero
+     advertised window.
+
+=head1 NOTE
+
+  None
+
+=head1 REFERENCE
+
+  RFC 4960
+
+  6.1.  Transmission of DATA Chunks
+
+    A) At any given time, the data sender MUST NOT transmit new data to
+       any destination transport address if its peer's rwnd indicates
+       that the peer has no buffer space (i.e., rwnd is 0; see Section
+       6.2.1).  However, regardless of the value of rwnd (including if it
+       is 0), the data sender can always have one DATA chunk in flight to
+       the receiver if allowed by cwnd (see rule B, below).  This rule
+       allows the sender to probe for a change in rwnd that the sender
+       missed due to the SACK's having been lost in transit from the data
+       receiver to the data sender.
+
+=begin html
+<PRE>
+       <B>When the receiver's advertised window is zero, this probe is
+       called a zero window probe.  Note that a zero window probe SHOULD
+       only be sent when all outstanding DATA chunks have been
+       cumulatively acknowledged and no DATA chunks are in flight.  Zero
+       window probing MUST be supported.</B>
+</PRE>
+
+=end html
+
+       If the sender continues to receive new packets from the receiver
+       while doing zero window probing, the unacknowledged window probes
+       should not increment the error counter for the association or any
+       destination transport address.  This is because the receiver MAY
+       keep its window closed for an indefinite time.  Refer to Section
+       6.2 on the receiver behavior when it advertises a zero window.
+       The sender SHOULD send the first zero window probe after 1 RTO
+       when it detects that the receiver has closed its window and SHOULD
+       increase the probe interval exponentially afterwards.  Also note
+       that the cwnd SHOULD be adjusted according to Section 7.2.1.  Zero
+       window probing does not affect the calculation of cwnd.
+
+       The sender MUST also have an algorithm for sending new DATA chunks
+       to avoid silly window syndrome (SWS) as described in [RFC0813].
+       The algorithm can be similar to the one described in Section
+       4.2.3.4 of [RFC1122].
+
+       However, regardless of the value of rwnd (including if it is 0),
+       the data sender can always have one DATA chunk in flight to the
+       receiver if allowed by cwnd (see rule B below).  This rule allows
+       the sender to probe for a change in rwnd that the sender missed
+       due to the SACK having been lost in transit from the data receiver
+       to the data sender.
+
