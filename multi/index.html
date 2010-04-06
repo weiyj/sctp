@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<TITLE>SCTP Conformance Test For Multi-Homed Endpoints</TITLE>
+<META NAME="GENERATOR" CONTENT="TAHI IPv6 Conformance Test Suite">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<CENTER>
+<H1>SCTP Conformance Test For Multi-Homed Endpoints</H1>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Tool Version :</TD><TD>REL_3_2_0</TD></TR>
+<TR><TD>Test Program Version :</TD><TD>REL_1_0_2</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=0>
+<TR><TD>Start:</TD><TD>2010/04/06 10:26:14</TD></TR>
+<TR><TD>End :</TD><TD>2010/04/06 10:26:14</TD></TR>
+</TABLE>
+<HR>
+<TABLE BORDER=1>
+<TR>
+<TH>No.</TH><TH>Title</TH>
+<TH>Result</TH><TH>Log</TH><TH>Script</TH><TH>Packet</TH><TH>Dump<BR>(bin)</TH>
+</TR>
+<TR><TD><BR></TD><TD><B>Initial Primary Path</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>1</TD><TD><A HREF="./InitPrimaryPath.html">Select the source address of the INIT chunk as the initial primary path</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="1.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitPrimaryPath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitPrimaryPath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="1.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>2</TD><TD><A HREF="./EstabPrimaryPath.html">Select the address that the association was established with as primary path</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="2.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./EstabPrimaryPath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./EstabPrimaryPath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="2.html.Link0.dump">Link0</A> </TD></TR>
+<TR><TD><BR></TD><TD><B>Reply Chunk Transmit Path</B></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD><TD><BR></TD></TR>
+<TR>
+<TD>3</TD><TD><A HREF="./InitAckOnSamePath.html">INIT-ACK chunk should be transmited to the source address of the INIT</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="3.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckOnSamePath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./InitAckOnSamePath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="3.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>4</TD><TD><A HREF="./CookieAckOnSamePath.html">COOKIE-ACK chunk should be transmited to the source address of the COOKIE-ECHO</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="4.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieAckOnSamePath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./CookieAckOnSamePath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="4.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>5</TD><TD><A HREF="./SAckSendOnSamePath.html">SACK chunk should be transmited to the source address of the DATA</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="5.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./SAckSendOnSamePath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./SAckSendOnSamePath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="5.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>6</TD><TD><A HREF="./ShutAckSendOnSamePath.html">SHUTDOWN-ACK chunk should be the source address of the SHUTDOWN</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="6.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckSendOnSamePath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./ShutAckSendOnSamePath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="6.html.Link0.dump">Link0</A> </TD></TR>
+<TR>
+<TD>7</TD><TD><A HREF="./HbAckSendOnSamePath.html">HEARTBEAT-ACK chunk should be transmited to the source address of the HEARTBEAT</A></TD><TD ALIGN="CENTER">PASS</TD><TD ALIGN="CENTER"><A HREF="7.html">X</A></TD><TD ALIGN="CENTER"><A HREF="./HbAckSendOnSamePath.seq">X</A></TD><TD ALIGN="CENTER"><A HREF="./HbAckSendOnSamePath.def">X</A></TD><TD ALIGN="CENTER"><A HREF="7.html.Link0.dump">Link0</A> </TD></TR>
+</TABLE>
+</CENTER>
+<HR>
+Index
+<UL>
+  <LI><A HREF="../init/index.html">RFC4960: Association Initialization</A></LI>
+  <LI><A HREF="../term/index.html">RFC4960: Association Termination</A></LI>
+  <LI><A HREF="../fault/index.html">RFC4960: Fault Management</A></LI>
+  <LI><A HREF="../error/index.html">RFC4960: Error Cause</A></LI>
+  <LI><A HREF="../bund/index.html">RFC4960: Chunk Bundling</A></LI>
+  <LI><A HREF="../data/index.html">RFC4960: User Data Transfer</A></LI>
+  <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
+  <LI><A HREF="../congest/index.html">RFC4960: Congestion Control</A></LI>
+  <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI>RFC4960: Multi-Homed Endpoints</LI>
+  <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
+  <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
+  <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>
+  <LI><A HREF="../auth/index.html">RFC4895: Authentication Chunks</A></LI>
+  <LI><A HREF="../addip/index.html">RFC5061: Dynamic Address Reconfiguration</A></LI>
+  <LI><A HREF="../prsctp/index.html">RFC3758: Partial Reliability Extension</A></LI>
+  <LI><A HREF="../ipsec/index.html">RFC3554: Internet Protocol Security</A></LI>
+</UL>
+<UL>
+  <LI><A HREF="../index.html">Up</A>
+</UL>
+<HR>
+This Report was generated by
+<A HREF="http://www.tahi.org/">TAHI</A> IPv6 Conformance Test Suite
+</BODY>
+</HTML>
+<!-- 2e4a147d1f77dc207de424f468aa174f -->

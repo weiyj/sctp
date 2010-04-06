@@ -9,6 +9,7 @@ Index
   <LI><A HREF="../timer/index.html">RFC4960: Retransmission Timer</A></LI>
   <LI>RFC4960: Congestion Control</LI>
   <LI><A HREF="../pmtu/index.html">RFC4960: Path MTU Discovery</A></LI>
+  <LI><A HREF="../multi/index.html">RFC4960: Multi-Homed Endpoints</A></LI>
   <LI><A HREF="../ecn/index.html">RFC4960: Explicit Congestion Notification</A></LI>
   <LI><A HREF="../packet/index.html">RFC4960: Packet Format</A></LI>
   <LI><A HREF="../miss/index.html">RFC4960: Miscellaneous Test</A></LI>

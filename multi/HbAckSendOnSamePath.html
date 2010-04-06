@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>HbAckSendOnSamePath.seq - HEARTBEAT-ACK chunk should be transmited to the source address of the HEARTBEAT</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#purpose">PURPOSE</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#pretest_condition">PRE-TEST CONDITION</a></li>
+	<li><a href="#test_procedure">TEST PROCEDURE</a></li>
+	<li><a href="#note">NOTE</a></li>
+	<li><a href="#reference">REFERENCE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<pre>
+  HbAckSendOnSamePath.seq - HEARTBEAT-ACK chunk should be transmited to the source address of the HEARTBEAT</pre>
+<p>
+</p>
+<hr />
+<h1><a name="purpose">PURPOSE</a></h1>
+<pre>
+  To check that the endpoint SHOULD transmit reply HEARTBEAT-ACK chunk
+  to the same destination transport address from which it received the
+  HEARTBEAT chunk to which it is replying.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<PRE>
+  <A HREF="./HbAckSendOnSamePath.seq">./HbAckSendOnSamePath.seq</A> [-tooloption ...] -pkt <A HREF="./HbAckSendOnSamePath.def">./HbAckSendOnSamePath.def</A>
+    -tooloption : v6eval tool option
+  See Also: <A HREF="../common/STD_PKT_COMMON.def">../common/STD_PKT_COMMON.def</A>
+            <A HREF="../common/SCTP_COMMON.def">../common/SCTP_COMMON.def</A>
+</PRE><p>
+</p>
+<hr />
+<h1><a name="pretest_condition">PRE-TEST CONDITION</a></h1>
+<pre>
+  Association is established between endpoint A and B. Arrange the data
+  in endpoint A such that HEARTBEAT message is sent to endpoint B from
+  an alternate active destination transport address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="test_procedure">TEST PROCEDURE</a></h1>
+<pre>
+  Endpoint A                           Endpoint B                ULP
+  (ESTABLISHED)                        (ESTABLISHED)</pre>
+<pre>
+  HEARTBEAT     -----------------&gt;
+  (On Link1)
+                &lt;-----------------      HEARTBEAT-ACK
+                                        (On Link1)</pre>
+<pre>
+  TEST DESCRIPTION:</pre>
+<pre>
+  1. Send HEARTBEAT message from endpoint A to B on an alternate active
+     destination transport address.
+  2. Check A: HEARTBEAT-ACK chunk should be transmited fom endpoint B to
+     the same destination transport address.</pre>
+<p>
+</p>
+<hr />
+<h1><a name="note">NOTE</a></h1>
+<pre>
+  None</pre>
+<p>
+</p>
+<hr />
+<h1><a name="reference">REFERENCE</a></h1>
+<pre>
+  RFC 4960</pre>
+<pre>
+  6.4.  Multi-Homed SCTP Endpoints</pre>
+<pre>
+    An SCTP endpoint is considered multi-homed if there are more than one
+    transport address that can be used as a destination address to reach
+    that endpoint.</pre>
+<pre>
+    Moreover, the ULP of an endpoint shall select one of the multiple
+    destination addresses of a multi-homed peer endpoint as the primary
+    path (see Section 5.1.2 and Section 10.1 for details).</pre>
+<pre>
+    By default, an endpoint SHOULD always transmit to the primary path,
+    unless the SCTP user explicitly specifies the destination transport
+    address (and possibly source transport address) to use.</pre>
+<PRE>
+    <B>An endpoint SHOULD transmit reply chunks (e.g., SACK, HEARTBEAT ACK,
+    etc.) to the same destination transport address from which it
+    received the DATA or control chunk to which it is replying.  This
+    rule should also be followed if the endpoint is bundling DATA chunks
+    together with the reply chunk.</B>
+</PRE><pre>
+    However, when acknowledging multiple DATA chunks received in packets
+    from different source addresses in a single SACK, the SACK chunk may
+    be transmitted to one of the destination transport addresses from
+    which the DATA or control chunks being acknowledged were received.</pre>
+
+</body>
+
+</html>
