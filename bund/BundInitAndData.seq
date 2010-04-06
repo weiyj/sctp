@@ -22,7 +22,7 @@
 # Temple Place - Suite 330, Boston MA 02111-1307, USA.
 #
 ##############################################################################
-BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_2 $'; }
+BEGIN {	$V6evalTool::TestVersion = '$Name: REL_1_0_3 $'; }
 
 use lib "../common";
 use V6evalTool;

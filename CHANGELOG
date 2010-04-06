@@ -1,3 +1,8 @@
+2010/04/07 REL_1_0_3 release.
+  - Implement test cases for Multi-Homed Endpoints
+  - Implement some test cases for DATA and ECN
+  - Some bugs fix
+
 2010/02/04 REL_1_0_2 release.
   - Implement test cases for Partial Reliability Extension
   - Implement test cases for Internet Protocol Security
