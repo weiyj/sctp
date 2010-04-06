@@ -33,10 +33,6 @@
 # Any bugs reported given to us we will try to fix... any fixes shared will
 # be incorporated into the next SCTP release.
 #
-# $Name:  $
-#
-# $Id: Makefile,v 1.1 2008/04/02 07:54:59 WeiYJ Exp $
-#
 ##############################################################################
 
 INSTALL_DIR=$(TESTDIR)/multi

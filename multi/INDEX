@@ -35,10 +35,7 @@
 #
 # $Name: REL_1_0_3 $
 #
-# $Id: INDEX,v 1.1.1.1 2008/03/31 06:35:11 weiyj Exp $
-#
 # <seq>:<def>:[<opt>]:[<log>]:<desc>
-#
 ########################################################################
 &print:<B>Initial Primary Path</B>
 ./InitPrimaryPath.seq:./InitPrimaryPath.def:-cpp='-DMULTI_ENABLE=1'::Select the source address of the INIT chunk as the initial primary path

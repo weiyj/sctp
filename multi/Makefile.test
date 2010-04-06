@@ -33,10 +33,6 @@
 # Any bugs reported given to us we will try to fix... any fixes shared will
 # be incorporated into the next SCTP release.
 #
-# $Name: REL_1_0_3 $
-#
-# $Id: Makefile.test,v 1.1.1.1 2008/03/31 06:35:12 weiyj Exp $
-#
 ##############################################################################
 
 PERL	= /usr/bin/perl
