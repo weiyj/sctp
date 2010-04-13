@@ -46,6 +46,7 @@ SUBDIRS=init \
 	timer \
 	congest \
 	pmtu \
+	multi \
 	ecn \
 	packet \
 	auth \
