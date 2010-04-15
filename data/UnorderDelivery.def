@@ -33,6 +33,8 @@
 // be incorporated into the next SCTP release.
 //
 
+#include "../common/sctpconf.def"
+
 #if (ENABLE_IPV6 == 0)
 #define DATALEN		1452
 #else 
