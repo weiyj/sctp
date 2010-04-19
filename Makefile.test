@@ -52,6 +52,7 @@ SUBDIRS=init \
 	auth \
 	addip \
 	prsctp \
+	ipsec \
 	miss
 
 v4test v6test test tiny check document document2 clean cleandoc:
