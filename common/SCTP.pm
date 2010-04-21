@@ -289,7 +289,7 @@ sub vRegisterExtNS($$) {
 sub vWarpRecv($$$$@) {
 	my ($ifname, $timeout, $seektime, $count, @frames) = @_;
 	my $ns, $na, $ns_gl, $na_gl;
-	my $stime = 0, $etime;
+	my $stime = time(), $etime;
 
 	$ifname = "Link0" if !defined($ifname);
 	$ns = ($CONF{ENABLE_IPV6} == 1) ? "ns_on_".lc($ifname) : "arp_request_on_".lc($ifname);
@@ -302,7 +302,6 @@ sub vWarpRecv($$$$@) {
 	%ret = vRecv($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	while ($ret{recvFrame} eq $ns || (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) || defined($EXTNS{$ret{recvFrame}})) {
 		$etime = $ret{"recvTime".$ret{"recvCount"}};
-		$stime = $ret{"recvTime1"} if ($stime == 0 && $ret{"recvCount"} > 1);
 		if ($ret{recvFrame} eq $ns) {
 			vSend($ifname, $na);
 		} elsif (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) {
@@ -311,9 +310,9 @@ sub vWarpRecv($$$$@) {
 			vSend($ifname, $EXTNS{$ret{recvFrame}});
 		}
 
-		$timeout -= int($etime - $stime) if ($stime != 0);
+		$timeout -= int($etime - $stime) if ($stime < $etime);
 		$timeout = 5 if($timeout < 0);
-		$stime = $etime;
+		$stime = $etime if ($stime < $etime);
 		%ret = vRecv($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	}
 
@@ -326,7 +325,7 @@ sub vWarpRecv($$$$@) {
 sub vWarpRecv2($$$$@) {
 	my ($ifname, $timeout, $seektime, $count, @frames) = @_;
 	my $ns, $na, $ns_gl, $na_gl;
-	my $stime = 0, $etime;
+	my $stime = time(), $etime;
 
 	$ifname = "Link0" if !defined($ifname);
 	$ns = ($CONF{ENABLE_IPV6} == 1) ? "ns_on_".lc($ifname) : "arp_request_on_".lc($ifname);
@@ -339,7 +338,6 @@ sub vWarpRecv2($$$$@) {
 	%ret = vRecv2($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	while ($ret{recvFrame} eq $ns || (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) || defined($EXTNS{$ret{recvFrame}})) {
 		$etime = $ret{"recvTime".$ret{"recvCount"}};
-		$stime = $ret{"recvTime1"} if ($stime == 0 && $ret{"recvCount"} > 1);
 		if ($ret{recvFrame} eq $ns) {
 			vSend($ifname, $na);
 		} elsif (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) {
@@ -348,9 +346,9 @@ sub vWarpRecv2($$$$@) {
 			vSend($ifname, $EXTNS{$ret{recvFrame}});
 		}
 
-		$timeout -= int($etime - $stime) if ($stime != 0);
+		$timeout -= int($etime - $stime) if ($stime < $etime);
 		$timeout = 5 if($timeout < 0);
-		$stime = $etime;
+		$stime = $etime if ($stime < $etime);
 		%ret = vRecv2($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	}
 
@@ -363,7 +361,7 @@ sub vWarpRecv2($$$$@) {
 sub vWarpRecv3($$$$@) {
 	my ($ifname, $timeout, $seektime, $count, @frames) = @_;
 	my $ns, $na, $ns_gl, $na_gl;
-	my $stime = 0, $etime;
+	my $stime = time(), $etime;
 
 	$ifname = "Link0" if !defined($ifname);
 	$ns = ($CONF{ENABLE_IPV6} == 1) ? "ns_on_".lc($ifname) : "arp_request_on_".lc($ifname);
@@ -376,7 +374,6 @@ sub vWarpRecv3($$$$@) {
 	%ret = vRecv3($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	while ($ret{recvFrame} eq $ns || (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) || defined($EXTNS{$ret{recvFrame}})) {
 		$etime = $ret{"recvTime".$ret{"recvCount"}};
-		$stime = $ret{"recvTime1"} if ($stime == 0 && $ret{"recvCount"} > 1);
 		if ($ret{recvFrame} eq $ns) {
 			vSend($ifname, $na);
 		} elsif (defined($ns_gl) && $ret{recvFrame} eq $ns_gl) {
@@ -385,9 +382,9 @@ sub vWarpRecv3($$$$@) {
 			vSend($ifname, $EXTNS{$ret{recvFrame}});
 		}
 
-		$timeout -= int($etime - $stime) if ($stime != 0);
+		$timeout -= int($etime - $stime) if ($stime < $etime);
 		$timeout = 5 if($timeout < 0);
-		$stime = $etime;
+		$stime = $etime if ($stime < $etime);
 		%ret = vRecv3($ifname, $timeout, $seektime, $count, @frames, $ns, $ns_gl, keys(%EXTNS));
 	}
 
