@@ -55,19 +55,29 @@ sctpStartMultiHomeServer($IF0);
 
 vLogHTML('<B>================ Main Test =================</B>');
 
+vSend($IF0, sctp_chunk_init_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_init_ack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_init_ack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
 vSend($IF1, sctp_chunk_init_snd_link1);
 
 %ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_init_ack_rcv_link1);
 if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_init_ack_rcv_link1') {
 	vLogHTML('Cannot receive SCTP CHUNK_INIT_ACK<BR>');
-	vSend($IF1, sctp_chunk_abort_snd);
+	vSend($IF1, sctp_chunk_abort_snd_link1);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
 }
 
 sctpFetchInitField(\%ret);
 
-vSend($IF1, sctp_chunk_abort_snd);
+vSend($IF1, sctp_chunk_abort_snd_link1);
 
 vLogHTML(OK);
 exit $V6evalTool::exitPass;
