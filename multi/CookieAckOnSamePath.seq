@@ -77,6 +77,16 @@ if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_cookie_ack_rcv_link1') {
 	exit $V6evalTool::exitFail;
 }
 
+vSend($IF0, sctp_chunk_cookie_echo_snd);
+
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_cookie_ack_rcv);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_cookie_ack_rcv') {
+	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
+	vSend($IF0, sctp_chunk_abort_snd);
+	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
+	exit $V6evalTool::exitFail;
+}
+
 vClose($IF0);
 
 vLogHTML(OK);
