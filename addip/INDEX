@@ -115,7 +115,12 @@
 ./BundledAsconfAckChunks.seq:./BundledAsconfAckChunks.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF-ACK chunk is received bundled with other ASCONF-ACK chunk
 
 ########################################################################
-&print:<B>Handle T4-RTO Expiration</B>
+&print:<B>Sender Side Implementation</B>
+
+&print:Multi outstanding ASCONF chunks
+./AsconfSentWithAddAndSet.seq:./AsconfSentWithAddAndSet.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF chunk should be queued for later transmission if an ASCONF chunk is outstanding
+
+&print:Handle T4-RTO Expiration
 ./T4RtoRetrans.seq:./T4RtoRetrans.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::ASCONF message is transmitted again if T4-RTO timer expires
 ./T4RtoRetranPath.seq:./T4RtoRetranPath.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1 -DMULTI_ENABLE=1'::ASCONF message is transmitted again to alternate destination address if T4-RTO timer expires
 ./T4RtoTimeout.seq:./T4RtoTimeout.def:-cpp='-DADDIP_ENABLE=1 -DAUTH_ENABLE=1'::Failure to receive ASCONF-ACK after retransmit times to 'Association.Max.Retrans'
