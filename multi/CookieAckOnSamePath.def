@@ -35,3 +35,44 @@
 
 #include "../common/STD_PKT_MULTI_COMMON.def"
 
+PKG_SCTP_NORM_RECV(
+	sctp_chunk_cookie_ack_hb_rcv_link1,
+	{
+		_SRC(SCTP_NUT_NET1_ADDR);
+		_DST(SCTP_TN_NET1_ADDR);
+	},
+	{
+		chunk = chunk_cookie_ack_rcv;
+		chunk = chunk_heartbeat_rcv_link1;
+	}
+)
+
+CHUNK_HEARTBEAT chunk_heartbeat_rcv_link1 {
+	Information = any;
+}
+
+//
+// SCTP CHUNK_HEARTBEAT_ACK
+//
+PKG_SCTP_NORM_SEND(
+	sctp_chunk_heartbeat_ack_link1,
+	{
+		_SRC(SCTP_TN_NET1_ADDR);
+		_DST(SCTP_NUT_NET1_ADDR);
+	},
+	{
+		chunk = chunk_heartbeat_ack;
+	}
+)
+
+CHUNK_HEARTBEAT_ACK chunk_heartbeat_ack {
+	Information = heartbeat_info;
+}
+
+HeartbeatInfo heartbeat_info {
+#ifdef HBINFO
+	Data = hexstr(HBINFO);
+#endif
+}
+
+

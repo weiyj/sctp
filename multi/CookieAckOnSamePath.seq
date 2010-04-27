@@ -41,7 +41,10 @@ use lib "../common";
 use V6evalTool;
 use SCTP;
 
-%pktdesc = ();
+%pktdesc = (
+	sctp_chunk_cookie_ack_hb_rcv_link1	=> "Recv SCTP CHUNK_COOKIE_ACK (with CHUNK_HEARTBEAT)",
+	sctp_chunk_heartbeat_ack_link1		=> "Send SCTP CHUNK_HEARTBEAT_ACK (On Link1)",
+);
 
 $IF0 = Link0;
 $IF1 = Link1;
@@ -69,13 +72,17 @@ sctpFetchInitField(\%ret);
 
 vSend($IF1, sctp_chunk_cookie_echo_snd_link1);
 
-%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_cookie_ack_rcv_link1);
-if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_cookie_ack_rcv_link1') {
+%ret = vWarpRecv3($IF1, 10, 0, 0, sctp_chunk_cookie_ack_hb_rcv_link1);
+if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_cookie_ack_hb_rcv_link1') {
 	vLogHTML('Cannot receive SCTP CHUNK_COOKIE_ACK<BR>');
 	vSend($IF1, sctp_chunk_abort_snd);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
 	exit $V6evalTool::exitFail;
 }
+
+$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
+vWarpCPP("-DHBINFO=\\\"$HBINFO\\\"");
+vSend($IF1, sctp_chunk_heartbeat_ack_link1);
 
 vSend($IF0, sctp_chunk_cookie_echo_snd);
 
