@@ -57,6 +57,21 @@ CHUNK_INIT chunk_init_param_11 {
 	NumOfInbound = MIS;
 	TSN = INITTSN;
 	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
+	Param = param_type_11;
 }
 
 ParameterAny param_type_11 {
@@ -80,7 +95,22 @@ CHUNK_INIT_ACK chunk_init_ack_11_1 {
 	NumOfOutbound = any;
 	NumOfInbound = any;
 	TSN = any;
-	Param = cookie_snd;
+	Param = cookie_rcv;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
 	Param = unrecognized_param;
 }
 
@@ -90,8 +120,23 @@ CHUNK_INIT_ACK chunk_init_ack_11_2 {
 	NumOfOutbound = any;
 	NumOfInbound = any;
 	TSN = any;
-	Param = cookie_snd;
+	Param = cookie_rcv;
 	Param = adtindt_snd;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
+	Param = unrecognized_param;
 	Param = unrecognized_param;
 }
 

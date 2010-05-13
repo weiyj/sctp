@@ -67,7 +67,7 @@ if ($ret{status} != 0 || ($ret{recvFrame} ne 'sctp_chunk_init_ack_rcv' && $ret{r
 
 sctpFetchInitField(\%ret);
 
-if($ret{status} == 0 && $ret{recvFrame} ne sctp_chunk_init_ack_rcv) {
+if($ret{status} == 0 && $ret{recvFrame} eq sctp_chunk_init_ack_rcv) {
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('Unrecognized Parameter Type Error is not report<BR>');
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>'); 
