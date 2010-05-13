@@ -42,7 +42,7 @@ use V6evalTool;
 use SCTP;
 
 %pktdesc = (
-	sctp_chunk_init_ack_addr	=> "Send SCTP CHUNK_INIT",
+	sctp_chunk_init_ack_addr	=> "Send SCTP CHUNK_INIT_ACK",
 	sctp_chunk_data_rcv_link1	=> "Recv SCTP CHUNK_DATA (On Link1)",
 	sctp_chunk_heartbeat_link1	=> "Recv SCTP CHUNK_HEARTBEAT (On Link1)",
 	sctp_chunk_heartbeat_ack_link1	=> "Send SCTP CHUNK_HEARTBEAT_ACK (On Link1)",
