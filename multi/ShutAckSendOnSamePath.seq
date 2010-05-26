@@ -82,8 +82,10 @@ if ($ret{status} != 0 || $ret{recvFrame} ne 'sctp_chunk_shutdown_ack_rcv_link1')
 	exit $V6evalTool::exitFail;
 }
 
+$recvTime = $ret{"recvTime".$ret{"recvCount"}};
+
 %ret = vWarpRecv($IF0, 1, 0, 0, sctp_chunk_shutdown_ack_rcv);
-if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_shutdown_ack_rcv') {
+if ($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_shutdown_ack_rcv' && $ret{"recvTime".$ret{"recvCount"}} < $recvTime) {
 	vLogHTML('Received unexecpted SCTP CHUNK_SHUTDOWN_ACK<BR>');
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
