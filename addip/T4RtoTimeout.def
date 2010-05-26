@@ -78,3 +78,17 @@ IPv6Address addr1 {
 
 #endif /* #if (ENABLE_IPV6 == 0) */
 
+//
+// SCTP CHUNK_HEARTBEAT
+//
+PKG_SCTP_SHORT_RECV(
+	sctp_chunk_heartbeat_rcv,
+	{
+		chunk = chunk_heartbeat;
+	}
+)
+
+CHUNK_HEARTBEAT chunk_heartbeat {
+	Information = any;
+}
+
