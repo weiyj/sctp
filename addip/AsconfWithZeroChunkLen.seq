@@ -52,9 +52,14 @@ vCapture($IF0);
 
 sctpCheckEnv($IF0);
 
-sctpStartServer($IF0);
+sctpStartEchoClient($IF0, 1, $SCTP::CONF{"DEFAULT_DATA_LEN"}, "-H $SCTP::CONF{SCTP6_NUT_NET0_ADDR} " .
+		    "-B $SCTP::CONF{SCTP4_NUT_NET0_ADDR} -B $SCTP::CONF{SCTP4_NUT_NET1_ADDR}");
 
-vConnect($IF0);
+vListen($IF0);
+
+vAccept($IF0);
+
+vRecvMsg($IF0);
 
 vLogHTML('<B>================ Main Test =================</B>');
 
