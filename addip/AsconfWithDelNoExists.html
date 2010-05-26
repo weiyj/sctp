@@ -38,7 +38,7 @@
 <pre>
   To check that if ASCONF chunk is received with Delete IP Address Parameter
   which contain a address not part of the association then the endpoint should
-  responded with ASCONF-ACK chunk including cause of Unresolvable Address.</pre>
+  responded with ASCONF-ACK chunk without any Error Cause.</pre>
 <p>
 </p>
 <hr />
@@ -67,16 +67,14 @@
 <pre>
   ASCONF        -----------------&gt;
   (Delete IP Address)
-                &lt;-----------------      ASCONF-ACK
-                                        (Unresolvable Address)</pre>
+                &lt;-----------------      ASCONF-ACK</pre>
 <pre>
   TEST DESCRIPTION:</pre>
 <pre>
   1. Send ASCONF chunk from endpoint A to B with Delete IP Address
      Parameter which contain a address not part of the association.
-  2. Check A: ASCONF-ACK with with Error Cause Indication Parameter
-     which including cause of Unresolvable Address should be received
-     at endpoint A.</pre>
+  2. Check A: ASCONF-ACK without Error Cause should be received at 
+     endpoint A.</pre>
 <p>
 </p>
 <hr />

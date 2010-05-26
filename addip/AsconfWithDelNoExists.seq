@@ -43,7 +43,7 @@ use SCTP;
 
 %pktdesc = (
 	sctp_chunk_asconf_del_addr	=> "Send SCTP CHUNK_ASCONF (Delete IP Address)",
-	sctp_chunk_asconf_ack_err	=> "Recv SCTP CHUNK_ASCONF_ACK (Unresolvable Address)",
+	sctp_chunk_asconf_ack_ok	=> "Recv SCTP CHUNK_ASCONF_ACK",
 );
 
 $IF0 = Link0;
@@ -60,8 +60,8 @@ vLogHTML('<B>================ Main Test =================</B>');
 
 vSend($IF0, sctp_chunk_asconf_del_addr);
 
-%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_err);
-if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_err) {
+%ret = vWarpRecv($IF0, 10, 0, 0, sctp_chunk_asconf_ack_ok);
+if ($ret{status} != 0 || $ret{recvFrame} ne sctp_chunk_asconf_ack_ok) {
 	vLogHTML('Cannot receive SCTP CHUNK_ASCONF_ACK<BR>');
 	vSend($IF0, sctp_chunk_abort_snd);
 	vLogHTML('<FONT COLOR="#00FF00">NG</FONT>');
@@ -84,7 +84,7 @@ __END__
 
   To check that if ASCONF chunk is received with Delete IP Address Parameter
   which contain a address not part of the association then the endpoint should
-  responded with ASCONF-ACK chunk including cause of Unresolvable Address.
+  responded with ASCONF-ACK chunk without any Error Cause.
 
 =head1 SYNOPSIS
 
@@ -113,15 +113,13 @@ __END__
   ASCONF        ----------------->
   (Delete IP Address)
                 <-----------------      ASCONF-ACK
-                                        (Unresolvable Address)
 
   TEST DESCRIPTION:
 
   1. Send ASCONF chunk from endpoint A to B with Delete IP Address
      Parameter which contain a address not part of the association.
-  2. Check A: ASCONF-ACK with with Error Cause Indication Parameter
-     which including cause of Unresolvable Address should be received
-     at endpoint A.
+  2. Check A: ASCONF-ACK without Error Cause should be received at
+     endpoint A.
 
 =head1 NOTE
 
