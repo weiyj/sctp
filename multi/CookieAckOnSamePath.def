@@ -42,8 +42,8 @@ PKG_SCTP_NORM_RECV(
 		_DST(SCTP_TN_NET1_ADDR);
 	},
 	{
-		chunk = chunk_cookie_ack_rcv;
 		chunk = chunk_heartbeat_rcv_link1;
+		chunk = chunk_cookie_ack_rcv;
 	}
 )
 
