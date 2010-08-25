@@ -93,7 +93,7 @@ vSend($IF0, "icmp_pkt_too_big");
 $SCTP::CONF{"NEEDREBOOT"} = 1;
 
 # do not send CHUNK_SACK to let Remote System retransmission DATA
-%ret = vWarpRecv($IF1, 10, 0, 0, sctp_chunk_data_big_link1, sctp_chunk_heartbeat);
+%ret = vWarpRecv3($IF1, 10, 0, 0, sctp_chunk_data_big_link1, sctp_chunk_heartbeat);
 if($ret{status} == 0 && $ret{recvFrame} eq 'sctp_chunk_heartbeat') {
 	$HBINFO = $ret{sctpGetFieldName("CHUNK_HEARTBEAT.HeartbeatInfo.Data")};
 	vWarpCPP("-DHBINFO=\\\"$HBINFO\\\" -DSACK=$TSN -DPROTO=$PROTO");
