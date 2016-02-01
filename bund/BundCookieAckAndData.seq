@@ -51,7 +51,7 @@ vCapture($IF0);
 
 sctpCheckEnv($IF0);
 
-sctpStartClient($IF0);
+sctpStartEchoClient($IF0);
 
 vListen($IF0);
 
